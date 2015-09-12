@@ -2,3 +2,6 @@
 name = "sendgrid"
 version = "0.1.0"
 authors = ["Garrett Squire <garrett.squire@sendgrid.com>"]
+
+[dependencies]
+hyper = "0.6"
