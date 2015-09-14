@@ -1,6 +1,7 @@
 extern crate sendgrid;
 
-use sendgrid::{mail, sg_client};
+use sendgrid::mail::Mail;
+use sendgrid::sg_client::SGClient;
 
 fn main() {
     let mut env_vars = std::env::vars();
@@ -11,9 +12,9 @@ fn main() {
         None => panic!("Must supply API key in environment variables to use!")
     }
 
-    let sg = sg_client::SGClient::new(api_key);
+    let sg = SGClient::new(api_key);
 
-    let mut mail_info = mail::Mail::new();
+    let mut mail_info = Mail::new();
     mail_info.add_to("garrettsquire@gmail.com");
     mail_info.add_from("garrett.squire@sendgrid.net");
     mail_info.add_subject("Test");
