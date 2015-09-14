@@ -5,19 +5,19 @@ use std::io::Read;
 use hyper::Client;
 use hyper::header::{Authorization, Bearer, Headers};
 
-static API_URL: &'static str = "https://api.sendgrid.com/api/mail.send.json";
+static API_URL: &'static str = "https://api.sendgrid.com/api/mail.send.json?";
 
 pub struct SGClient {
     api_key: String,
 }
 
 impl SGClient {
-    pub fn new(self, key: String) -> SGClient {
+    pub fn new(key: String) -> SGClient {
         SGClient {api_key: key}
     }
 
     pub fn send(self, mail_info: Mail) {
-        let mut client = Client::new();
+        let client = Client::new();
         let mut headers = Headers::new();
         headers.set(
             Authorization(
@@ -25,8 +25,11 @@ impl SGClient {
                 )
         );
 
-        let mut res = client.post(API_URL)
-            .body("FIX")
+        let post_body = format!("to={}&from={}&subject={}&html={}", mail_info.to,
+                                mail_info.from, mail_info.subject, mail_info.html);
+
+        let full_url = format!("{}{}", API_URL, post_body);
+        let mut res = client.post(&full_url[..])
             .headers(headers)
             .send()
             .unwrap();
