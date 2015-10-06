@@ -15,10 +15,10 @@ fn main() {
     let sg = SGClient::new(api_key);
 
     let mut mail_info = Mail::new();
-    mail_info.add_to("garrettsquire@gmail.com");
-    mail_info.add_from("garrett.squire@sendgrid.net");
-    mail_info.add_subject("Test");
-    mail_info.add_html("<h1>Cool</h1>");
+    mail_info.add_to("some@email.com");
+    mail_info.add_from("another@email.com");
+    mail_info.add_subject("Rust is rad");
+    mail_info.add_html("<h1>Hello from SendGrid!</h1>");
 
     sg.send(mail_info);
 }
