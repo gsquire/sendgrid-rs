@@ -1,5 +1,5 @@
 # sendgrid-rs
-Unofficial Rust library for SendGrid API
+Unofficial Rust library for SendGrid API.
 
 You must download an API key in order to use this library. I made it this way
 to keep you more secure by using environment variables instead of including
@@ -14,6 +14,11 @@ export SENDGRID_API_KEY="my.API.KEY"
 ```
 
 See the examples directory on how to use environment variables in Rust.
+
+For now, the code is incomplete and implements a subset of the functionality of
+other SendGrid client libraries. This will be a work in progress.
+
+Documentation will be added once I feel the code is feature complete.
 
 # License
 MIT
