@@ -1,5 +1,6 @@
 use mail::Mail;
 
+use std::borrow::Cow;
 use std::io::Read;
 
 use hyper::Client;
@@ -12,6 +13,24 @@ pub struct SGClient {
 }
 
 impl SGClient {
+    fn make_post_body<'a>(self, mail_info: Mail) -> Cow<'a, str> {
+        let mut body = String::new();
+
+        body.push_str("to=");
+        body.push_str(mail_info.to);
+
+        body.push_str("&from=");
+        body.push_str(mail_info.from);
+
+        body.push_str("&subject=");
+        body.push_str(mail_info.subject);
+
+        body.push_str("&html=");
+        body.push_str(mail_info.html);
+
+        body.into()
+    }
+
     pub fn new(key: String) -> SGClient {
         SGClient {api_key: key}
     }
@@ -25,9 +44,7 @@ impl SGClient {
                 )
         );
 
-        let post_body = format!("to={}&from={}&subject={}&html={}", mail_info.to,
-                                mail_info.from, mail_info.subject, mail_info.html);
-
+        let post_body = self.make_post_body(mail_info).into_owned();
         let full_url = format!("{}{}", API_URL, post_body);
         let mut res = client.post(&full_url[..])
             .headers(headers)
