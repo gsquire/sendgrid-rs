@@ -13,11 +13,24 @@ pub struct SGClient {
 }
 
 impl SGClient {
-    fn make_post_body<'a>(self, mail_info: Mail) -> Cow<'a, str> {
+    fn make_post_body<'a>(self, mut mail_info: Mail) -> Cow<'a, str> {
         let mut body = String::new();
 
-        body.push_str("to=");
-        body.push_str(mail_info.to);
+        // The leading POST data should not start with an ampersand.
+        let first_to = mail_info.to.remove(0);
+        body.push_str("to[]=");
+        body.push_str(&first_to[..]);
+
+        // Now, add anymore if need be.
+        for to in mail_info.to.iter() {
+            body.push_str("&to[]=");
+            body.push_str(&to[..]);
+        }
+
+        for cc in mail_info.cc.iter() {
+            body.push_str("&cc[]=");
+            body.push_str(&cc[..]);
+        }
 
         body.push_str("&from=");
         body.push_str(mail_info.from);
