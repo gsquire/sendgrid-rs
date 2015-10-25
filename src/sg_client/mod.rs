@@ -4,7 +4,8 @@ use std::borrow::Cow;
 use std::io::Read;
 
 use hyper::Client;
-use hyper::header::{Authorization, Bearer, Headers};
+use hyper::header::{Authorization, Bearer, ContentType, Headers};
+use hyper::mime::{Mime, TopLevel, SubLevel};
 
 static API_URL: &'static str = "https://api.sendgrid.com/api/mail.send.json?";
 
@@ -56,11 +57,16 @@ impl SGClient {
                 Bearer { token: self.api_key.to_owned() }
                 )
         );
+        headers.set(
+            ContentType(
+                Mime(TopLevel::Application, SubLevel::WwwFormUrlEncoded, vec![])
+                )
+        );
 
         let post_body = self.make_post_body(mail_info).into_owned();
-        let full_url = format!("{}{}", API_URL, post_body);
-        let mut res = client.post(&full_url[..])
+        let mut res = client.post(API_URL)
             .headers(headers)
+            .body(&post_body[..])
             .send()
             .unwrap();
 
