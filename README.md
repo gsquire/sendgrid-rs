@@ -20,5 +20,9 @@ other SendGrid client libraries. This will be a work in progress.
 
 Documentation will be added once I feel the code is feature complete.
 
+Please don't hesitate to contact me at the email listed in my profile. I will
+try to help as quickly as I can. If you would like to contribute, contact me
+as well.
+
 # License
 MIT
