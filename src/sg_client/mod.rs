@@ -4,7 +4,7 @@ use std::borrow::Cow;
 use std::io::Read;
 
 use hyper::Client;
-use hyper::header::{Authorization, Bearer, ContentType, Headers};
+use hyper::header::{Authorization, Bearer, ContentType, Headers, UserAgent};
 use hyper::mime::{Mime, TopLevel, SubLevel};
 
 static API_URL: &'static str = "https://api.sendgrid.com/api/mail.send.json?";
@@ -61,6 +61,9 @@ impl SGClient {
             ContentType(
                 Mime(TopLevel::Application, SubLevel::WwwFormUrlEncoded, vec![])
                 )
+        );
+        headers.set(
+            UserAgent("sendgrid-rs".to_owned())
         );
 
         let post_body = self.make_post_body(mail_info).into_owned();
