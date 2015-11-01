@@ -38,6 +38,11 @@ impl SGClient {
             body.push_str(&cc[..]);
         }
 
+        for bcc in mail_info.bcc.iter() {
+            body.push_str("&bcc[]=");
+            body.push_str(&bcc[..]);
+        }
+
         body.push_str("&from=");
         body.push_str(mail_info.from);
 
