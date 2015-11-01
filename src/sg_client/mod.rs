@@ -28,6 +28,11 @@ impl SGClient {
             body.push_str(&to[..]);
         }
 
+        for to_name in mail_info.to_names.iter() {
+            body.push_str("&toname[]=");
+            body.push_str(&to_name[..]);
+        }
+
         for cc in mail_info.cc.iter() {
             body.push_str("&cc[]=");
             body.push_str(&cc[..]);
