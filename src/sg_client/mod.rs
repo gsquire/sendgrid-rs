@@ -47,6 +47,9 @@ impl SGClient {
         body.push_str("&html=");
         body.push_str(mail_info.html);
 
+        body.push_str("&text=");
+        body.push_str(mail_info.text);
+
         body.into()
     }
 

@@ -6,11 +6,12 @@ pub struct Mail {
     pub from: &'static str,
     pub subject: &'static str,
     pub html: &'static str,
+    pub text: &'static str,
 }
 
 impl Mail {
     pub fn new() -> Mail {
-        Mail {to: Vec::new(), to_names: Vec::new(), cc: Vec::new(), from: "", subject: "", html: ""}
+        Mail {to: Vec::new(), to_names: Vec::new(), cc: Vec::new(), from: "", subject: "", html: "", text: ""}
     }
 
     pub fn add_cc(&mut self, cc_addr: &'static str) {
@@ -35,5 +36,9 @@ impl Mail {
 
     pub fn add_to_name(&mut self, to_name: &'static str) {
         self.to_names.push(to_name.to_string());
+    }
+
+    pub fn add_text(&mut self, text: &'static str) {
+        self.text = text
     }
 }
