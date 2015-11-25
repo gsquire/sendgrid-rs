@@ -13,6 +13,11 @@ Then set that key as an environment variable as such (works with Bash and ZSH).
 export SENDGRID_API_KEY="my.API.KEY"
 ```
 
+To use this code in your project set this as a dependency in your Cargo.toml:
+```shell
+sendgrid = "0.1.0"
+```
+
 See the examples directory on how to use environment variables in Rust.
 
 The library implements all of the functionality of other supported client libraries.
