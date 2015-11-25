@@ -1,10 +1,8 @@
-extern crate rustc_serialize;
-
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
 
-use self::rustc_serialize::json;
+use rustc_serialize::json;
 
 #[derive(Debug)]
 pub struct Mail {
