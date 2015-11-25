@@ -15,10 +15,8 @@ export SENDGRID_API_KEY="my.API.KEY"
 
 See the examples directory on how to use environment variables in Rust.
 
-For now, the code is incomplete and implements a subset of the functionality of
-other SendGrid client libraries. This will be a work in progress.
-
-Documentation will be added once I feel the code is feature complete.
+The library implements all of the functionality of other supported client libraries.
+Documentation is in the works, but the example demonstrates the simplicity of it.
 
 Please don't hesitate to contact me at the email listed in my profile. I will
 try to help as quickly as I can. If you would like to contribute, contact me
