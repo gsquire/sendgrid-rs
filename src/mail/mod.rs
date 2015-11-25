@@ -1,3 +1,7 @@
+use std::collections::HashMap;
+use std::fs::File;
+use std::io::Read;
+
 #[derive(Debug)]
 pub struct Mail {
     pub to: Vec<String>,
@@ -8,11 +12,18 @@ pub struct Mail {
     pub subject: &'static str,
     pub html: &'static str,
     pub text: &'static str,
+    pub from_name: &'static str,
+    pub reply_to: &'static str,
+    pub date: String,
+    pub attachments: HashMap<String, String>
 }
 
 impl Mail {
     pub fn new() -> Mail {
-        Mail {to: Vec::new(), to_names: Vec::new(), cc: Vec::new(), bcc: Vec::new(), from: "", subject: "", html: "", text: ""}
+        Mail {to: Vec::new(), to_names: Vec::new(), cc: Vec::new(),
+            bcc: Vec::new(), from: "", subject: "", html: "", text: "",
+            from_name: "", reply_to: "", date: String::new(),
+            attachments: HashMap::new()}
     }
 
     pub fn add_cc(&mut self, cc_addr: &'static str) {
@@ -45,5 +56,32 @@ impl Mail {
 
     pub fn add_bcc(&mut self, bcc_addr: &'static str) {
         self.bcc.push(bcc_addr.to_string())
+    }
+
+    pub fn add_from_name(&mut self, from_name: &'static str) {
+        self.from_name = from_name
+    }
+
+    pub fn add_reply_to(&mut self, reply_to: &'static str) {
+        self.reply_to = reply_to
+    }
+
+    pub fn add_date(&mut self, date: String) {
+        self.date = date
+    }
+
+    pub fn add_attachment(&mut self, path: &str) {
+        let file = File::open(path);
+        match file {
+            Ok(mut f) => {
+                let mut data = String::new();
+                let read = f.read_to_string(&mut data);
+                match read {
+                    Ok(_) => { self.attachments.insert(path.to_string(), data); },
+                    Err(e) => { panic!("Could not read file: {:?}", e); }
+                }
+            },
+            Err(e) => { panic!("Could not open file: {:?}", e); }
+        }
     }
 }

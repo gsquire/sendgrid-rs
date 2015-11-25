@@ -43,6 +43,13 @@ impl SGClient {
             body.push_str(&bcc[..]);
         }
 
+        for (attachment, contents) in &mail_info.attachments {
+            body.push_str("&files[");
+            body.push_str(attachment);
+            body.push_str("]=");
+            body.push_str(contents);
+        }
+
         body.push_str("&from=");
         body.push_str(mail_info.from);
 
@@ -54,6 +61,15 @@ impl SGClient {
 
         body.push_str("&text=");
         body.push_str(mail_info.text);
+
+        body.push_str("&fromname=");
+        body.push_str(mail_info.from_name);
+
+        body.push_str("&replyto=");
+        body.push_str(mail_info.reply_to);
+
+        body.push_str("&date=");
+        body.push_str(&mail_info.date[..]);
 
         body.into()
     }
