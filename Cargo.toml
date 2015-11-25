@@ -6,3 +6,4 @@ authors = ["Garrett Squire <garrett.squire@sendgrid.com>"]
 [dependencies]
 hyper = "0.6"
 time = "0.1"
+rustc-serialize = "0.3"

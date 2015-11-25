@@ -50,6 +50,13 @@ impl SGClient {
             body.push_str(contents);
         }
 
+        for (id, value) in &mail_info.content {
+            body.push_str("&content[");
+            body.push_str(id);
+            body.push_str("]=");
+            body.push_str(value);
+        }
+
         body.push_str("&from=");
         body.push_str(mail_info.from);
 
@@ -70,6 +77,9 @@ impl SGClient {
 
         body.push_str("&date=");
         body.push_str(&mail_info.date[..]);
+
+        body.push_str("&headers=");
+        body.push_str(&mail_info.make_header_string()[..]);
 
         body.into()
     }

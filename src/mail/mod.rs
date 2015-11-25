@@ -1,6 +1,10 @@
+extern crate rustc_serialize;
+
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
+
+use self::rustc_serialize::json;
 
 #[derive(Debug)]
 pub struct Mail {
@@ -15,7 +19,9 @@ pub struct Mail {
     pub from_name: &'static str,
     pub reply_to: &'static str,
     pub date: String,
-    pub attachments: HashMap<String, String>
+    pub attachments: HashMap<String, String>,
+    pub content: HashMap<String, String>,
+    pub headers: HashMap<String, String>
 }
 
 impl Mail {
@@ -23,7 +29,8 @@ impl Mail {
         Mail {to: Vec::new(), to_names: Vec::new(), cc: Vec::new(),
             bcc: Vec::new(), from: "", subject: "", html: "", text: "",
             from_name: "", reply_to: "", date: String::new(),
-            attachments: HashMap::new()}
+            attachments: HashMap::new(), content: HashMap::new(),
+            headers: HashMap::new()}
     }
 
     pub fn add_cc(&mut self, cc_addr: &'static str) {
@@ -82,6 +89,22 @@ impl Mail {
                 }
             },
             Err(e) => { panic!("Could not open file: {:?}", e); }
+        }
+    }
+
+    pub fn add_content(&mut self, id: &str, value: &str) {
+        self.content.insert(id.to_string(), value.to_string());
+    }
+
+    pub fn add_header(&mut self, header: &str, value: &str) {
+        self.headers.insert(header.to_string(), value.to_string());
+    }
+
+    pub fn make_header_string(&mut self) -> String {
+        let headers = json::encode(&self.headers);
+        match headers {
+            Ok(h) => h,
+            Err(e) => { panic!("Could not encode headers: {:?}", e); }
         }
     }
 }
