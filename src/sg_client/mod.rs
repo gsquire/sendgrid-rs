@@ -81,6 +81,9 @@ impl SGClient {
         body.push_str("&headers=");
         body.push_str(&mail_info.make_header_string()[..]);
 
+        body.push_str("&x-smtpapi=");
+        body.push_str(&mail_info.x_smtpapi[..]);
+
         body.into()
     }
 

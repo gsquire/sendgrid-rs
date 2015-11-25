@@ -21,7 +21,8 @@ pub struct Mail {
     pub date: String,
     pub attachments: HashMap<String, String>,
     pub content: HashMap<String, String>,
-    pub headers: HashMap<String, String>
+    pub headers: HashMap<String, String>,
+    pub x_smtpapi: String
 }
 
 impl Mail {
@@ -30,7 +31,7 @@ impl Mail {
             bcc: Vec::new(), from: "", subject: "", html: "", text: "",
             from_name: "", reply_to: "", date: String::new(),
             attachments: HashMap::new(), content: HashMap::new(),
-            headers: HashMap::new()}
+            headers: HashMap::new(), x_smtpapi: String::new()}
     }
 
     pub fn add_cc(&mut self, cc_addr: &'static str) {
@@ -106,5 +107,9 @@ impl Mail {
             Ok(h) => h,
             Err(e) => { panic!("Could not encode headers: {:?}", e); }
         }
+    }
+
+    pub fn add_x_smtpapi(&mut self, x_smtpapi: String) {
+        self.x_smtpapi = x_smtpapi
     }
 }
