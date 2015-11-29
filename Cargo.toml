@@ -13,3 +13,7 @@ documentation = "https://garrettsquire.com/rust/sendgrid-rs/sendgrid"
 hyper = "0.6"
 time = "0.1"
 rustc-serialize = "0.3"
+
+[[bin]]
+name = "main"
+doc = false
