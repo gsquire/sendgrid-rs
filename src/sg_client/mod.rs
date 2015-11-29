@@ -9,6 +9,8 @@ use hyper::mime::{Mime, TopLevel, SubLevel};
 
 static API_URL: &'static str = "https://api.sendgrid.com/api/mail.send.json?";
 
+/// This is the struct that allows you to authenticate to the SendGrid API.
+/// It's only field is the API key which allows you to send messages.
 pub struct SGClient {
     api_key: String,
 }
@@ -87,10 +89,14 @@ impl SGClient {
         body.into()
     }
 
+    /// Makes a new SendGrid cient with the specified API key.
     pub fn new(key: String) -> SGClient {
         SGClient {api_key: key}
     }
 
+    /// Sends a messages through the SendGrid API. It takes a Mail struct as an
+    /// argument. It returns the string response from the API as JSON.
+    /// It sets the Content-Type to be application/x-www-form-urlencoded.
     pub fn send(self, mail_info: Mail) {
         let client = Client::new();
         let mut headers = Headers::new();

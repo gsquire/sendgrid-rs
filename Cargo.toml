@@ -6,8 +6,14 @@ description = "An unofficial client library for the SendGrid API"
 repository = "https://github.com/gsquire/sendgrid-rs"
 license = "MIT"
 homepage = "https://sendgrid.com"
+keywords = ["email"]
+documentation = "https://garrettsquire.com/rust/sendgrid-rs/sendgrid"
 
 [dependencies]
 hyper = "0.6"
 time = "0.1"
 rustc-serialize = "0.3"
+
+[[bin]]
+name = "main"
+doc = false
