@@ -1,6 +1,6 @@
 [package]
 name = "sendgrid"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Garrett Squire <garrett.squire@sendgrid.com>"]
 description = "An unofficial client library for the SendGrid API"
 repository = "https://github.com/gsquire/sendgrid-rs"
@@ -13,7 +13,3 @@ documentation = "https://garrettsquire.com/rust/sendgrid-rs/sendgrid"
 hyper = "0.6"
 time = "0.1"
 rustc-serialize = "0.3"
-
-[[bin]]
-name = "main"
-doc = false
