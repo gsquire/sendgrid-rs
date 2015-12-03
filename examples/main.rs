@@ -17,7 +17,7 @@ fn main() {
 
     let mut mail_info = Mail::new();
     mail_info.add_to("you@example.com");
-    mail_info.add_from("some@some.com"):
+    mail_info.add_from("some@some.com");
     mail_info.add_subject("Rust is rad");
     mail_info.add_html("<h1>Hello from SendGrid!</h1>");
     mail_info.add_from_name("Test");
