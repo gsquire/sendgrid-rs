@@ -15,80 +15,80 @@ pub struct SGClient {
     api_key: String,
 }
 
-impl SGClient {
-    fn make_post_body<'a>(self, mut mail_info: Mail) -> Cow<'a, str> {
-        let mut body = String::new();
+fn make_post_body<'a>(mut mail_info: Mail) -> Cow<'a, str> {
+    let mut body = String::new();
 
-        // The leading POST data should not start with an ampersand.
-        let first_to = mail_info.to.remove(0);
-        body.push_str("to[]=");
-        body.push_str(&first_to[..]);
+    // The leading POST data should not start with an ampersand.
+    let first_to = mail_info.to.remove(0);
+    body.push_str("to[]=");
+    body.push_str(&first_to[..]);
 
-        // Now, add anymore if need be.
-        for to in mail_info.to.iter() {
-            body.push_str("&to[]=");
-            body.push_str(&to[..]);
-        }
-
-        for to_name in mail_info.to_names.iter() {
-            body.push_str("&toname[]=");
-            body.push_str(&to_name[..]);
-        }
-
-        for cc in mail_info.cc.iter() {
-            body.push_str("&cc[]=");
-            body.push_str(&cc[..]);
-        }
-
-        for bcc in mail_info.bcc.iter() {
-            body.push_str("&bcc[]=");
-            body.push_str(&bcc[..]);
-        }
-
-        for (attachment, contents) in &mail_info.attachments {
-            body.push_str("&files[");
-            body.push_str(attachment);
-            body.push_str("]=");
-            body.push_str(contents);
-        }
-
-        for (id, value) in &mail_info.content {
-            body.push_str("&content[");
-            body.push_str(id);
-            body.push_str("]=");
-            body.push_str(value);
-        }
-
-        body.push_str("&from=");
-        body.push_str(mail_info.from);
-
-        body.push_str("&subject=");
-        body.push_str(mail_info.subject);
-
-        body.push_str("&html=");
-        body.push_str(mail_info.html);
-
-        body.push_str("&text=");
-        body.push_str(mail_info.text);
-
-        body.push_str("&fromname=");
-        body.push_str(mail_info.from_name);
-
-        body.push_str("&replyto=");
-        body.push_str(mail_info.reply_to);
-
-        body.push_str("&date=");
-        body.push_str(&mail_info.date[..]);
-
-        body.push_str("&headers=");
-        body.push_str(&mail_info.make_header_string()[..]);
-
-        body.push_str("&x-smtpapi=");
-        body.push_str(&mail_info.x_smtpapi[..]);
-
-        body.into()
+    // Now, add anymore if need be.
+    for to in mail_info.to.iter() {
+        body.push_str("&to[]=");
+        body.push_str(&to[..]);
     }
 
+    for to_name in mail_info.to_names.iter() {
+        body.push_str("&toname[]=");
+        body.push_str(&to_name[..]);
+    }
+
+    for cc in mail_info.cc.iter() {
+        body.push_str("&cc[]=");
+        body.push_str(&cc[..]);
+    }
+
+    for bcc in mail_info.bcc.iter() {
+        body.push_str("&bcc[]=");
+        body.push_str(&bcc[..]);
+    }
+
+    for (attachment, contents) in &mail_info.attachments {
+        body.push_str("&files[");
+        body.push_str(attachment);
+        body.push_str("]=");
+        body.push_str(contents);
+    }
+
+    for (id, value) in &mail_info.content {
+        body.push_str("&content[");
+        body.push_str(id);
+        body.push_str("]=");
+        body.push_str(value);
+    }
+
+    body.push_str("&from=");
+    body.push_str(mail_info.from);
+
+    body.push_str("&subject=");
+    body.push_str(mail_info.subject);
+
+    body.push_str("&html=");
+    body.push_str(mail_info.html);
+
+    body.push_str("&text=");
+    body.push_str(mail_info.text);
+
+    body.push_str("&fromname=");
+    body.push_str(mail_info.from_name);
+
+    body.push_str("&replyto=");
+    body.push_str(mail_info.reply_to);
+
+    body.push_str("&date=");
+    body.push_str(&mail_info.date[..]);
+
+    body.push_str("&headers=");
+    body.push_str(&mail_info.make_header_string()[..]);
+
+    body.push_str("&x-smtpapi=");
+    body.push_str(&mail_info.x_smtpapi[..]);
+
+    body.into()
+}
+
+impl SGClient {
     /// Makes a new SendGrid cient with the specified API key.
     pub fn new(key: String) -> SGClient {
         SGClient {api_key: key}
@@ -114,7 +114,7 @@ impl SGClient {
             UserAgent("sendgrid-rs".to_owned())
         );
 
-        let post_body = self.make_post_body(mail_info).into_owned();
+        let post_body = make_post_body(mail_info).into_owned();
         let mut res = client.post(API_URL)
             .headers(headers)
             .body(&post_body[..])
@@ -126,4 +126,18 @@ impl SGClient {
 
         println!("Response: {}", body);
     }
+}
+
+#[test]
+fn basic_message_body() {
+    let mut m = Mail::new();
+    m.add_to("test@example.com");
+    m.add_from("me@example.com");
+    m.add_subject("Test");
+    m.add_text("It works");
+
+    let body = make_post_body(m);
+    let comparison = "to[]=test@example.com&from=me@example.com&subject=Test\
+        &html=&text=It works&fromname=&replyto=&date=&headers={}&x-smtpapi=";
+    assert_eq!(body, comparison);
 }

@@ -98,7 +98,7 @@ impl Mail {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// let mut message = Mail::new();
     /// message.add_attachment("/path/to/file/contents.txt");
     /// ```
