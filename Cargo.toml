@@ -17,3 +17,4 @@ rustc-serialize = "0.3"
 [[bin]]
 name = "main"
 doc = false
+path = "src/main.rs"
