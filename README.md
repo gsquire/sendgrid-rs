@@ -1,6 +1,8 @@
 # sendgrid-rs
 Unofficial Rust library for SendGrid API.
 
+[![Build Status](https://travis-ci.org/gsquire/sendgrid-rs.svg?branch=master)](https://travis-ci.org/gsquire/sendgrid-rs)
+
 You must download an API key in order to use this library. I made it this way
 to keep you more secure by using environment variables instead of including
 sensitive information in your source code.
