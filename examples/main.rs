@@ -24,7 +24,7 @@ fn main() {
     mail_info.add_header("x-cool", "indeed");
 
     let mut x_smtpapi = String::new();
-    x_smtpapi.push_str("{\"unique_args\":{\"test\":7}}");
+    x_smtpapi.push_str(r#"{"unique_args":{"test":7}}"#);
     mail_info.add_x_smtpapi(x_smtpapi);
 
     sg.send(mail_info);
