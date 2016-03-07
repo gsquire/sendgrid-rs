@@ -2,6 +2,7 @@
 Unofficial Rust library for SendGrid API.
 
 [![Build Status](https://travis-ci.org/gsquire/sendgrid-rs.svg?branch=master)](https://travis-ci.org/gsquire/sendgrid-rs)
+[![Clippy Linting Result](http://clippy.bashy.io/github/gsquire/sendgrid-rs/master/badge.svg?style=flat-square)](http://clippy.bashy.io/github/gsquire/sendgrid-rs/master/log)
 
 You must download an API key in order to use this library. I made it this way
 to keep you more secure by using environment variables instead of including
