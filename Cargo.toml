@@ -10,7 +10,7 @@ keywords = ["email"]
 documentation = "https://garrettsquire.com/rust/sendgrid-rs/sendgrid"
 
 [dependencies]
-hyper = "0.6"
+hyper = "0.8"
 time = "0.1"
 rustc-serialize = "0.3"
 
