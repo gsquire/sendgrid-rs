@@ -12,12 +12,12 @@ pub struct Mail {
     pub to_names: Vec<String>,
     pub cc: Vec<String>,
     pub bcc: Vec<String>,
-    pub from: &'static str,
-    pub subject: &'static str,
-    pub html: &'static str,
-    pub text: &'static str,
-    pub from_name: &'static str,
-    pub reply_to: &'static str,
+    pub from: String,
+    pub subject: String,
+    pub html: String,
+    pub text: String,
+    pub from_name: String,
+    pub reply_to: String,
     pub date: String,
     pub attachments: HashMap<String, String>,
     pub content: HashMap<String, String>,
@@ -29,63 +29,75 @@ impl Mail {
     /// Returns a new Mail struct to send with a client. All of the fields are
     /// initially empty.
     pub fn new() -> Mail {
-        Mail {to: Vec::new(), to_names: Vec::new(), cc: Vec::new(),
-            bcc: Vec::new(), from: "", subject: "", html: "", text: "",
-            from_name: "", reply_to: "", date: String::new(),
-            attachments: HashMap::new(), content: HashMap::new(),
-            headers: HashMap::new(), x_smtpapi: String::new()}
+        Mail {
+            to: Vec::new(),
+            to_names: Vec::new(),
+            cc: Vec::new(),
+            bcc: Vec::new(),
+            from: String::new(),
+            subject: String::new(),
+            html: String::new(),
+            text: String::new(),
+            from_name: String::new(),
+            reply_to: String::new(),
+            date: String::new(),
+            attachments: HashMap::new(),
+            content: HashMap::new(),
+            headers: HashMap::new(),
+            x_smtpapi: String::new(),
+        }
     }
 
     /// Adds a CC recipient to the Mail struct.
-    pub fn add_cc(&mut self, cc_addr: &'static str) {
-        self.cc.push(cc_addr.to_string())
+    pub fn add_cc<T: Into<String>>(&mut self, cc_addr: T) {
+        self.cc.push(cc_addr.into())
     }
 
     /// Adds a to recipient to the Mail struct.
-    pub fn add_to(&mut self, to_addr: &'static str) {
-        self.to.push(to_addr.to_string())
+    pub fn add_to<T: Into<String>>(&mut self, to_addr: T) {
+        self.to.push(to_addr.into())
     }
 
     /// Set the from address for the Mail struct. This can be changed, but there
     /// is only one from address per message.
-    pub fn add_from(&mut self, from_addr: &'static str) {
-        self.from = from_addr
+    pub fn add_from<T: Into<String>>(&mut self, from_addr: T) {
+        self.from = from_addr.into()
     }
 
     /// Set the subject of the message.
-    pub fn add_subject(&mut self, subject: &'static str) {
-        self.subject = subject
+    pub fn add_subject<T: Into<String>>(&mut self, subject: T) {
+        self.subject = subject.into()
     }
 
     /// This function sets the HTML content for the message.
-    pub fn add_html(&mut self, html: &'static str) {
-        self.html = html
+    pub fn add_html<T: Into<String>>(&mut self, html: T) {
+        self.html = html.into()
     }
 
     /// Add a name for the "to" field in the message. The number of to names
     /// must match the number of "to" addresses.
-    pub fn add_to_name(&mut self, to_name: &'static str) {
-        self.to_names.push(to_name.to_string());
+    pub fn add_to_name<T: Into<String>>(&mut self, to_name: T) {
+        self.to_names.push(to_name.into());
     }
 
     /// Set the text content of the message.
-    pub fn add_text(&mut self, text: &'static str) {
-        self.text = text
+    pub fn add_text<T: Into<String>>(&mut self, text: T) {
+        self.text = text.into()
     }
 
     /// Add a BCC address to the message.
-    pub fn add_bcc(&mut self, bcc_addr: &'static str) {
-        self.bcc.push(bcc_addr.to_string())
+    pub fn add_bcc<T: Into<String>>(&mut self, bcc_addr: T) {
+        self.bcc.push(bcc_addr.into())
     }
 
     /// Set the from name for the message.
-    pub fn add_from_name(&mut self, from_name: &'static str) {
-        self.from_name = from_name
+    pub fn add_from_name<T: Into<String>>(&mut self, from_name: T) {
+        self.from_name = from_name.into()
     }
 
     /// Set the reply to address for the message.
-    pub fn add_reply_to(&mut self, reply_to: &'static str) {
-        self.reply_to = reply_to
+    pub fn add_reply_to<T: Into<String>>(&mut self, reply_to: T) {
+        self.reply_to = reply_to.into()
     }
 
     /// Set the date for the message. This must be a valid RFC 822 timestamp.
