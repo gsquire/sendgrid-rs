@@ -4,6 +4,7 @@ use std::borrow::Cow;
 use std::io::Read;
 
 use hyper::Client;
+use hyper::error::Error;
 use hyper::header::{Authorization, Bearer, ContentType, Headers, UserAgent};
 use hyper::mime::{Mime, TopLevel, SubLevel};
 
@@ -97,7 +98,7 @@ impl SGClient {
     /// Sends a messages through the SendGrid API. It takes a Mail struct as an
     /// argument. It returns the string response from the API as JSON.
     /// It sets the Content-Type to be application/x-www-form-urlencoded.
-    pub fn send(self, mail_info: Mail) {
+    pub fn send(self, mail_info: Mail) -> Result<String, Error> {
         let client = Client::new();
         let mut headers = Headers::new();
         headers.set(
@@ -115,16 +116,13 @@ impl SGClient {
         );
 
         let post_body = make_post_body(mail_info).into_owned();
-        let mut res = client.post(API_URL)
+        let mut res = try!(client.post(API_URL)
             .headers(headers)
             .body(&post_body[..])
-            .send()
-            .unwrap();
-
+            .send());
         let mut body = String::new();
-        res.read_to_string(&mut body).unwrap();
-
-        println!("Response: {}", body);
+        try!(res.read_to_string(&mut body));
+        Ok(body)
     }
 }
 
