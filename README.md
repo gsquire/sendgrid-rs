@@ -32,5 +32,8 @@ Please don't hesitate to contact me at the email listed in my profile. I will
 try to help as quickly as I can. If you would like to contribute, contact me
 as well.
 
+# Mentions
+Thanks to @meehow for his contributions to improve the library.
+
 # License
 MIT
