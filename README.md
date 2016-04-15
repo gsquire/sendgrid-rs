@@ -20,7 +20,7 @@ See the examples directory on how to use environment variables in Rust.
 
 To use this code in your project set this as a dependency in your Cargo.toml:
 ```shell
-sendgrid = "0.1.2"
+sendgrid = "0.2.0"
 ```
 
 The library implements all of the functionality of other supported client libraries.
