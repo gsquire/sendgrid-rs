@@ -33,7 +33,7 @@ try to help as quickly as I can. If you would like to contribute, contact me
 as well.
 
 # Mentions
-Thanks to @meehow for his contributions to improve the library.
+Thanks to [meehow](https://github.com/meehow) for his contributions to improve the library.
 
 # License
 MIT
