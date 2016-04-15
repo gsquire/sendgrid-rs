@@ -27,5 +27,8 @@ fn main() {
     x_smtpapi.push_str(r#"{"unique_args":{"test":7}}"#);
     mail_info.add_x_smtpapi(x_smtpapi);
 
-    sg.send(mail_info);
+    match sg.send(mail_info) {
+        Err(err) => println!("Error: {}", err),
+        Ok(body) => println!("Response: {}", body),
+    };
 }
