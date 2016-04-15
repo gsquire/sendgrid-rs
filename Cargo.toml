@@ -7,7 +7,7 @@ repository = "https://github.com/gsquire/sendgrid-rs"
 license = "MIT"
 homepage = "https://sendgrid.com"
 keywords = ["email"]
-documentation = "https://garrettsquire.com/rust/sendgrid-rs/sendgrid"
+documentation = "https://gsquire.github.io/docs/rust/sendgrid"
 
 [dependencies]
 hyper = "0.8"
