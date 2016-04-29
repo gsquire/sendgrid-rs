@@ -25,7 +25,7 @@ sendgrid = "0.2.0"
 The library implements all of the functionality of other supported client libraries.
 
 # Documentation
-[Documentation](https://garrettsquire.com/rust/sendgrid-rs/sendgrid)
+[Documentation](https://gsquire.github.io/docs/rust/sendgrid)
 
 Please don't hesitate to contact me at the email listed in my profile. I will
 try to help as quickly as I can. If you would like to contribute, contact me
