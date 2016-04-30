@@ -4,7 +4,7 @@ Unofficial Rust library for the SendGrid API.
 [![Build Status](https://travis-ci.org/gsquire/sendgrid-rs.svg?branch=master)](https://travis-ci.org/gsquire/sendgrid-rs)
 
 sendgrid-rs implements all of the functionality of other supported SendGrid client libraries.
-To use sendgrid-rs you must first create a SendGrid account and generate an API key. To create an API key for your SendGrid account, use the account management interface or see:  [page](https://sendgrid.com/docs/API_Reference/Web_API_v3/API_Keys/index.html)
+To use sendgrid-rs you must first create a SendGrid account and generate an API key. To create an API key for your SendGrid account, use the account management interface or see the [SendGrid API Documentation](https://sendgrid.com/docs/API_Reference/Web_API_v3/API_Keys/index.html).
 
 sendgrid-rs is available on [crates.io](https://crates.io/crates/sendgrid) and can be included in your Cargo.toml as follows:
 
@@ -15,7 +15,7 @@ sendgrid = "~0.2.0"
 
 ## Build Dependencies
 
-This library utilises [crates.io](https://crates.io/crates/hyper), which in turn requires the OpenSSL headers to be available during compilation. For more information on how to configure OpenSSL, see: [page](https://github.com/sfackler/rust-openssl)
+This library utilises [hyper](https://crates.io/crates/hyper), which in turn requires the OpenSSL headers to be available during compilation. For more information on how to configure OpenSSL, see: [rust-openssl](https://github.com/sfackler/rust-openssl)
 
 ## Example
 
@@ -25,7 +25,7 @@ An example of using this library can be found in the /examples directory. This e
 export SENDGRID_API_KEY="SG.my.api.key"
 ```
 
-Alternatively, the API key could be read from the command line (e.g. [crates.io](https://crates.io/crates/clap)), or by parsing a configuration file (e.g. [crates.io](https://crates.io/crates/toml))
+Alternatively, the API key could be read from the command line (e.g. [clap](https://crates.io/crates/clap)), or by parsing a configuration file (e.g. [toml](https://crates.io/crates/toml))
 
 
 # Documentation
