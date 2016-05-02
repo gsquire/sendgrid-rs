@@ -1,28 +1,29 @@
 # sendgrid-rs
-Unofficial Rust library for SendGrid API.
+Unofficial Rust library for the SendGrid API.
 
 [![Build Status](https://travis-ci.org/gsquire/sendgrid-rs.svg?branch=master)](https://travis-ci.org/gsquire/sendgrid-rs)
 
-You must download an API key in order to use this library. I made it this way
-to keep you more secure by using environment variables instead of including
-sensitive information in your source code.
+sendgrid-rs implements all of the functionality of other supported SendGrid client libraries.
+To use sendgrid-rs you must first create a SendGrid account and generate an API key. To create an API key for your SendGrid account, use the account management interface or see the [SendGrid API Documentation](https://sendgrid.com/docs/API_Reference/Web_API_v3/API_Keys/index.html).
 
-To create an API key for your SendGrid account see this [page](https://sendgrid.com/docs/API_Reference/Web_API_v3/API_Keys/index.html).
+sendgrid-rs is available on [crates.io](https://crates.io/crates/sendgrid) and can be included in your Cargo.toml as follows:
 
-Then set that key as an environment variable as such (works with Bash and ZSH).
-
-```shell
-export SENDGRID_API_KEY="my.API.KEY"
-```
-
-See the examples directory on how to use environment variables in Rust.
-
-To use this code in your project set this as a dependency in your Cargo.toml:
-```shell
+```toml
+[dependencies]
 sendgrid = "0.2.0"
 ```
 
-The library implements all of the functionality of other supported client libraries.
+## Build Dependencies
+
+This library utilises [hyper](https://crates.io/crates/hyper), which in turn requires the OpenSSL headers to be available during compilation. For more information on how to configure OpenSSL, see: [rust-openssl](https://github.com/sfackler/rust-openssl)
+
+## Example
+
+An example of using this library can be found in the examples directory. This example code expects to find your SendGrid API key in the process environment. In shells such as Bash or ZSH this can be set as follows:
+
+```shell
+export SENDGRID_API_KEY="SG.my.api.key"
+```
 
 # Documentation
 [Documentation](https://gsquire.github.io/docs/rust/sendgrid)
