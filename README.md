@@ -10,7 +10,7 @@ sendgrid-rs is available on [crates.io](https://crates.io/crates/sendgrid) and c
 
 ```toml
 [dependencies]
-sendgrid = "~0.2.0"
+sendgrid = "0.2.0"
 ```
 
 ## Build Dependencies
@@ -19,14 +19,11 @@ This library utilises [hyper](https://crates.io/crates/hyper), which in turn req
 
 ## Example
 
-An example of using this library can be found in the /examples directory. This example code expects to find your SendGrid API key in the user environment. In shells such as Bash or ZSH this can be set as follows:
+An example of using this library can be found in the examples directory. This example code expects to find your SendGrid API key in the process environment. In shells such as Bash or ZSH this can be set as follows:
 
 ```shell
 export SENDGRID_API_KEY="SG.my.api.key"
 ```
-
-Alternatively, the API key could be read from the command line (e.g. [clap](https://crates.io/crates/clap)), or by parsing a configuration file (e.g. [toml](https://crates.io/crates/toml))
-
 
 # Documentation
 [Documentation](https://gsquire.github.io/docs/rust/sendgrid)
