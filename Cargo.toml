@@ -1,6 +1,6 @@
 [package]
 name = "sendgrid"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Garrett Squire <garrettsquire@gmail.com>"]
 description = "An unofficial client library for the SendGrid API"
 repository = "https://github.com/gsquire/sendgrid-rs"
@@ -10,7 +10,7 @@ keywords = ["email"]
 documentation = "https://gsquire.github.io/docs/rust/sendgrid"
 
 [dependencies]
-hyper = "0.8"
+hyper = "0.9"
 time = "0.1"
 rustc-serialize = "0.3"
 
