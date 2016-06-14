@@ -1,5 +1,4 @@
 extern crate sendgrid;
-extern crate time;
 
 use sendgrid::mail::Mail;
 use sendgrid::sg_client::SGClient;
