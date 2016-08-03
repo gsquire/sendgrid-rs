@@ -10,7 +10,7 @@ sendgrid-rs is available on [crates.io](https://crates.io/crates/sendgrid) and c
 
 ```toml
 [dependencies]
-sendgrid = "0.3"
+sendgrid = "0.4"
 ```
 
 ## Build Dependencies
