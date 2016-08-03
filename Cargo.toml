@@ -1,6 +1,6 @@
 [package]
 name = "sendgrid"
-version = "0.3.0"
+version = "0.4.0"
 authors = ["Garrett Squire <garrettsquire@gmail.com>"]
 description = "An unofficial client library for the SendGrid API"
 repository = "https://github.com/gsquire/sendgrid-rs"
@@ -8,13 +8,17 @@ license = "MIT"
 homepage = "https://sendgrid.com"
 keywords = ["email"]
 documentation = "https://gsquire.github.io/doc/sendgrid/sendgrid"
+build = "build.rs"
+
+[build-dependencies]
+serde_codegen = { version = "0.8", optional = true }
 
 [dependencies]
 hyper = "0.9"
 rustc-serialize = "0.3"
+serde = "0.8"
+serde_json = "0.8"
 url = "1.1.1"
 
-[[bin]]
-name = "main"
-doc = false
-path = "src/main.rs"
+[features]
+default = ["serde_codegen"]
