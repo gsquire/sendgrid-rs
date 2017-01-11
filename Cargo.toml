@@ -1,6 +1,6 @@
 [package]
 name = "sendgrid"
-version = "0.4.0"
+version = "0.4.1"
 authors = ["Garrett Squire <garrettsquire@gmail.com>"]
 description = "An unofficial client library for the SendGrid API"
 repository = "https://github.com/gsquire/sendgrid-rs"
@@ -14,11 +14,11 @@ build = "build.rs"
 serde_codegen = { version = "0.8", optional = true }
 
 [dependencies]
-hyper = "0.9"
+hyper = "0.10"
 rustc-serialize = "0.3"
 serde = "0.8"
 serde_json = "0.8"
-url = "1.1.1"
+url = "1.2"
 
 [features]
 default = ["serde_codegen"]
