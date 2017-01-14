@@ -2,9 +2,12 @@ use std::collections::HashMap;
 
 use hyper::Client;
 use hyper::error::Error;
+use hyper::net::HttpsConnector;
 use hyper::header::{Authorization, Bearer, ContentType, Headers, UserAgent};
 use hyper::mime::{Mime, TopLevel, SubLevel};
 use hyper::status::StatusCode;
+
+use hyper_native_tls::NativeTlsClient;
 
 const V3_API_URL: &'static str = "https://api.sendgrid.com/v3/mail/send";
 
@@ -87,7 +90,9 @@ impl V3Sender {
 
     /// Send a V3 message and return the status code or an error from the request.
     pub fn send(&self, mail: &SGMailV3) -> Result<StatusCode, Error> {
-        let client = Client::new();
+        let ssl = NativeTlsClient::new().unwrap();
+        let connector = HttpsConnector::new(ssl);
+        let client = Client::with_connector(connector);
         let mut headers = Headers::new();
         headers.set(Authorization(Bearer { token: self.api_key.to_owned() }));
         headers.set(ContentType(Mime(TopLevel::Application, SubLevel::Json, vec![])));

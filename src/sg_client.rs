@@ -4,8 +4,11 @@ use std::io::Read;
 
 use hyper::Client;
 use hyper::error::Error;
+use hyper::net::HttpsConnector;
 use hyper::header::{Authorization, Bearer, ContentType, Headers, UserAgent};
 use hyper::mime::{Mime, TopLevel, SubLevel};
+
+use hyper_native_tls::NativeTlsClient;
 
 use url::form_urlencoded::Serializer;
 
@@ -80,7 +83,9 @@ impl SGClient {
     /// argument. It returns the string response from the API as JSON.
     /// It sets the Content-Type to be application/x-www-form-urlencoded.
     pub fn send(self, mail_info: Mail) -> Result<String, Error> {
-        let client = Client::new();
+        let ssl = NativeTlsClient::new().unwrap();
+        let connector = HttpsConnector::new(ssl);
+        let client = Client::with_connector(connector);
         let mut headers = Headers::new();
         headers.set(
             Authorization(
