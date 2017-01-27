@@ -26,7 +26,7 @@ export SENDGRID_API_KEY="SG.my.api.key"
 ```
 
 ## Documentation
-[Documentation](https://gsquire.github.io/doc/sendgrid/sendgrid)
+[Documentation](https://docs.rs/sendgrid)
 
 Please don't hesitate to contact me at the email listed in my profile. I will
 try to help as quickly as I can. If you would like to contribute, contact me
