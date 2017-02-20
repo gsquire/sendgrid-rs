@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
 
-use rustc_serialize::json;
+use serde_json;
 
 #[derive(Debug)]
 /// This is a representation of a valid SendGrid message. It has support for
@@ -142,7 +142,7 @@ impl Mail {
 
     /// Used internally for string encoding. Not needed for message building.
     pub fn make_header_string(&mut self) -> String {
-        let headers = json::encode(&self.headers);
+        let headers = serde_json::to_string(&self.headers);
         match headers {
             Ok(h) => h,
             Err(e) => { panic!("Could not encode headers: {:?}", e); }

@@ -3,23 +3,29 @@ Unofficial Rust library for the SendGrid API.
 
 [![Build Status](https://travis-ci.org/gsquire/sendgrid-rs.svg?branch=master)](https://travis-ci.org/gsquire/sendgrid-rs)
 
+This crate requires Rust 1.15 or higher as it uses a crate that has a custom derive implementation.
+
 sendgrid-rs implements all of the functionality of other supported SendGrid client libraries.
-To use sendgrid-rs you must first create a SendGrid account and generate an API key. To create an API key for your SendGrid account, use the account management interface or see the [SendGrid API Documentation](https://sendgrid.com/docs/API_Reference/Web_API_v3/API_Keys/index.html).
+To use sendgrid-rs you must first create a SendGrid account and generate an API key. To create an API
+key for your SendGrid account, use the account management interface or see the
+[SendGrid API Documentation](https://sendgrid.com/docs/API_Reference/Web_API_v3/API_Keys/index.html).
 
 sendgrid-rs is available on [crates.io](https://crates.io/crates/sendgrid) and can be included in your Cargo.toml as follows:
 
 ```toml
 [dependencies]
-sendgrid = "0.4"
+sendgrid = "X.X.X"
 ```
 
 ## Build Dependencies
-
-This library utilises [hyper](https://crates.io/crates/hyper), which in turn requires the OpenSSL headers to be available during compilation. For more information on how to configure OpenSSL, see: [rust-openssl](https://github.com/sfackler/rust-openssl)
+This library utilises [hyper](https://crates.io/crates/hyper) and [hyper-native-tls](https://crates.io/crates/hyper-native-tls).
+This crate enables easy TLS setup for mac OS and Windows users. If you are on Linux, you
+must have OpenSSL installed. [The instructions here](https://github.com/sfackler/rust-openssl) are
+the most comprehensive if you have trouble.
 
 ## Example
-
-An example of using this library can be found in the examples directory. This example code expects to find your SendGrid API key in the process environment. In shells such as Bash or ZSH this can be set as follows:
+An example of using this library can be found in the examples directory. This example code expects to
+find your SendGrid API key in the process environment. In shells such as Bash or ZSH this can be set as follows:
 
 ```shell
 export SENDGRID_API_KEY="SG.my.api.key"
