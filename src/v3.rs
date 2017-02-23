@@ -271,7 +271,7 @@ impl Attachment {
         self.filename = String::from(filename);
     }
 
-    pub fn set_mime_type(&mut self, mime: Mime) {
-        self.mime_type = Some(mime.to_string());
+    pub fn set_mime_type(&mut self, mime: &str) {
+        self.mime_type = Some(String::from(mime));
     }
 }
