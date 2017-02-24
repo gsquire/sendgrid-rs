@@ -82,8 +82,8 @@ pub struct Personalization {
 }
 
 /// An attachment block for a V3 message. Content and filename are required. If the
-/// mime_type is unspecified, the email will use Sendgrids default for attachments
-/// (application/octet-stream).
+/// mime_type is unspecified, the email will use Sendgrid's default for attachments
+/// which is 'application/octet-stream'.
 #[derive(Serialize)]
 pub struct Attachment {
     content: String,
