@@ -9,6 +9,8 @@ use hyper::status::StatusCode;
 
 use hyper_native_tls::NativeTlsClient;
 
+use data_encoding::base64;
+
 use serde_json;
 
 const V3_API_URL: &'static str = "https://api.sendgrid.com/v3/mail/send";
@@ -29,6 +31,9 @@ pub struct SGMailV3 {
     subject: String,
     content: Vec<Content>,
     personalizations: Vec<Personalization>,
+
+    #[serde(skip_serializing_if="check_encode")]
+    attachments: Option<Vec<Attachment>>,
 }
 
 /// An email with a required address and an optional name field.
@@ -76,6 +81,25 @@ pub struct Personalization {
     send_at: Option<u64>,
 }
 
+/// An attachment block for a V3 message. Content and filename are required. If the
+/// mime_type is unspecified, the email will use Sendgrid's default for attachments
+/// which is 'application/octet-stream'.
+#[derive(Serialize)]
+pub struct Attachment {
+    content: String,
+
+    filename: String,
+
+    #[serde(rename="type", skip_serializing_if="check_encode")]
+    mime_type: Option<String>,
+
+    #[serde(skip_serializing_if="check_encode")]
+    disposition: Option<String>,
+
+    #[serde(skip_serializing_if="check_encode")]
+    content_id: Option<String>,
+}
+
 // Checks if a value in the V3 message should be added to the JSON or not.
 fn check_encode<T>(value: &Option<T>) -> bool {
     match *value {
@@ -117,6 +141,7 @@ impl SGMailV3 {
             subject: String::new(),
             content: Vec::new(),
             personalizations: Vec::new(),
+            attachments: None,
         }
     }
 
@@ -138,6 +163,18 @@ impl SGMailV3 {
     /// Add a personalization to the message.
     pub fn add_personalization(&mut self, p: Personalization) {
         self.personalizations.push(p);
+    }
+
+    /// Add an attachment to the message.
+    pub fn add_attachment(&mut self, a: Attachment) {
+        match self.attachments {
+            None => {
+                let mut attachments = Vec::new();
+                attachments.push(a);
+                self.attachments = Some(attachments);
+            }
+            Some(ref mut attachments) => { attachments.push(a) }
+        };
     }
 
     fn gen_json(&self) -> String {
@@ -215,5 +252,34 @@ impl Personalization {
             },
             Some(ref mut c) => { c.push(cc); }
         }
+    }
+}
+
+impl Attachment {
+    /// Construct a new attachment for this message.
+    pub fn new() -> Attachment {
+        Attachment {
+            content: String::new(),
+            filename: String::new(),
+            mime_type: None,
+            disposition: None,
+            content_id: None,
+        }
+    }
+
+    /// The raw body of the attachment.
+    pub fn set_content(&mut self, c: &[u8]) {
+        self.content = base64::encode(c);
+    }
+
+    /// Sets the filename for the attachment.
+    pub fn set_filename(&mut self, filename: &str) {
+        self.filename = filename.into();
+    }
+
+    /// Set an optional mime type. Sendgrid will default to 'application/octet-stream'
+    /// if unspecified.
+    pub fn set_mime_type(&mut self, mime: &str) {
+        self.mime_type = Some(String::from(mime));
     }
 }
