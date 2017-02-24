@@ -1,6 +1,6 @@
 [package]
 name = "sendgrid"
-version = "0.5.0"
+version = "0.5.1"
 authors = ["Garrett Squire <garrettsquire@gmail.com>"]
 description = "An unofficial client library for the SendGrid API"
 repository = "https://github.com/gsquire/sendgrid-rs"
@@ -10,10 +10,10 @@ keywords = ["email"]
 documentation = "https://docs.rs/sendgrid"
 
 [dependencies]
+data-encoding = "1.2"
 hyper = "0.10"
 hyper-native-tls = "0.2"
 serde = "0.9"
 serde_derive = "0.9"
 serde_json = "0.9"
 url = "1.2"
-data-encoding = "1.2"
