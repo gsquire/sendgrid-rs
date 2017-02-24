@@ -81,13 +81,16 @@ pub struct Personalization {
     send_at: Option<u64>,
 }
 
+/// An attachment block for a V3 message. Content and filename are required. If the
+/// mime_type is unspecified, the email will use Sendgrids default for attachments
+/// (application/octet-stream).
 #[derive(Serialize)]
 pub struct Attachment {
     content: String,
 
     filename: String,
 
-    #[serde(rename = "type", skip_serializing_if="check_encode")]
+    #[serde(rename="type", skip_serializing_if="check_encode")]
     mime_type: Option<String>,
 
     #[serde(skip_serializing_if="check_encode")]
@@ -162,6 +165,7 @@ impl SGMailV3 {
         self.personalizations.push(p);
     }
 
+    /// Add an attachment to the message.
     pub fn add_attachment(&mut self, a: Attachment) {
         match self.attachments {
             None => {
@@ -252,25 +256,29 @@ impl Personalization {
 }
 
 impl Attachment {
-    // Construct a new attachment for this message
+    /// Construct a new attachment for this message.
     pub fn new() -> Attachment {
         Attachment {
             content: String::new(),
-            filename: "unknown".into(),
+            filename: String::new(),
             mime_type: None,
             disposition: None,
             content_id: None,
         }
     }
 
+    /// The raw body of the attachment.
     pub fn set_content(&mut self, c: &[u8]) {
         self.content = base64::encode(c);
     }
 
+    /// Sets the filename for the attachment.
     pub fn set_filename(&mut self, filename: &str) {
-        self.filename = String::from(filename);
+        self.filename = filename.into();
     }
 
+    /// Set an optional mime type. Sendgrid will default to 'application/octet-stream'
+    /// if unspecified.
     pub fn set_mime_type(&mut self, mime: &str) {
         self.mime_type = Some(String::from(mime));
     }
