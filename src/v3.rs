@@ -5,13 +5,14 @@ use hyper::error::Error;
 use hyper::net::HttpsConnector;
 use hyper::header::{Authorization, Bearer, ContentType, Headers, UserAgent};
 use hyper::mime::{Mime, TopLevel, SubLevel};
-use hyper::status::StatusCode;
 
 use hyper_native_tls::NativeTlsClient;
 
 use data_encoding::base64;
 
 use serde_json;
+
+pub use hyper::status::StatusCode;
 
 const V3_API_URL: &'static str = "https://api.sendgrid.com/v3/mail/send";
 
