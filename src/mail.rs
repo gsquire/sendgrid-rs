@@ -1,6 +1,9 @@
+use errors::{SendgridErrorKind, SendgridResult};
+
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
+use std::path::Path;
 
 use serde_json;
 
@@ -22,7 +25,7 @@ pub struct Mail {
     pub attachments: HashMap<String, String>,
     pub content: HashMap<String, String>,
     pub headers: HashMap<String, String>,
-    pub x_smtpapi: String
+    pub x_smtpapi: String,
 }
 
 impl Mail {
@@ -114,19 +117,18 @@ impl Mail {
     /// let mut message = Mail::new();
     /// message.add_attachment("/path/to/file/contents.txt");
     /// ```
-    pub fn add_attachment(&mut self, path: &str) {
-        let file = File::open(path);
-        match file {
-            Ok(mut f) => {
-                let mut data = String::new();
-                let read = f.read_to_string(&mut data);
-                match read {
-                    Ok(_) => { self.attachments.insert(path.to_string(), data); },
-                    Err(e) => { panic!("Could not read file: {:?}", e); }
-                }
-            },
-            Err(e) => { panic!("Could not open file: {:?}", e); }
+    pub fn add_attachment<P: AsRef<Path>>(&mut self, path: P) -> SendgridResult<()> {
+        let mut file = File::open(&path)?;
+        let mut data = String::new();
+        file.read_to_string(&mut data)?;
+
+        if let Some(name) = path.as_ref().to_str() {
+            self.attachments.insert(String::from(name), data);
+        } else {
+            return Err(SendgridErrorKind::InvalidFilename.into());
         }
+
+        Ok(())
     }
 
     /// Add content for inline images in the message.
@@ -141,12 +143,9 @@ impl Mail {
     }
 
     /// Used internally for string encoding. Not needed for message building.
-    pub fn make_header_string(&mut self) -> String {
-        let headers = serde_json::to_string(&self.headers);
-        match headers {
-            Ok(h) => h,
-            Err(e) => { panic!("Could not encode headers: {:?}", e); }
-        }
+    pub fn make_header_string(&mut self) -> SendgridResult<String> {
+        let string = serde_json::to_string(&self.headers)?;
+        Ok(string)
     }
 
     /// Add an X-SMTPAPI string to the message. This can be done by using the

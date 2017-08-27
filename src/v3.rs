@@ -1,18 +1,13 @@
+use errors::SendgridResult;
+
 use std::collections::HashMap;
 
-use hyper::Client;
-use hyper::error::Error;
-use hyper::net::HttpsConnector;
-use hyper::header::{Authorization, Bearer, ContentType, Headers, UserAgent};
-use hyper::mime::{Mime, TopLevel, SubLevel};
-
-use hyper_native_tls::NativeTlsClient;
+use reqwest::{Client, StatusCode};
+use reqwest::header::{Authorization, Bearer, ContentType, Headers, UserAgent};
 
 use data_encoding::base64;
 
 use serde_json;
-
-pub use hyper::status::StatusCode;
 
 const V3_API_URL: &'static str = "https://api.sendgrid.com/v3/mail/send";
 
@@ -21,7 +16,7 @@ pub type SGMap = HashMap<String, String>;
 
 /// Used to send a V3 message body.
 pub struct V3Sender {
-    api_key: String
+    api_key: String,
 }
 
 /// The main structure for a V3 API mail send call. This is composed of many other smaller
@@ -33,7 +28,7 @@ pub struct SGMailV3 {
     content: Vec<Content>,
     personalizations: Vec<Personalization>,
 
-    #[serde(skip_serializing_if="check_encode")]
+    #[serde(skip_serializing_if = "check_encode")]
     attachments: Option<Vec<Attachment>>,
 }
 
@@ -42,14 +37,14 @@ pub struct SGMailV3 {
 pub struct Email {
     email: String,
 
-    #[serde(skip_serializing_if="check_encode")]
+    #[serde(skip_serializing_if = "check_encode")]
     name: Option<String>,
 }
 
 /// The body of an email with the content type and the message.
 #[derive(Clone, Serialize)]
 pub struct Content {
-    #[serde(rename="type")]
+    #[serde(rename = "type")]
     content_type: String,
     value: String,
 }
@@ -60,25 +55,25 @@ pub struct Content {
 pub struct Personalization {
     to: Vec<Email>,
 
-    #[serde(skip_serializing_if="check_encode")]
+    #[serde(skip_serializing_if = "check_encode")]
     cc: Option<Vec<Email>>,
 
-    #[serde(skip_serializing_if="check_encode")]
+    #[serde(skip_serializing_if = "check_encode")]
     bcc: Option<Vec<Email>>,
 
-    #[serde(skip_serializing_if="check_encode")]
+    #[serde(skip_serializing_if = "check_encode")]
     subject: Option<String>,
 
-    #[serde(skip_serializing_if="check_encode")]
+    #[serde(skip_serializing_if = "check_encode")]
     headers: Option<SGMap>,
 
-    #[serde(skip_serializing_if="check_encode")]
+    #[serde(skip_serializing_if = "check_encode")]
     substitutions: Option<SGMap>,
 
-    #[serde(skip_serializing_if="check_encode")]
+    #[serde(skip_serializing_if = "check_encode")]
     custom_args: Option<SGMap>,
 
-    #[serde(skip_serializing_if="check_encode")]
+    #[serde(skip_serializing_if = "check_encode")]
     send_at: Option<u64>,
 }
 
@@ -91,13 +86,13 @@ pub struct Attachment {
 
     filename: String,
 
-    #[serde(rename="type", skip_serializing_if="check_encode")]
+    #[serde(rename = "type", skip_serializing_if = "check_encode")]
     mime_type: Option<String>,
 
-    #[serde(skip_serializing_if="check_encode")]
+    #[serde(skip_serializing_if = "check_encode")]
     disposition: Option<String>,
 
-    #[serde(skip_serializing_if="check_encode")]
+    #[serde(skip_serializing_if = "check_encode")]
     content_id: Option<String>,
 }
 
@@ -105,7 +100,7 @@ pub struct Attachment {
 fn check_encode<T>(value: &Option<T>) -> bool {
     match *value {
         Some(_) => false,
-        None => true
+        None => true,
     }
 }
 
@@ -116,21 +111,16 @@ impl V3Sender {
     }
 
     /// Send a V3 message and return the status code or an error from the request.
-    pub fn send(&self, mail: &SGMailV3) -> Result<StatusCode, Error> {
-        let ssl = NativeTlsClient::new().unwrap();
-        let connector = HttpsConnector::new(ssl);
-        let client = Client::with_connector(connector);
+    pub fn send(&self, mail: &SGMailV3) -> SendgridResult<StatusCode> {
+        let client = Client::new()?;
         let mut headers = Headers::new();
         headers.set(Authorization(Bearer { token: self.api_key.to_owned() }));
-        headers.set(ContentType(Mime(TopLevel::Application, SubLevel::Json, vec![])));
-        headers.set(UserAgent("sendgrid-rs".to_owned()));
+        headers.set(ContentType::json());
+        headers.set(UserAgent::new("sendgrid-rs"));
 
         let body = mail.gen_json();
-        let res = try!(client.post(V3_API_URL)
-                           .headers(headers)
-                           .body(&body)
-                           .send());
-        Ok(res.status)
+        let res = client.post(V3_API_URL)?.headers(headers).body(body).send()?;
+        Ok(res.status())
     }
 }
 
@@ -174,7 +164,7 @@ impl SGMailV3 {
                 attachments.push(a);
                 self.attachments = Some(attachments);
             }
-            Some(ref mut attachments) => { attachments.push(a) }
+            Some(ref mut attachments) => attachments.push(a),
         };
     }
 
@@ -250,8 +240,10 @@ impl Personalization {
                 let mut ccs = Vec::new();
                 ccs.push(cc);
                 self.cc = Some(ccs);
-            },
-            Some(ref mut c) => { c.push(cc); }
+            }
+            Some(ref mut c) => {
+                c.push(cc);
+            }
         }
     }
 }
