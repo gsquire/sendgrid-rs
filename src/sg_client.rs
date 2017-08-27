@@ -1,14 +1,11 @@
+use errors::SendgridResult;
+
 use mail::Mail;
 
 use std::io::Read;
 
-use hyper::Client;
-use hyper::error::Error;
-use hyper::net::HttpsConnector;
-use hyper::header::{Authorization, Bearer, ContentType, Headers, UserAgent};
-use hyper::mime::{Mime, TopLevel, SubLevel};
-
-use hyper_native_tls::NativeTlsClient;
+use reqwest::header::{Authorization, Bearer, ContentType, Headers, UserAgent};
+use reqwest::Client;
 
 use url::form_urlencoded::Serializer;
 
@@ -32,7 +29,7 @@ fn make_form_key(form: &str, key: &str) -> String {
 }
 
 // Use the URL form encoder to properly generate the body used in the mail send request.
-fn make_post_body(mut mail_info: Mail) -> String {
+fn make_post_body(mut mail_info: Mail) -> SendgridResult<String> {
     let body = String::new();
     let mut encoder = Serializer::new(body);
 
@@ -67,47 +64,36 @@ fn make_post_body(mut mail_info: Mail) -> String {
     encoder.append_pair("fromname", &mail_info.from_name);
     encoder.append_pair("replyto", &mail_info.reply_to);
     encoder.append_pair("date", &mail_info.date);
-    encoder.append_pair("headers", &mail_info.make_header_string());
+    encoder.append_pair("headers", &mail_info.make_header_string()?);
     encoder.append_pair("x-smtpapi", &mail_info.x_smtpapi);
 
-    encoder.finish()
+    Ok(encoder.finish())
 }
 
 impl SGClient {
     /// Makes a new SendGrid cient with the specified API key.
     pub fn new(key: String) -> SGClient {
-        SGClient {api_key: key}
+        SGClient { api_key: key }
     }
 
     /// Sends a messages through the SendGrid API. It takes a Mail struct as an
     /// argument. It returns the string response from the API as JSON.
     /// It sets the Content-Type to be application/x-www-form-urlencoded.
-    pub fn send(self, mail_info: Mail) -> Result<String, Error> {
-        let ssl = NativeTlsClient::new().unwrap();
-        let connector = HttpsConnector::new(ssl);
-        let client = Client::with_connector(connector);
+    pub fn send(self, mail_info: Mail) -> SendgridResult<String> {
+        let client = Client::new()?;
         let mut headers = Headers::new();
-        headers.set(
-            Authorization(
-                Bearer { token: self.api_key.to_owned() }
-                )
-        );
-        headers.set(
-            ContentType(
-                Mime(TopLevel::Application, SubLevel::WwwFormUrlEncoded, vec![])
-                )
-        );
-        headers.set(
-            UserAgent("sendgrid-rs".to_owned())
-        );
+        headers.set(Authorization(Bearer { token: self.api_key.to_owned() }));
+        headers.set(ContentType::form_url_encoded());
+        headers.set(UserAgent::new("sendgrid-rs"));
 
-        let post_body = make_post_body(mail_info);
-        let mut res = try!(client.post(API_URL)
+        let post_body = make_post_body(mail_info)?;
+        let mut res = client
+            .post(API_URL)?
             .headers(headers)
-            .body(&post_body)
-            .send());
+            .body(post_body)
+            .send()?;
         let mut body = String::new();
-        try!(res.read_to_string(&mut body));
+        res.read_to_string(&mut body)?;
         Ok(body)
     }
 }
@@ -123,7 +109,7 @@ fn basic_message_body() {
     let body = make_post_body(m);
     let want = "to%5B%5D=test%40example.com&from=me%40example.com&subject=Test&\
                 html=&text=It+works&fromname=&replyto=&date=&headers=%7B%7D&x-smtpapi=";
-    assert_eq!(body, want);
+    assert_eq!(body.unwrap(), want);
 }
 
 #[test]
