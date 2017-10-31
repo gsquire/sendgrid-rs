@@ -247,7 +247,7 @@ impl Personalization {
         }
     }
 
-    // Add a BCC field
+    /// Add a BCC field.
     pub fn add_bcc(&mut self, bcc: Email) {
         match self.bcc {
             None => {
