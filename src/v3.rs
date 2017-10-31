@@ -246,6 +246,20 @@ impl Personalization {
             }
         }
     }
+
+    // Add a BCC field
+    pub fn add_bcc(&mut self, bcc: Email) {
+        match self.bcc {
+            None => {
+                let mut bccs = Vec::new();
+                bccs.push(bcc);
+                self.bcc = Some(bccs);
+            }
+            Some(ref mut b) => {
+                b.push(bcc);
+            }
+        }
+    }
 }
 
 impl Attachment {
