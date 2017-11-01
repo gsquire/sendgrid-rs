@@ -1,6 +1,6 @@
 [package]
 name = "sendgrid"
-version = "0.6.0"
+version = "0.6.1"
 authors = ["Garrett Squire <garrettsquire@gmail.com>"]
 description = "An unofficial client library for the SendGrid API"
 repository = "https://github.com/gsquire/sendgrid-rs"
@@ -12,9 +12,9 @@ readme = "README.md"
 
 [dependencies]
 data-encoding = "1.2"
-error-chain = "0.10"
-reqwest = "0.7"
+error-chain = "0.11"
+reqwest = "0.8"
 serde = "1.0"
 serde_derive = "1.0"
 serde_json = "1.0"
-url = "1.2"
+url = "1.6"
