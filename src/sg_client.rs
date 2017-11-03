@@ -80,18 +80,14 @@ impl SGClient {
     /// argument. It returns the string response from the API as JSON.
     /// It sets the Content-Type to be application/x-www-form-urlencoded.
     pub fn send(self, mail_info: Mail) -> SendgridResult<String> {
-        let client = Client::new()?;
+        let client = Client::new();
         let mut headers = Headers::new();
         headers.set(Authorization(Bearer { token: self.api_key.to_owned() }));
         headers.set(ContentType::form_url_encoded());
         headers.set(UserAgent::new("sendgrid-rs"));
 
         let post_body = make_post_body(mail_info)?;
-        let mut res = client
-            .post(API_URL)?
-            .headers(headers)
-            .body(post_body)
-            .send()?;
+        let mut res = client.post(API_URL).headers(headers).body(post_body).send()?;
         let mut body = String::new();
         res.read_to_string(&mut body)?;
         Ok(body)

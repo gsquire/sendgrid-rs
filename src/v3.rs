@@ -112,14 +112,14 @@ impl V3Sender {
 
     /// Send a V3 message and return the status code or an error from the request.
     pub fn send(&self, mail: &SGMailV3) -> SendgridResult<StatusCode> {
-        let client = Client::new()?;
+        let client = Client::new();
         let mut headers = Headers::new();
         headers.set(Authorization(Bearer { token: self.api_key.to_owned() }));
         headers.set(ContentType::json());
         headers.set(UserAgent::new("sendgrid-rs"));
 
         let body = mail.gen_json();
-        let res = client.post(V3_API_URL)?.headers(headers).body(body).send()?;
+        let res = client.post(V3_API_URL).headers(headers).body(body).send()?;
         Ok(res.status())
     }
 }
