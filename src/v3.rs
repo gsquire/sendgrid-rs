@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use reqwest::{Client, StatusCode};
 use reqwest::header::{Authorization, Bearer, ContentType, Headers, UserAgent};
 
-use data_encoding::base64;
+use data_encoding::BASE64;
 
 use serde_json;
 
@@ -276,7 +276,7 @@ impl Attachment {
 
     /// The raw body of the attachment.
     pub fn set_content(&mut self, c: &[u8]) {
-        self.content = base64::encode(c);
+        self.content = BASE64.encode(c);
     }
 
     /// Sets the filename for the attachment.
