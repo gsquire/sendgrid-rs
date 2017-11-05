@@ -11,7 +11,7 @@ documentation = "https://docs.rs/sendgrid"
 readme = "README.md"
 
 [dependencies]
-data-encoding = "1.2"
+data-encoding = "2.0"
 error-chain = "0.11"
 reqwest = "0.8"
 serde = "1.0"
