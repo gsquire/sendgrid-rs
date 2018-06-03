@@ -2,8 +2,8 @@ use errors::SendgridResult;
 
 use std::collections::HashMap;
 
-use reqwest::{Client, StatusCode};
 use reqwest::header::{Authorization, Bearer, ContentType, Headers, UserAgent};
+use reqwest::{Client, StatusCode};
 
 use data_encoding::BASE64;
 
@@ -106,7 +106,9 @@ impl V3Sender {
     pub fn send(&self, mail: &SGMailV3) -> SendgridResult<StatusCode> {
         let client = Client::new();
         let mut headers = Headers::new();
-        headers.set(Authorization(Bearer { token: self.api_key.to_owned() }));
+        headers.set(Authorization(Bearer {
+            token: self.api_key.to_owned(),
+        }));
         headers.set(ContentType::json());
         headers.set(UserAgent::new("sendgrid-rs"));
 
