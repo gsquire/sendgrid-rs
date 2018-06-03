@@ -1,6 +1,6 @@
 [package]
 name = "sendgrid"
-version = "0.6.2"
+version = "0.7.0"
 authors = ["Garrett Squire <garrettsquire@gmail.com>"]
 description = "An unofficial client library for the SendGrid API"
 repository = "https://github.com/gsquire/sendgrid-rs"
@@ -17,4 +17,4 @@ reqwest = "0.8"
 serde = "1.0"
 serde_derive = "1.0"
 serde_json = "1.0"
-url = "1.6"
+url = "1.7"
