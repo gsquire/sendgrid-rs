@@ -2,12 +2,14 @@ use errors::SendgridResult;
 
 use std::collections::HashMap;
 
-use reqwest::{Client, StatusCode};
 use reqwest::header::{Authorization, Bearer, ContentType, Headers, UserAgent};
+use reqwest::Client;
 
 use data_encoding::BASE64;
 
 use serde_json;
+
+pub use reqwest::Response;
 
 const V3_API_URL: &'static str = "https://api.sendgrid.com/v3/mail/send";
 
@@ -28,7 +30,7 @@ pub struct SGMailV3 {
     content: Vec<Content>,
     personalizations: Vec<Personalization>,
 
-    #[serde(skip_serializing_if = "check_encode")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     attachments: Option<Vec<Attachment>>,
 }
 
@@ -37,7 +39,7 @@ pub struct SGMailV3 {
 pub struct Email {
     email: String,
 
-    #[serde(skip_serializing_if = "check_encode")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     name: Option<String>,
 }
 
@@ -55,25 +57,25 @@ pub struct Content {
 pub struct Personalization {
     to: Vec<Email>,
 
-    #[serde(skip_serializing_if = "check_encode")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     cc: Option<Vec<Email>>,
 
-    #[serde(skip_serializing_if = "check_encode")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     bcc: Option<Vec<Email>>,
 
-    #[serde(skip_serializing_if = "check_encode")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     subject: Option<String>,
 
-    #[serde(skip_serializing_if = "check_encode")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     headers: Option<SGMap>,
 
-    #[serde(skip_serializing_if = "check_encode")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     substitutions: Option<SGMap>,
 
-    #[serde(skip_serializing_if = "check_encode")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     custom_args: Option<SGMap>,
 
-    #[serde(skip_serializing_if = "check_encode")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     send_at: Option<u64>,
 }
 
@@ -86,22 +88,14 @@ pub struct Attachment {
 
     filename: String,
 
-    #[serde(rename = "type", skip_serializing_if = "check_encode")]
+    #[serde(rename = "type", skip_serializing_if = "Option::is_none")]
     mime_type: Option<String>,
 
-    #[serde(skip_serializing_if = "check_encode")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     disposition: Option<String>,
 
-    #[serde(skip_serializing_if = "check_encode")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     content_id: Option<String>,
-}
-
-// Checks if a value in the V3 message should be added to the JSON or not.
-fn check_encode<T>(value: &Option<T>) -> bool {
-    match *value {
-        Some(_) => false,
-        None => true,
-    }
 }
 
 impl V3Sender {
@@ -111,16 +105,18 @@ impl V3Sender {
     }
 
     /// Send a V3 message and return the status code or an error from the request.
-    pub fn send(&self, mail: &SGMailV3) -> SendgridResult<StatusCode> {
+    pub fn send(&self, mail: &SGMailV3) -> SendgridResult<Response> {
         let client = Client::new();
         let mut headers = Headers::new();
-        headers.set(Authorization(Bearer { token: self.api_key.to_owned() }));
+        headers.set(Authorization(Bearer {
+            token: self.api_key.to_owned(),
+        }));
         headers.set(ContentType::json());
         headers.set(UserAgent::new("sendgrid-rs"));
 
         let body = mail.gen_json();
         let res = client.post(V3_API_URL).headers(headers).body(body).send()?;
-        Ok(res.status())
+        Ok(res)
     }
 }
 
