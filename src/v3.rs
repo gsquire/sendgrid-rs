@@ -3,11 +3,13 @@ use errors::SendgridResult;
 use std::collections::HashMap;
 
 use reqwest::header::{Authorization, Bearer, ContentType, Headers, UserAgent};
-use reqwest::{Client, StatusCode};
+use reqwest::Client;
 
 use data_encoding::BASE64;
 
 use serde_json;
+
+pub use reqwest::Response;
 
 const V3_API_URL: &'static str = "https://api.sendgrid.com/v3/mail/send";
 
@@ -103,7 +105,7 @@ impl V3Sender {
     }
 
     /// Send a V3 message and return the status code or an error from the request.
-    pub fn send(&self, mail: &SGMailV3) -> SendgridResult<StatusCode> {
+    pub fn send(&self, mail: &SGMailV3) -> SendgridResult<Response> {
         let client = Client::new();
         let mut headers = Headers::new();
         headers.set(Authorization(Bearer {
@@ -114,7 +116,7 @@ impl V3Sender {
 
         let body = mail.gen_json();
         let res = client.post(V3_API_URL).headers(headers).body(body).send()?;
-        Ok(res.status())
+        Ok(res)
     }
 }
 
