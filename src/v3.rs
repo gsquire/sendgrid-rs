@@ -256,6 +256,22 @@ impl Personalization {
             }
         }
     }
+
+    /// Add a headers field.
+    pub fn add_headers(&mut self, headers: SGMap) {
+        match self.headers {
+            None => {
+                let mut h = HashMap::new();
+                for (name, value) in headers {
+                    h.insert(name, value);
+                }
+                self.headers = Some(h);
+            },
+            Some(ref mut h) => {
+                h.extend(headers);
+            }
+        }
+    }
 }
 
 impl Attachment {
