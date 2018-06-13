@@ -1,5 +1,7 @@
 extern crate sendgrid;
 
+use std::collections::HashMap;
+
 use sendgrid::v3::*;
 
 fn main() {
@@ -14,6 +16,11 @@ fn main() {
 
     let mut p = Personalization::new();
     p.add_to(e.clone());
+
+    let mut cool_header = HashMap::new();
+    cool_header.insert(String::from("x-cool"), String::from("indeed"));
+    cool_header.insert(String::from("x-cooler"), String::from("cold"));
+    p.add_headers(cool_header);
 
     m.set_from(e.clone());
     m.set_subject("Subject");
