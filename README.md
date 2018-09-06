@@ -18,7 +18,7 @@ sendgrid = "X.X.X"
 ```
 
 ## Build Dependencies
-This library utilises [hyper](https://crates.io/crates/hyper) and [hyper-native-tls](https://crates.io/crates/hyper-native-tls).
+This library utilises [reqwest](https://crates.io/crates/reqwest).
 This crate enables easy TLS setup for mac OS and Windows users. If you are on Linux, you
 must have OpenSSL installed. [The instructions here](https://github.com/sfackler/rust-openssl) are
 the most comprehensive if you have trouble.
