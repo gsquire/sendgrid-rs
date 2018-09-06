@@ -18,10 +18,9 @@ sendgrid = "X.X.X"
 ```
 
 ## Build Dependencies
-This library utilises [reqwest](https://crates.io/crates/reqwest).
-This crate enables easy TLS setup for mac OS and Windows users. If you are on Linux, you
-must have OpenSSL installed. [The instructions here](https://github.com/sfackler/rust-openssl) are
-the most comprehensive if you have trouble.
+This library utilises [reqwest](https://crates.io/crates/reqwest). Follow the instructions on the
+[reqwest README](https://github.com/seanmonstar/reqwest#requirements) in order to enable sending HTTPS
+requests to the SendGrid API.
 
 ## Example
 An example of using this library can be found in the examples directory. This example code expects to
