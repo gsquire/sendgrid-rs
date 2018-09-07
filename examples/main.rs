@@ -14,17 +14,17 @@ fn main() {
 
     let sg = SGClient::new(api_key);
 
-    let mut mail_info = Mail::new();
-    mail_info.add_to("you@example.com");
-    mail_info.add_from("some@some.com");
-    mail_info.add_subject("Rust is rad");
-    mail_info.add_html("<h1>Hello from SendGrid!</h1>");
-    mail_info.add_from_name("Test");
-    mail_info.add_header("x-cool", "indeed");
-
     let mut x_smtpapi = String::new();
     x_smtpapi.push_str(r#"{"unique_args":{"test":7}}"#);
-    mail_info.add_x_smtpapi(x_smtpapi);
+
+    let mail_info = Mail::new()
+        .add_to("you@example.com")
+        .add_from("some@some.com")
+        .add_subject("Rust is rad")
+        .add_html("<h1>Hello from SendGrid!</h1>")
+        .add_from_name("Test")
+        .add_header("x-cool", "indeed")
+        .add_x_smtpapi(x_smtpapi);
 
     match sg.send(mail_info) {
         Err(err) => println!("Error: {}", err),

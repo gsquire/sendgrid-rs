@@ -102,11 +102,11 @@ impl SGClient {
 
 #[test]
 fn basic_message_body() {
-    let mut m = Mail::new();
-    m.add_to("test@example.com");
-    m.add_from("me@example.com");
-    m.add_subject("Test");
-    m.add_text("It works");
+    let m = Mail::new()
+        .add_to("test@example.com")
+        .add_from("me@example.com")
+        .add_subject("Test")
+        .add_text("It works");
 
     let body = make_post_body(m);
     let want = "to%5B%5D=test%40example.com&from=me%40example.com&subject=Test&\
