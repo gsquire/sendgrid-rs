@@ -79,7 +79,7 @@ impl SGClient {
     /// Sends a messages through the SendGrid API. It takes a Mail struct as an
     /// argument. It returns the string response from the API as JSON.
     /// It sets the Content-Type to be application/x-www-form-urlencoded.
-    pub fn send(self, mail_info: Mail) -> SendgridResult<String> {
+    pub fn send(&self, mail_info: Mail) -> SendgridResult<String> {
         let client = Client::new();
         let mut headers = Headers::new();
         headers.set(Authorization(Bearer {
