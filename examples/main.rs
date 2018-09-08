@@ -1,7 +1,7 @@
 extern crate sendgrid;
 
-use sendgrid::mail::Mail;
-use sendgrid::sg_client::SGClient;
+use sendgrid::Mail;
+use sendgrid::SGClient;
 
 fn main() {
     let mut env_vars = std::env::vars();
