@@ -11,6 +11,10 @@ extern crate serde_json;
 extern crate url;
 
 pub mod errors;
-pub mod mail;
-pub mod sg_client;
+mod mail;
+mod sg_client;
 pub mod v3;
+
+pub use mail::Mail;
+pub use sg_client::SGClient;
+
