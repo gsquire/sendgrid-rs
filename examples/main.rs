@@ -23,8 +23,8 @@ fn main() {
         .add_subject("Rust is rad")
         .add_html("<h1>Hello from SendGrid!</h1>")
         .add_from_name("Test")
-        .add_header("x-cool", "indeed")
-        .add_x_smtpapi(x_smtpapi);
+        .add_header("x-cool".to_string(), "indeed")
+        .add_x_smtpapi(&x_smtpapi);
 
     match sg.send(mail_info) {
         Err(err) => println!("Error: {}", err),
