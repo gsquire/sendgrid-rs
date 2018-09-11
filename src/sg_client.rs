@@ -1,6 +1,6 @@
 use errors::SendgridResult;
 
-use mail::Mail;
+use mail::{Mail,Destination};
 
 use std::io::Read;
 
@@ -34,11 +34,8 @@ fn make_post_body(mut mail_info: Mail) -> SendgridResult<String> {
     let mut encoder = Serializer::new(body);
 
     for to in mail_info.to.iter() {
-        encoder.append_pair("to[]", &to);
-    }
-
-    for to_name in mail_info.to_names.iter() {
-        encoder.append_pair("toname[]", &to_name);
+        encoder.append_pair("to[]", to.address);
+        encoder.append_pair("toname[]", to.name);
     }
 
     for cc in mail_info.cc.iter() {
@@ -50,11 +47,11 @@ fn make_post_body(mut mail_info: Mail) -> SendgridResult<String> {
     }
 
     for (attachment, contents) in &mail_info.attachments {
-        encoder.append_pair(&make_form_key("files", attachment), contents);
+        encoder.append_pair(&make_form_key("files", attachment), &contents);
     }
 
     for (id, value) in &mail_info.content {
-        encoder.append_pair(&make_form_key("content", id), value);
+        encoder.append_pair(&make_form_key("content", id), &value);
     }
 
     encoder.append_pair("from", &mail_info.from);
@@ -103,13 +100,16 @@ impl SGClient {
 #[test]
 fn basic_message_body() {
     let m = Mail::new()
-        .add_to("test@example.com")
+        .add_to(Destination {
+            address: "test@example.com",
+            name: "Testy mcTestFace",
+        })
         .add_from("me@example.com")
         .add_subject("Test")
         .add_text("It works");
 
     let body = make_post_body(m);
-    let want = "to%5B%5D=test%40example.com&from=me%40example.com&subject=Test&\
+    let want = "to%5B%5D=test%40example.com&toname%5B%5D=Testy+mcTestFace&from=me%40example.com&subject=Test&\
                 html=&text=It+works&fromname=&replyto=&date=&headers=%7B%7D&x-smtpapi=";
     assert_eq!(body.unwrap(), want);
 }

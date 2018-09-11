@@ -1,6 +1,6 @@
 extern crate sendgrid;
 
-use sendgrid::Mail;
+use sendgrid::{Destination, Mail};
 use sendgrid::SGClient;
 
 fn main() {
@@ -18,7 +18,10 @@ fn main() {
     x_smtpapi.push_str(r#"{"unique_args":{"test":7}}"#);
 
     let mail_info = Mail::new()
-        .add_to("you@example.com")
+        .add_to(Destination {
+            address:"you@example.com",
+            name: "you there",
+        })
         .add_from("some@some.com")
         .add_subject("Rust is rad")
         .add_html("<h1>Hello from SendGrid!</h1>")
