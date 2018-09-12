@@ -1,6 +1,6 @@
 use errors::SendgridResult;
 
-use mail::Mail;
+use mail::{Destination, Mail};
 
 use std::io::Read;
 
@@ -34,11 +34,8 @@ fn make_post_body(mut mail_info: Mail) -> SendgridResult<String> {
     let mut encoder = Serializer::new(body);
 
     for to in mail_info.to.iter() {
-        encoder.append_pair("to[]", &to);
-    }
-
-    for to_name in mail_info.to_names.iter() {
-        encoder.append_pair("toname[]", &to_name);
+        encoder.append_pair("to[]", to.address);
+        encoder.append_pair("toname[]", to.name);
     }
 
     for cc in mail_info.cc.iter() {
@@ -50,11 +47,11 @@ fn make_post_body(mut mail_info: Mail) -> SendgridResult<String> {
     }
 
     for (attachment, contents) in &mail_info.attachments {
-        encoder.append_pair(&make_form_key("files", attachment), contents);
+        encoder.append_pair(&make_form_key("files", attachment), &contents);
     }
 
     for (id, value) in &mail_info.content {
-        encoder.append_pair(&make_form_key("content", id), value);
+        encoder.append_pair(&make_form_key("content", id), &value);
     }
 
     encoder.append_pair("from", &mail_info.from);
@@ -79,7 +76,7 @@ impl SGClient {
     /// Sends a messages through the SendGrid API. It takes a Mail struct as an
     /// argument. It returns the string response from the API as JSON.
     /// It sets the Content-Type to be application/x-www-form-urlencoded.
-    pub fn send(self, mail_info: Mail) -> SendgridResult<String> {
+    pub fn send(&self, mail_info: Mail) -> SendgridResult<String> {
         let client = Client::new();
         let mut headers = Headers::new();
         headers.set(Authorization(Bearer {
@@ -102,14 +99,16 @@ impl SGClient {
 
 #[test]
 fn basic_message_body() {
-    let mut m = Mail::new();
-    m.add_to("test@example.com");
-    m.add_from("me@example.com");
-    m.add_subject("Test");
-    m.add_text("It works");
+    let m = Mail::new()
+        .add_to(Destination {
+            address: "test@example.com",
+            name: "Testy mcTestFace",
+        }).add_from("me@example.com")
+        .add_subject("Test")
+        .add_text("It works");
 
     let body = make_post_body(m);
-    let want = "to%5B%5D=test%40example.com&from=me%40example.com&subject=Test&\
+    let want = "to%5B%5D=test%40example.com&toname%5B%5D=Testy+mcTestFace&from=me%40example.com&subject=Test&\
                 html=&text=It+works&fromname=&replyto=&date=&headers=%7B%7D&x-smtpapi=";
     assert_eq!(body.unwrap(), want);
 }

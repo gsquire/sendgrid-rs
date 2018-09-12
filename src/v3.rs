@@ -266,7 +266,7 @@ impl Personalization {
                     h.insert(name, value);
                 }
                 self.headers = Some(h);
-            },
+            }
             Some(ref mut h) => {
                 h.extend(headers);
             }
