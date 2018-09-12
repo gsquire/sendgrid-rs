@@ -15,5 +15,5 @@ mod mail;
 mod sg_client;
 pub mod v3;
 
-pub use mail::{Mail,Destination};
+pub use mail::{Destination, Mail};
 pub use sg_client::SGClient;

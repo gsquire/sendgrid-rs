@@ -1,7 +1,7 @@
 extern crate sendgrid;
 
-use sendgrid::{Destination, Mail};
 use sendgrid::SGClient;
+use sendgrid::{Destination, Mail};
 
 fn main() {
     let mut env_vars = std::env::vars();
@@ -19,10 +19,9 @@ fn main() {
 
     let mail_info = Mail::new()
         .add_to(Destination {
-            address:"you@example.com",
+            address: "you@example.com",
             name: "you there",
-        })
-        .add_from("some@some.com")
+        }).add_from("some@some.com")
         .add_subject("Rust is rad")
         .add_html("<h1>Hello from SendGrid!</h1>")
         .add_from_name("Test")

@@ -1,6 +1,6 @@
 use errors::SendgridResult;
 
-use mail::{Mail,Destination};
+use mail::{Destination, Mail};
 
 use std::io::Read;
 
@@ -103,8 +103,7 @@ fn basic_message_body() {
         .add_to(Destination {
             address: "test@example.com",
             name: "Testy mcTestFace",
-        })
-        .add_from("me@example.com")
+        }).add_from("me@example.com")
         .add_subject("Test")
         .add_text("It works");
 
