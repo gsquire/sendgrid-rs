@@ -17,4 +17,3 @@ pub mod v3;
 
 pub use mail::{Mail,Destination};
 pub use sg_client::SGClient;
-

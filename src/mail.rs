@@ -8,7 +8,7 @@ use std::path::Path;
 use serde_json;
 
 macro_rules! add_field {
-    // Create a setter that appends
+    // Create a setter that appends.
     ($method:ident << $field:ident: $ty:ty) => {
         pub fn $method(mut self, data: $ty) -> Mail<'a> {
             self.$field.push(data);
@@ -16,7 +16,7 @@ macro_rules! add_field {
         }
     };
 
-    // Create a setter that stores
+    // Create a setter that stores.
     ($method:ident = $field:ident: $ty:ty) => {
         pub fn $method(mut self, data: $ty) -> Mail<'a> {
             self.$field = data;
@@ -24,7 +24,7 @@ macro_rules! add_field {
         }
     };
 
-    // Create a setter that inserts into a map
+    // Create a setter that inserts into a map.
     ($method:ident <- $field:ident: $ty:ty) => {
         pub fn $method(mut self, id: String, data: $ty) -> Mail<'a> {
             self.$field.insert(id, data);
