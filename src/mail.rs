@@ -113,7 +113,7 @@ impl<'a> Mail<'a> {
     // TODO(richo) Should this be a chronos::Utc ?
     add_field!(add_date = date: &'a str);
 
-    /// Convenience method when using Mail as a builder
+    /// Convenience method when using Mail as a builder.
     pub fn build(self) -> Mail<'a> {
         self
     }
