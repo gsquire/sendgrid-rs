@@ -38,7 +38,8 @@ try to help as quickly as I can. If you would like to contribute, contact me
 as well.
 
 ## Mentions
-Thanks to [meehow](https://github.com/meehow) for his contributions to improve the library.
+Thanks to [meehow](https://github.com/meehow) for their contributions.
+Thanks to [richo](https://github.com/richo) for their improvements to the V2 API.
 
 ## License
 MIT
