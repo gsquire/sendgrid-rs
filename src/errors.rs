@@ -16,4 +16,22 @@ pub enum SendgridError {
     InvalidFilename,
 }
 
-pub type SendgridResult<T> = Result<T, Error>;
+impl From<reqwest::Error> for SendgridError {
+    fn from(error: reqwest::Error) -> Self {
+        SendgridError::ReqwestError(error)
+    }
+}
+
+impl From<io::Error> for SendgridError {
+    fn from(error: io::Error) -> Self {
+        SendgridError::Io(error)
+    }
+}
+
+impl From<serde_json::Error> for SendgridError {
+    fn from(error: serde_json::Error) -> Self {
+        SendgridError::JSONDecode(error)
+    }
+}
+
+pub type SendgridResult<T> = Result<T, SendgridError>;
