@@ -1,4 +1,4 @@
-use errors::{SendgridErrorKind, SendgridResult};
+use errors::{SendgridError, SendgridResult};
 
 use std::collections::HashMap;
 use std::fs::File;
@@ -135,7 +135,7 @@ impl<'a> Mail<'a> {
         if let Some(name) = path.as_ref().to_str() {
             self.attachments.insert(String::from(name), data);
         } else {
-            return Err(SendgridErrorKind::InvalidFilename.into());
+            return Err(SendgridError::InvalidFilename.into());
         }
 
         Ok(self)
