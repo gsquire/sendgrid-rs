@@ -12,6 +12,8 @@ pub enum SendgridError {
     JSONDecode(#[cause] serde_json::Error),
     #[fail(display = "HTTP Error: {}", _0)]
     ReqwestError(#[cause] reqwest::Error),
+    #[fail(display = "Invalid Header Error: {}", _0)]
+    InvalidHeader(#[cause] reqwest::header::InvalidHeaderValue),
     #[fail(display = "could not UTF-8 decode this filename")]
     InvalidFilename,
 }
@@ -19,6 +21,12 @@ pub enum SendgridError {
 impl From<reqwest::Error> for SendgridError {
     fn from(error: reqwest::Error) -> Self {
         SendgridError::ReqwestError(error)
+    }
+}
+
+impl From<reqwest::header::InvalidHeaderValue> for SendgridError {
+    fn from(error: reqwest::header::InvalidHeaderValue) -> Self {
+        SendgridError::InvalidHeader(error)
     }
 }
 
