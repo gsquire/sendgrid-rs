@@ -1,8 +1,7 @@
 use std::io;
 
-use reqwest;
+use reqwest::header::InvalidHeaderValue;
 use serde_json;
-use failure::Error;
 
 #[derive(Fail, Debug)]
 pub enum SendgridError {
@@ -24,7 +23,7 @@ impl From<reqwest::Error> for SendgridError {
     }
 }
 
-impl From<reqwest::header::InvalidHeaderValue> for SendgridError {
+impl From<InvalidHeaderValue> for SendgridError {
     fn from(error: reqwest::header::InvalidHeaderValue) -> Self {
         SendgridError::InvalidHeader(error)
     }

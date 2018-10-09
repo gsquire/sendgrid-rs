@@ -1,13 +1,11 @@
-use errors::SendgridResult;
-
-use mail::{Destination, Mail};
-
 use std::io::Read;
 
 use reqwest::header::{self, HeaderMap, HeaderValue};
 use reqwest::Client;
-
 use url::form_urlencoded::Serializer;
+
+use errors::SendgridResult;
+use mail::Mail;
 
 static API_URL: &'static str = "https://api.sendgrid.com/api/mail.send.json?";
 
@@ -79,9 +77,14 @@ impl SGClient {
     pub fn send(&self, mail_info: Mail) -> SendgridResult<String> {
         let client = Client::new();
         let mut headers = HeaderMap::new();
-        headers.insert(header::AUTHORIZATION,
-                       HeaderValue::from_str(&format!("Bearer {}", self.api_key.clone()))?);
-        headers.insert(header::CONTENT_TYPE, HeaderValue::from_static("application/x-www-form-urlencoded"));
+        headers.insert(
+            header::AUTHORIZATION,
+            HeaderValue::from_str(&format!("Bearer {}", self.api_key.clone()))?,
+        );
+        headers.insert(
+            header::CONTENT_TYPE,
+            HeaderValue::from_static("application/x-www-form-urlencoded"),
+        );
         headers.insert(header::USER_AGENT, HeaderValue::from_static("sendgrid-rs"));
 
         let post_body = make_post_body(mail_info)?;
@@ -102,7 +105,8 @@ fn basic_message_body() {
         .add_to(Destination {
             address: "test@example.com",
             name: "Testy mcTestFace",
-        }).add_from("me@example.com")
+        })
+        .add_from("me@example.com")
         .add_subject("Test")
         .add_text("It works");
 

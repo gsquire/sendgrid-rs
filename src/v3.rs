@@ -1,17 +1,15 @@
-use errors::SendgridResult;
-
 use std::collections::HashMap;
 
+use data_encoding::BASE64;
 use reqwest::header::{self, HeaderMap, HeaderValue};
 use reqwest::Client;
-
-use data_encoding::BASE64;
-
 use serde_json;
 
 pub use reqwest::Response;
 
-const V3_API_URL: &'static str = "https://api.sendgrid.com/v3/mail/send";
+use errors::SendgridResult;
+
+const V3_API_URL: &str = "https://api.sendgrid.com/v3/mail/send";
 
 /// Just a redefinition of a map to store string keys and values.
 pub type SGMap = HashMap<String, String>;
@@ -23,7 +21,7 @@ pub struct V3Sender {
 
 /// The main structure for a V3 API mail send call. This is composed of many other smaller
 /// structures used to add lots of customization to your message.
-#[derive(Serialize)]
+#[derive(Default, Serialize)]
 pub struct SGMailV3 {
     from: Email,
     subject: String,
@@ -35,7 +33,7 @@ pub struct SGMailV3 {
 }
 
 /// An email with a required address and an optional name field.
-#[derive(Clone, Serialize)]
+#[derive(Clone, Default, Serialize)]
 pub struct Email {
     email: String,
 
@@ -44,7 +42,7 @@ pub struct Email {
 }
 
 /// The body of an email with the content type and the message.
-#[derive(Clone, Serialize)]
+#[derive(Clone, Default, Serialize)]
 pub struct Content {
     #[serde(rename = "type")]
     content_type: String,
@@ -53,7 +51,7 @@ pub struct Content {
 
 /// A personalization block for a V3 message. It has to at least contain one email as a to
 /// address. All other fields are optional.
-#[derive(Serialize)]
+#[derive(Default, Serialize)]
 pub struct Personalization {
     to: Vec<Email>,
 
@@ -82,7 +80,7 @@ pub struct Personalization {
 /// An attachment block for a V3 message. Content and filename are required. If the
 /// mime_type is unspecified, the email will use Sendgrid's default for attachments
 /// which is 'application/octet-stream'.
-#[derive(Serialize)]
+#[derive(Default, Serialize)]
 pub struct Attachment {
     content: String,
 
@@ -101,16 +99,21 @@ pub struct Attachment {
 impl V3Sender {
     /// Construct a new V3 message sender.
     pub fn new(api_key: String) -> V3Sender {
-        V3Sender { api_key: api_key }
+        V3Sender { api_key }
     }
 
     /// Send a V3 message and return the status code or an error from the request.
     pub fn send(&self, mail: &SGMailV3) -> SendgridResult<Response> {
         let client = Client::new();
         let mut headers = HeaderMap::new();
-        headers.insert(header::AUTHORIZATION,
-                       HeaderValue::from_str(&format!("Bearer {}", self.api_key.clone()))?);
-        headers.insert(header::CONTENT_TYPE, HeaderValue::from_static("application/json"));
+        headers.insert(
+            header::AUTHORIZATION,
+            HeaderValue::from_str(&format!("Bearer {}", self.api_key.clone()))?,
+        );
+        headers.insert(
+            header::CONTENT_TYPE,
+            HeaderValue::from_static("application/json"),
+        );
         headers.insert(header::USER_AGENT, HeaderValue::from_static("sendgrid-rs"));
 
         let body = mail.gen_json();
@@ -122,13 +125,7 @@ impl V3Sender {
 impl SGMailV3 {
     /// Construct a new V3 message.
     pub fn new() -> SGMailV3 {
-        SGMailV3 {
-            from: Email::new(),
-            subject: String::new(),
-            content: Vec::new(),
-            personalizations: Vec::new(),
-            attachments: None,
-        }
+        SGMailV3::default()
     }
 
     /// Set the from address.
@@ -171,10 +168,7 @@ impl SGMailV3 {
 impl Email {
     /// Construct a new email type.
     pub fn new() -> Email {
-        Email {
-            email: String::new(),
-            name: None,
-        }
+        Email::default()
     }
 
     /// Set the address for this email.
@@ -191,10 +185,7 @@ impl Email {
 impl Content {
     /// Construct a new content type.
     pub fn new() -> Content {
-        Content {
-            content_type: String::new(),
-            value: String::new(),
-        }
+        Content::default()
     }
 
     /// Set the type of this content.
@@ -211,16 +202,7 @@ impl Content {
 impl Personalization {
     /// Construct a new personalization block for this message.
     pub fn new() -> Personalization {
-        Personalization {
-            to: Vec::new(),
-            cc: None,
-            bcc: None,
-            subject: None,
-            headers: None,
-            substitutions: None,
-            custom_args: None,
-            send_at: None,
-        }
+        Personalization::default()
     }
 
     /// Add a to field.
@@ -276,13 +258,7 @@ impl Personalization {
 impl Attachment {
     /// Construct a new attachment for this message.
     pub fn new() -> Attachment {
-        Attachment {
-            content: String::new(),
-            filename: String::new(),
-            mime_type: None,
-            disposition: None,
-            content_id: None,
-        }
+        Attachment::default()
     }
 
     /// The raw body of the attachment.
