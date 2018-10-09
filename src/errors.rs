@@ -24,7 +24,7 @@ impl From<reqwest::Error> for SendgridError {
 }
 
 impl From<InvalidHeaderValue> for SendgridError {
-    fn from(error: reqwest::header::InvalidHeaderValue) -> Self {
+    fn from(error: InvalidHeaderValue) -> Self {
         SendgridError::InvalidHeader(error)
     }
 }
