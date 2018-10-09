@@ -1,6 +1,6 @@
 use std::io;
 
-use reqwest::header::InvalidHeaderValue;
+use reqwest::{self, header::InvalidHeaderValue};
 use serde_json;
 
 #[derive(Fail, Debug)]
@@ -12,7 +12,7 @@ pub enum SendgridError {
     #[fail(display = "HTTP Error: {}", _0)]
     ReqwestError(#[cause] reqwest::Error),
     #[fail(display = "Invalid Header Error: {}", _0)]
-    InvalidHeader(#[cause] reqwest::header::InvalidHeaderValue),
+    InvalidHeader(#[cause] InvalidHeaderValue),
     #[fail(display = "could not UTF-8 decode this filename")]
     InvalidFilename,
 }
