@@ -101,6 +101,8 @@ impl SGClient {
 
 #[test]
 fn basic_message_body() {
+    use mail::Destination;
+
     let m = Mail::new()
         .add_to(Destination {
             address: "test@example.com",
