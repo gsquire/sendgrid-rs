@@ -1,11 +1,11 @@
-use errors::{SendgridError, SendgridResult};
-
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
 
 use serde_json;
+
+use errors::{SendgridError, SendgridResult};
 
 macro_rules! add_field {
     // Create a setter that appends.
@@ -39,7 +39,7 @@ pub struct Destination<'a> {
     pub name: &'a str,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 /// This is a representation of a valid SendGrid message. It has support for
 /// all of the fields in the V2 API.
 pub struct Mail<'a> {
@@ -63,22 +63,7 @@ impl<'a> Mail<'a> {
     /// Returns a new Mail struct to send with a client. All of the fields are
     /// initially empty.
     pub fn new() -> Mail<'a> {
-        Mail {
-            to: Vec::new(),
-            cc: Vec::new(),
-            bcc: Vec::new(),
-            from: "",
-            subject: "",
-            html: "",
-            text: "",
-            from_name: "",
-            reply_to: "",
-            date: "",
-            attachments: HashMap::new(),
-            content: HashMap::new(),
-            headers: HashMap::new(),
-            x_smtpapi: "",
-        }
+        Mail::default()
     }
 
     /// Adds a CC recipient to the Mail struct.
@@ -135,7 +120,7 @@ impl<'a> Mail<'a> {
         if let Some(name) = path.as_ref().to_str() {
             self.attachments.insert(String::from(name), data);
         } else {
-            return Err(SendgridError::InvalidFilename.into());
+            return Err(SendgridError::InvalidFilename);
         }
 
         Ok(self)
