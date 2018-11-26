@@ -4,7 +4,7 @@ use mail::Mail;
 
 use std::io::Read;
 
-use reqwest::header::{Authorization, Bearer, ContentType, Headers, UserAgent};
+use reqwest::header::{self, HeaderMap, HeaderValue};
 use reqwest::Client;
 
 use url::form_urlencoded::Serializer;
@@ -81,12 +81,16 @@ impl SGClient {
     /// It sets the Content-Type to be application/x-www-form-urlencoded.
     pub fn send(self, mail_info: Mail) -> SendgridResult<String> {
         let client = Client::new();
-        let mut headers = Headers::new();
-        headers.set(Authorization(Bearer {
-            token: self.api_key.to_owned(),
-        }));
-        headers.set(ContentType::form_url_encoded());
-        headers.set(UserAgent::new("sendgrid-rs"));
+        let mut headers = HeaderMap::new();
+        headers.insert(
+            header::AUTHORIZATION,
+            HeaderValue::from_str(&format!("Bearer {}", self.api_key.clone()))?,
+        );
+        headers.insert(
+            header::CONTENT_TYPE,
+            HeaderValue::from_static("application/x-www-form-urlencoded"),
+        );
+        headers.insert(header::USER_AGENT, HeaderValue::from_static("sendgrid-rs"));
 
         let post_body = make_post_body(mail_info)?;
         let mut res = client

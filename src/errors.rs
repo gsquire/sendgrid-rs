@@ -12,6 +12,7 @@ error_chain! {
         Io(io::Error);
         JSONDecode(serde_json::Error);
         ReqwestError(reqwest::Error);
+        HeaderError(reqwest::header::InvalidHeaderValue);
     }
 
     errors {
