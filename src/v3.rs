@@ -114,7 +114,7 @@ impl V3Sender {
         );
         headers.insert(
             header::CONTENT_TYPE,
-            HeaderValue::from_static("application/x-www-form-urlencoded"),
+            HeaderValue::from_static("application/json"),
         );
         headers.insert(header::USER_AGENT, HeaderValue::from_static("sendgrid-rs"));
 
