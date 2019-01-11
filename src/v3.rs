@@ -302,6 +302,11 @@ impl Attachment {
         self.content = BASE64.encode(c);
     }
 
+    /// The base64 body of the attachment.
+    pub fn set_base64_content(&mut self, c: &str) {
+        self.content = String::from(c);
+    }
+
     /// Sets the filename for the attachment.
     pub fn set_filename(&mut self, filename: &str) {
         self.filename = filename.into();
