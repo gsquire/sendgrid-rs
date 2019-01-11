@@ -25,11 +25,16 @@ pub struct V3Sender {
 pub struct SGMailV3 {
     from: Email,
     subject: String,
-    content: Vec<Content>,
     personalizations: Vec<Personalization>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
+    content: Option<Vec<Content>>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     attachments: Option<Vec<Attachment>>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    template_id: Option<String>,
 }
 
 /// An email with a required address and an optional name field.
@@ -138,9 +143,21 @@ impl SGMailV3 {
         self.subject = String::from(subject);
     }
 
+    /// Set the template id.
+    pub fn set_template_id(&mut self, template_id: &str) {
+        self.template_id = Some(String::from(template_id));
+    }
+
     /// Add content to the message.
-    pub fn add_content(&mut self, content: Content) {
-        self.content.push(content);
+    pub fn add_content(&mut self, c: Content) {
+        match self.content {
+            None => {
+                let mut content = Vec::new();
+                content.push(c);
+                self.content = Some(content);
+            }
+            Some(ref mut content) => content.push(c),
+        };
     }
 
     /// Add a personalization to the message.
