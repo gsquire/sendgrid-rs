@@ -21,7 +21,8 @@ fn main() {
         .add_to(Destination {
             address: "you@example.com",
             name: "you there",
-        }).add_from("some@some.com")
+        })
+        .add_from("some@some.com")
         .add_subject("Rust is rad")
         .add_html("<h1>Hello from SendGrid!</h1>")
         .add_from_name("Test")

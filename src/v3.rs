@@ -25,11 +25,16 @@ pub struct V3Sender {
 pub struct SGMailV3 {
     from: Email,
     subject: String,
-    content: Vec<Content>,
     personalizations: Vec<Personalization>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
+    content: Option<Vec<Content>>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     attachments: Option<Vec<Attachment>>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    template_id: Option<String>,
 }
 
 /// An email with a required address and an optional name field.
@@ -72,6 +77,9 @@ pub struct Personalization {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     custom_args: Option<SGMap>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    dynamic_template_data: Option<SGMap>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     send_at: Option<u64>,
@@ -138,9 +146,21 @@ impl SGMailV3 {
         self.subject = String::from(subject);
     }
 
+    /// Set the template id.
+    pub fn set_template_id(&mut self, template_id: &str) {
+        self.template_id = Some(String::from(template_id));
+    }
+
     /// Add content to the message.
-    pub fn add_content(&mut self, content: Content) {
-        self.content.push(content);
+    pub fn add_content(&mut self, c: Content) {
+        match self.content {
+            None => {
+                let mut content = Vec::new();
+                content.push(c);
+                self.content = Some(content);
+            }
+            Some(ref mut content) => content.push(c),
+        };
     }
 
     /// Add a personalization to the message.
@@ -253,6 +273,22 @@ impl Personalization {
             }
         }
     }
+
+    /// Add a dynamic template data field.
+    pub fn add_dynamic_template_data(&mut self, headers: SGMap) {
+        match self.dynamic_template_data {
+            None => {
+                let mut h = HashMap::new();
+                for (name, value) in headers {
+                    h.insert(name, value);
+                }
+                self.headers = Some(h);
+            }
+            Some(ref mut h) => {
+                h.extend(headers);
+            }
+        }
+    }
 }
 
 impl Attachment {
@@ -264,6 +300,11 @@ impl Attachment {
     /// The raw body of the attachment.
     pub fn set_content(&mut self, c: &[u8]) {
         self.content = BASE64.encode(c);
+    }
+
+    /// The base64 body of the attachment.
+    pub fn set_base64_content(&mut self, c: &str) {
+        self.content = String::from(c);
     }
 
     /// Sets the filename for the attachment.
