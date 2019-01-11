@@ -79,6 +79,9 @@ pub struct Personalization {
     custom_args: Option<SGMap>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
+    dynamic_template_data: Option<SGMap>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     send_at: Option<u64>,
 }
 
@@ -258,6 +261,22 @@ impl Personalization {
     /// Add a headers field.
     pub fn add_headers(&mut self, headers: SGMap) {
         match self.headers {
+            None => {
+                let mut h = HashMap::new();
+                for (name, value) in headers {
+                    h.insert(name, value);
+                }
+                self.headers = Some(h);
+            }
+            Some(ref mut h) => {
+                h.extend(headers);
+            }
+        }
+    }
+
+    /// Add a dynamic template data field.
+    pub fn add_dynamic_template_data(&mut self, headers: SGMap) {
+        match self.dynamic_template_data {
             None => {
                 let mut h = HashMap::new();
                 for (name, value) in headers {
