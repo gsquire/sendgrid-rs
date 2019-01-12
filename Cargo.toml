@@ -1,6 +1,6 @@
 [package]
 name = "sendgrid"
-version = "0.7.3"
+version = "0.7.4"
 authors = ["Garrett Squire <garrettsquire@gmail.com>"]
 description = "An unofficial client library for the SendGrid API"
 repository = "https://github.com/gsquire/sendgrid-rs"
