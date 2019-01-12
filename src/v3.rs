@@ -138,9 +138,10 @@ impl SGMailV3 {
         SGMailV3 {
             from: Email::new(),
             subject: String::new(),
-            content: Vec::new(),
+            content: None,
             personalizations: Vec::new(),
             attachments: None,
+            template_id: None,
         }
     }
 
@@ -245,6 +246,7 @@ impl Personalization {
             substitutions: None,
             custom_args: None,
             send_at: None,
+            dynamic_template_data: None,
         }
     }
 
