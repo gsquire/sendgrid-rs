@@ -275,17 +275,17 @@ impl Personalization {
     }
 
     /// Add a dynamic template data field.
-    pub fn add_dynamic_template_data(&mut self, headers: SGMap) {
+    pub fn add_dynamic_template_data(&mut self, dynamic_template_data: SGMap) {
         match self.dynamic_template_data {
             None => {
                 let mut h = HashMap::new();
-                for (name, value) in headers {
+                for (name, value) in dynamic_template_data {
                     h.insert(name, value);
                 }
-                self.headers = Some(h);
+                self.dynamic_template_data = Some(h);
             }
             Some(ref mut h) => {
-                h.extend(headers);
+                h.extend(dynamic_template_data);
             }
         }
     }
