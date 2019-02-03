@@ -13,7 +13,7 @@ fn main() {
         .add_to(Email::new().set_email("test@example.com"))
         .add_headers(cool_header);
 
-    let m = SGMailV3::new()
+    let m = Message::new()
         .set_from(Email::new().set_email("g@gmail.com"))
         .set_subject("Subject")
         .add_content(
@@ -25,7 +25,7 @@ fn main() {
 
     let mut env_vars = ::std::env::vars();
     let api_key = env_vars.find(|v| v.0 == "SG_API_KEY").unwrap();
-    let sender = V3Sender::new(api_key.1);
+    let sender = Sender::new(api_key.1);
     let code = sender.send(&m);
     println!("{:?}", code);
 }

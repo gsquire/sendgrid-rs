@@ -17,14 +17,14 @@ const V3_API_URL: &str = "https://api.sendgrid.com/v3/mail/send";
 pub type SGMap = HashMap<String, String>;
 
 /// Used to send a V3 message body.
-pub struct V3Sender {
+pub struct Sender {
     api_key: String,
 }
 
 /// The main structure for a V3 API mail send call. This is composed of many other smaller
 /// structures used to add lots of customization to your message.
 #[derive(Default, Serialize)]
-pub struct SGMailV3 {
+pub struct Message {
     from: Email,
     subject: String,
     personalizations: Vec<Personalization>,
@@ -106,14 +106,14 @@ pub struct Attachment {
     content_id: Option<String>,
 }
 
-impl V3Sender {
+impl Sender {
     /// Construct a new V3 message sender.
-    pub fn new(api_key: String) -> V3Sender {
-        V3Sender { api_key }
+    pub fn new(api_key: String) -> Sender {
+        Sender { api_key }
     }
 
     /// Send a V3 message and return the status code or an error from the request.
-    pub fn send(&self, mail: &SGMailV3) -> SendgridResult<Response> {
+    pub fn send(&self, mail: &Message) -> SendgridResult<Response> {
         let client = Client::new();
         let mut headers = HeaderMap::new();
         headers.insert(
@@ -132,32 +132,32 @@ impl V3Sender {
     }
 }
 
-impl SGMailV3 {
+impl Message {
     /// Construct a new V3 message.
-    pub fn new() -> SGMailV3 {
-        SGMailV3::default()
+    pub fn new() -> Message {
+        Message::default()
     }
 
     /// Set the from address.
-    pub fn set_from(mut self, from: Email) -> SGMailV3 {
+    pub fn set_from(mut self, from: Email) -> Message {
         self.from = from;
         self
     }
 
     /// Set the subject.
-    pub fn set_subject(mut self, subject: &str) -> SGMailV3 {
+    pub fn set_subject(mut self, subject: &str) -> Message {
         self.subject = String::from(subject);
         self
     }
 
     /// Set the template id.
-    pub fn set_template_id(mut self, template_id: &str) -> SGMailV3 {
+    pub fn set_template_id(mut self, template_id: &str) -> Message {
         self.template_id = Some(String::from(template_id));
         self
     }
 
     /// Add content to the message.
-    pub fn add_content(mut self, c: Content) -> SGMailV3 {
+    pub fn add_content(mut self, c: Content) -> Message {
         match self.content {
             None => {
                 let mut content = Vec::new();
@@ -170,13 +170,13 @@ impl SGMailV3 {
     }
 
     /// Add a personalization to the message.
-    pub fn add_personalization(mut self, p: Personalization) -> SGMailV3 {
+    pub fn add_personalization(mut self, p: Personalization) -> Message {
         self.personalizations.push(p);
         self
     }
 
     /// Add an attachment to the message.
-    pub fn add_attachment(mut self, a: Attachment) -> SGMailV3 {
+    pub fn add_attachment(mut self, a: Attachment) -> Message {
         match self.attachments {
             None => {
                 let mut attachments = Vec::new();
