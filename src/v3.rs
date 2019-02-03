@@ -1,3 +1,5 @@
+//! This module encompasses all types needed to send mail using version 3 of the mail
+//! send API.
 use std::collections::HashMap;
 
 use data_encoding::BASE64;
@@ -137,22 +139,25 @@ impl SGMailV3 {
     }
 
     /// Set the from address.
-    pub fn set_from(&mut self, from: Email) {
+    pub fn set_from(mut self, from: Email) -> SGMailV3 {
         self.from = from;
+        self
     }
 
     /// Set the subject.
-    pub fn set_subject(&mut self, subject: &str) {
+    pub fn set_subject(mut self, subject: &str) -> SGMailV3 {
         self.subject = String::from(subject);
+        self
     }
 
     /// Set the template id.
-    pub fn set_template_id(&mut self, template_id: &str) {
+    pub fn set_template_id(mut self, template_id: &str) -> SGMailV3 {
         self.template_id = Some(String::from(template_id));
+        self
     }
 
     /// Add content to the message.
-    pub fn add_content(&mut self, c: Content) {
+    pub fn add_content(mut self, c: Content) -> SGMailV3 {
         match self.content {
             None => {
                 let mut content = Vec::new();
@@ -161,15 +166,17 @@ impl SGMailV3 {
             }
             Some(ref mut content) => content.push(c),
         };
+        self
     }
 
     /// Add a personalization to the message.
-    pub fn add_personalization(&mut self, p: Personalization) {
+    pub fn add_personalization(mut self, p: Personalization) -> SGMailV3 {
         self.personalizations.push(p);
+        self
     }
 
     /// Add an attachment to the message.
-    pub fn add_attachment(&mut self, a: Attachment) {
+    pub fn add_attachment(mut self, a: Attachment) -> SGMailV3 {
         match self.attachments {
             None => {
                 let mut attachments = Vec::new();
@@ -178,6 +185,7 @@ impl SGMailV3 {
             }
             Some(ref mut attachments) => attachments.push(a),
         };
+        self
     }
 
     fn gen_json(&self) -> String {
@@ -192,13 +200,15 @@ impl Email {
     }
 
     /// Set the address for this email.
-    pub fn set_email(&mut self, email: &str) {
+    pub fn set_email(mut self, email: &str) -> Email {
         self.email = String::from(email);
+        self
     }
 
     /// Set an optional name.
-    pub fn set_name(&mut self, name: &str) {
+    pub fn set_name(mut self, name: &str) -> Email {
         self.name = Some(String::from(name));
+        self
     }
 }
 
@@ -209,13 +219,15 @@ impl Content {
     }
 
     /// Set the type of this content.
-    pub fn set_content_type(&mut self, content_type: &str) {
+    pub fn set_content_type(mut self, content_type: &str) -> Content {
         self.content_type = String::from(content_type);
+        self
     }
 
     /// Set the corresponding message for this content.
-    pub fn set_value(&mut self, value: &str) {
+    pub fn set_value(mut self, value: &str) -> Content {
         self.value = String::from(value);
+        self
     }
 }
 
@@ -226,12 +238,13 @@ impl Personalization {
     }
 
     /// Add a to field.
-    pub fn add_to(&mut self, to: Email) {
+    pub fn add_to(mut self, to: Email) -> Personalization {
         self.to.push(to);
+        self
     }
 
     /// Add a CC field.
-    pub fn add_cc(&mut self, cc: Email) {
+    pub fn add_cc(mut self, cc: Email) -> Personalization {
         match self.cc {
             None => {
                 let mut ccs = Vec::new();
@@ -242,10 +255,11 @@ impl Personalization {
                 c.push(cc);
             }
         }
+        self
     }
 
     /// Add a BCC field.
-    pub fn add_bcc(&mut self, bcc: Email) {
+    pub fn add_bcc(mut self, bcc: Email) -> Personalization {
         match self.bcc {
             None => {
                 let mut bccs = Vec::new();
@@ -256,10 +270,11 @@ impl Personalization {
                 b.push(bcc);
             }
         }
+        self
     }
 
     /// Add a headers field.
-    pub fn add_headers(&mut self, headers: SGMap) {
+    pub fn add_headers(mut self, headers: SGMap) -> Personalization {
         match self.headers {
             None => {
                 let mut h = HashMap::new();
@@ -272,10 +287,11 @@ impl Personalization {
                 h.extend(headers);
             }
         }
+        self
     }
 
     /// Add a dynamic template data field.
-    pub fn add_dynamic_template_data(&mut self, dynamic_template_data: SGMap) {
+    pub fn add_dynamic_template_data(mut self, dynamic_template_data: SGMap) -> Personalization {
         match self.dynamic_template_data {
             None => {
                 let mut h = HashMap::new();
@@ -288,6 +304,7 @@ impl Personalization {
                 h.extend(dynamic_template_data);
             }
         }
+        self
     }
 }
 
@@ -298,23 +315,27 @@ impl Attachment {
     }
 
     /// The raw body of the attachment.
-    pub fn set_content(&mut self, c: &[u8]) {
+    pub fn set_content(mut self, c: &[u8]) -> Attachment {
         self.content = BASE64.encode(c);
+        self
     }
 
     /// The base64 body of the attachment.
-    pub fn set_base64_content(&mut self, c: &str) {
+    pub fn set_base64_content(mut self, c: &str) -> Attachment {
         self.content = String::from(c);
+        self
     }
 
     /// Sets the filename for the attachment.
-    pub fn set_filename(&mut self, filename: &str) {
+    pub fn set_filename(mut self, filename: &str) -> Attachment {
         self.filename = filename.into();
+        self
     }
 
     /// Set an optional mime type. Sendgrid will default to 'application/octet-stream'
     /// if unspecified.
-    pub fn set_mime_type(&mut self, mime: &str) {
+    pub fn set_mime_type(mut self, mime: &str) -> Attachment {
         self.mime_type = Some(String::from(mime));
+        self
     }
 }
