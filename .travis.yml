@@ -11,3 +11,5 @@ matrix:
 script:
     - cargo build
     - cargo test
+notifications:
+    email: false
