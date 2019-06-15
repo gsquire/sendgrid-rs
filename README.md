@@ -17,6 +17,12 @@ sendgrid-rs is available on [crates.io](https://crates.io/crates/sendgrid) and c
 sendgrid = "X.X.X"
 ```
 
+You can also compile with an async clinet for reqwest:
+```toml
+[dependencies]
+sendgrid = { version = "^0.8", features=["async"]}
+```
+
 ## Build Dependencies
 This library utilises [reqwest](https://crates.io/crates/reqwest). Follow the instructions on the
 [reqwest README](https://github.com/seanmonstar/reqwest#requirements) in order to enable sending HTTPS
@@ -29,6 +35,17 @@ find your SendGrid API key in the process environment. In shells such as Bash or
 ```shell
 export SENDGRID_API_KEY="SG.my.api.key"
 ```
+
+Then run these examples with these commands:
+```shell
+cargo run --example main
+```
+
+Async client:
+```shell
+cargo run --example main_async --features="async"
+```
+
 
 ## Documentation
 [Documentation](https://docs.rs/sendgrid)
