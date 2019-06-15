@@ -10,8 +10,14 @@ keywords = ["email"]
 documentation = "https://docs.rs/sendgrid"
 readme = "README.md"
 
+[features]
+# TODO: Deprecate `async` after we can use Generic Associated Types
+# (see https://github.com/rust-lang/rust/issues/44265)
+async = []
+
 [dependencies]
 data-encoding = "2.1"
+futures = "^0.1"
 reqwest = "0.9"
 serde = "1.0"
 serde_derive = "1.0"
@@ -19,3 +25,17 @@ serde_json = "1.0"
 url = "1.7"
 failure = "0.1.2"
 failure_derive = "0.1.2"
+
+[dev-dependencies]
+tokio = "^0.1"
+
+[[example]]
+name = "main_async"
+required-features = ["async"]
+
+[[example]]
+name = "main"
+
+[[example]]
+name = "v3"
+
