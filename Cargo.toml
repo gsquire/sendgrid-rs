@@ -28,3 +28,7 @@ tokio = "^0.1"
 # TODO: Deprecate `async` after we can use Generic Associated Types
 # (see https://github.com/rust-lang/rust/issues/44265)
 async = []
+
+[[example]]
+name = "v3_async"
+required-features = ["async"]
