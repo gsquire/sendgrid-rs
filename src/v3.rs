@@ -4,12 +4,23 @@ use std::collections::HashMap;
 
 use data_encoding::BASE64;
 use reqwest::header::{self, HeaderMap, HeaderValue};
-use reqwest::Client;
 use serde_json;
 
+#[cfg(not(feature = "async"))]
 pub use reqwest::Response;
-
+#[cfg(not(feature = "async"))]
 use errors::SendgridResult;
+#[cfg(not(feature = "async"))]
+use reqwest::Client;
+
+#[cfg(feature = "async")]
+use reqwest::r#async::Client;
+#[cfg(feature = "async")]
+use futures::Future;
+#[cfg(feature = "async")]
+pub use reqwest::r#async::Response;
+#[cfg(feature = "async")]
+use errors::SendgridError;
 
 const V3_API_URL: &str = "https://api.sendgrid.com/v3/mail/send";
 
@@ -113,6 +124,25 @@ impl Sender {
         Sender { api_key }
     }
 
+    #[cfg(feature = "async")]
+    pub fn send(&self, mail: &Message) -> impl Future<Item=Response, Error=SendgridError> {
+        let client = Client::new();
+        let mut headers = HeaderMap::new();
+        headers.insert(
+            header::AUTHORIZATION,
+            HeaderValue::from_str(&format!("Bearer {}", self.api_key.clone())).expect("Error while set api key in header."),
+        );
+        headers.insert(
+            header::CONTENT_TYPE,
+            HeaderValue::from_static("application/json"),
+        );
+        headers.insert(header::USER_AGENT, HeaderValue::from_static("sendgrid-rs"));
+
+        let body = mail.gen_json();
+        client.post(V3_API_URL).headers(headers).body(body).send().map_err(|err| SendgridError::from(err))
+    }
+
+    #[cfg(not(feature = "async"))]
     /// Send a V3 message and return the status code or an error from the request.
     pub fn send(&self, mail: &Message) -> SendgridResult<Response> {
         let client = Client::new();

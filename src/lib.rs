@@ -9,6 +9,8 @@ extern crate reqwest;
 extern crate serde;
 extern crate serde_json;
 extern crate url;
+#[cfg(feature = "async")]
+extern crate futures;
 
 pub mod errors;
 mod mail;
