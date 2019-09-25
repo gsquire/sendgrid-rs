@@ -1,15 +1,23 @@
 //! This module encompasses all types needed to send mail using version 3 of the mail
 //! send API.
+use reqwest::header::InvalidHeaderValue;
 use std::collections::HashMap;
 
 use data_encoding::BASE64;
 use reqwest::header::{self, HeaderMap, HeaderValue};
-use reqwest::Client;
 use serde_json;
 
-pub use reqwest::Response;
-
+#[cfg(not(feature = "async"))]
+pub use reqwest::{Response, Client};
+#[cfg(not(feature = "async"))]
 use errors::SendgridResult;
+
+#[cfg(feature = "async")]
+use reqwest::r#async::{Client, Response};
+#[cfg(feature = "async")]
+use futures::{Future, future::result};
+#[cfg(feature = "async")]
+use errors::SendgridError;
 
 const V3_API_URL: &str = "https://api.sendgrid.com/v3/mail/send";
 
@@ -113,9 +121,7 @@ impl Sender {
         Sender { api_key }
     }
 
-    /// Send a V3 message and return the status code or an error from the request.
-    pub fn send(&self, mail: &Message) -> SendgridResult<Response> {
-        let client = Client::new();
+    fn get_headers(&self) -> Result<HeaderMap, InvalidHeaderValue> {
         let mut headers = HeaderMap::new();
         headers.insert(
             header::AUTHORIZATION,
@@ -126,7 +132,28 @@ impl Sender {
             HeaderValue::from_static("application/json"),
         );
         headers.insert(header::USER_AGENT, HeaderValue::from_static("sendgrid-rs"));
+        Ok(headers)
+    }
 
+    #[cfg(feature = "async")]
+    /// Send a V3 message in async and return future response.  
+    /// The function need to be polled. For further information see [future documentation](https://docs.rs/futures/0.1.29/futures/future/trait.Future.html) and [tokio documentation](https://tokio.rs/docs/getting-started/futures/).
+    pub fn send(&self, mail: &Message) -> impl Future<Item=Response, Error=SendgridError>{
+        let body = mail.gen_json();
+        let headers_fut = result(self.get_headers());
+        headers_fut
+        .from_err()
+        .and_then(|headers| {
+            let client = Client::new();
+            return client.post(V3_API_URL).headers(headers).body(body).send().map_err(|err| SendgridError::from(err))
+        })
+    }
+
+    #[cfg(not(feature = "async"))]
+    /// Send a V3 message and return the status code or an error from the request.
+    pub fn send(&self, mail: &Message) -> SendgridResult<Response> {
+        let client = Client::new();
+        let headers = self.get_headers()?;
         let body = mail.gen_json();
         let res = client.post(V3_API_URL).headers(headers).body(body).send()?;
         Ok(res)
