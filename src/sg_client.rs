@@ -4,10 +4,10 @@ use reqwest::header::{self, HeaderMap, HeaderValue};
 use reqwest::Client;
 use url::form_urlencoded::Serializer;
 
-use errors::SendgridResult;
-use mail::Mail;
+use crate::errors::SendgridResult;
+use crate::mail::Mail;
 
-static API_URL: &'static str = "https://api.sendgrid.com/api/mail.send.json?";
+static API_URL: &str = "https://api.sendgrid.com/api/mail.send.json?";
 
 /// This is the struct that allows you to authenticate to the SendGrid API.
 /// It's only field is the API key which allows you to send messages.
@@ -102,7 +102,7 @@ impl SGClient {
 
 #[test]
 fn basic_message_body() {
-    use mail::Destination;
+    use crate::mail::Destination;
 
     let m = Mail::new()
         .add_to(Destination {

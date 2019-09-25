@@ -5,7 +5,7 @@ use std::path::Path;
 
 use serde_json;
 
-use errors::{SendgridError, SendgridResult};
+use crate::errors::{SendgridError, SendgridResult};
 
 macro_rules! add_field {
     // Create a setter that appends.
