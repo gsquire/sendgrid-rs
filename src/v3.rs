@@ -15,7 +15,7 @@ use errors::SendgridResult;
 #[cfg(feature = "async")]
 use reqwest::r#async::{Client, Response};
 #[cfg(feature = "async")]
-use futures::Future;
+use futures::{Future, future::result};
 #[cfg(feature = "async")]
 use errors::SendgridError;
 
@@ -140,7 +140,13 @@ impl Sender {
     /// The function need to be polled. For further information see [future documentation](https://docs.rs/futures/0.1.29/futures/future/trait.Future.html) and [tokio documentation](https://tokio.rs/docs/getting-started/futures/).
     pub fn send(&self, mail: &Message) -> impl Future<Item=Response, Error=SendgridError>{
         let body = mail.gen_json();
-        client.post(V3_API_URL).headers(headers).body(body).send().map_err(|err| SendgridError::from(err))
+        let headers_fut = result(self.get_headers());
+        headers_fut
+        .from_err()
+        .and_then(|headers| {
+            let client = Client::new();
+            return client.post(V3_API_URL).headers(headers).body(body).send().map_err(|err| SendgridError::from(err))
+        })
     }
 
     #[cfg(not(feature = "async"))]
