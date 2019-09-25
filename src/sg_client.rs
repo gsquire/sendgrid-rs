@@ -102,7 +102,7 @@ impl SGClient {
 
 #[test]
 fn basic_message_body() {
-    use mail::Destination;
+    use crate::mail::Destination;
 
     let m = Mail::new()
         .add_to(Destination {
