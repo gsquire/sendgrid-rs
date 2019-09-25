@@ -8,16 +8,16 @@ use reqwest::header::{self, HeaderMap, HeaderValue};
 use serde_json;
 
 #[cfg(not(feature = "async"))]
-pub use reqwest::{Response, Client};
-#[cfg(not(feature = "async"))]
 use errors::SendgridResult;
+#[cfg(not(feature = "async"))]
+pub use reqwest::{Client, Response};
 
 #[cfg(feature = "async")]
-use reqwest::r#async::{Client, Response};
-#[cfg(feature = "async")]
-use futures::{Future, future::result};
-#[cfg(feature = "async")]
 use errors::SendgridError;
+#[cfg(feature = "async")]
+use futures::{future::result, Future};
+#[cfg(feature = "async")]
+use reqwest::r#async::{Client, Response};
 
 const V3_API_URL: &str = "https://api.sendgrid.com/v3/mail/send";
 
@@ -136,16 +136,20 @@ impl Sender {
     }
 
     #[cfg(feature = "async")]
-    /// Send a V3 message in async and return future response.  
-    /// The function need to be polled. For further information see [future documentation](https://docs.rs/futures/0.1.29/futures/future/trait.Future.html) and [tokio documentation](https://tokio.rs/docs/getting-started/futures/).
-    pub fn send(&self, mail: &Message) -> impl Future<Item=Response, Error=SendgridError>{
+    /// Send an asynchronous V3 message and return a future.
+    /// The function needs to be polled as futures are lazy. For further information see
+    /// [the future documentation](https://docs.rs/futures/0.1.29/futures/future/trait.Future.html) and
+    /// [the tokio documentation](https://tokio.rs/docs/getting-started/futures/).
+    pub fn send(&self, mail: &Message) -> impl Future<Item = Response, Error = SendgridError> {
         let body = mail.gen_json();
-        let headers_fut = result(self.get_headers());
-        headers_fut
-        .from_err()
-        .and_then(|headers| {
+        result(self.get_headers()).from_err().and_then(|headers| {
             let client = Client::new();
-            return client.post(V3_API_URL).headers(headers).body(body).send().map_err(|err| SendgridError::from(err))
+            return client
+                .post(V3_API_URL)
+                .headers(headers)
+                .body(body)
+                .send()
+                .map_err(|err| SendgridError::from(err));
         })
     }
 

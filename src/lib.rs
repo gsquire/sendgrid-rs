@@ -5,12 +5,12 @@ extern crate failure_derive;
 
 extern crate data_encoding;
 extern crate failure;
+#[cfg(feature = "async")]
+extern crate futures;
 extern crate reqwest;
 extern crate serde;
 extern crate serde_json;
 extern crate url;
-#[cfg(feature = "async")]
-extern crate futures;
 
 pub mod errors;
 mod mail;
