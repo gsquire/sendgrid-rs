@@ -7,7 +7,7 @@ use url::form_urlencoded::Serializer;
 use crate::errors::SendgridResult;
 use crate::mail::Mail;
 
-static API_URL: &'static str = "https://api.sendgrid.com/api/mail.send.json?";
+static API_URL: &str = "https://api.sendgrid.com/api/mail.send.json?";
 
 /// This is the struct that allows you to authenticate to the SendGrid API.
 /// It's only field is the API key which allows you to send messages.
