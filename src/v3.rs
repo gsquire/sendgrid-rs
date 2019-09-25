@@ -8,12 +8,12 @@ use reqwest::header::{self, HeaderMap, HeaderValue};
 use serde_json;
 
 #[cfg(not(feature = "async"))]
-use errors::SendgridResult;
+use crate::errors::SendgridResult;
 #[cfg(not(feature = "async"))]
 pub use reqwest::{Client, Response};
 
 #[cfg(feature = "async")]
-use errors::SendgridError;
+use crate::errors::SendgridError;
 #[cfg(feature = "async")]
 use futures::{future::result, Future};
 #[cfg(feature = "async")]
