@@ -121,7 +121,6 @@ impl Sender {
         Sender { api_key }
     }
 
-    /// Create headers for the request
     fn get_headers(&self) -> Result<HeaderMap, InvalidHeaderValue> {
         let mut headers = HeaderMap::new();
         headers.insert(
@@ -137,9 +136,9 @@ impl Sender {
     }
 
     #[cfg(feature = "async")]
-    pub fn send(&self, mail: &Message) -> impl Future<Item=Response, Error=SendgridError> {
-        let client = Client::new();
-        let headers = self.get_headers().expect("Error while set api key in header.");
+    /// Send a V3 message in async and return future response.  
+    /// The function need to be polled. For further information see [future documentation](https://docs.rs/futures/0.1.29/futures/future/trait.Future.html) and [tokio documentation](https://tokio.rs/docs/getting-started/futures/).
+    pub fn send(&self, mail: &Message) -> impl Future<Item=Response, Error=SendgridError>{
         let body = mail.gen_json();
         client.post(V3_API_URL).headers(headers).body(body).send().map_err(|err| SendgridError::from(err))
     }
