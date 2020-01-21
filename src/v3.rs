@@ -9,15 +9,11 @@ use serde_json;
 
 #[cfg(not(feature = "async"))]
 use crate::errors::SendgridResult;
-#[cfg(not(feature = "async"))]
-pub use reqwest::{Client, Response};
 
 #[cfg(feature = "async")]
 use crate::errors::SendgridError;
 #[cfg(feature = "async")]
 use futures::{future::result, Future};
-#[cfg(feature = "async")]
-use reqwest::r#async::{Client, Response};
 
 const V3_API_URL: &str = "https://api.sendgrid.com/v3/mail/send";
 
@@ -140,23 +136,27 @@ impl Sender {
     /// The function needs to be polled as futures are lazy. For further information see
     /// [the future documentation](https://docs.rs/futures/0.1.29/futures/future/trait.Future.html) and
     /// [the tokio documentation](https://tokio.rs/docs/getting-started/futures/).
-    pub fn send(&self, mail: &Message) -> impl Future<Item = Response, Error = SendgridError> {
-        let body = mail.gen_json();
-        result(self.get_headers()).from_err().and_then(|headers| {
-            let client = Client::new();
-            return client
+    pub async fn send(&self, mail: &Message) -> Result<reqwest::Response, SendgridError> {
+        use reqwest::Client;
+
+        let headers_res = self.get_headers();
+
+        if let Ok(headers) = headers_res {
+            Client::new()
                 .post(V3_API_URL)
                 .headers(headers)
-                .body(body)
-                .send()
-                .map_err(|err| SendgridError::from(err));
-        })
+                .body(mail.gen_json())
+                .send().await
+                .map_err(|err| SendgridError::from(err))
+        } else {
+            Err(SendgridError::from(headers_res.unwrap_err()))
+        }
     }
 
     #[cfg(not(feature = "async"))]
     /// Send a V3 message and return the status code or an error from the request.
-    pub fn send(&self, mail: &Message) -> SendgridResult<Response> {
-        let client = Client::new();
+    pub fn send(&self, mail: &Message) -> SendgridResult<reqwest::blocking::Response> {
+        let client = reqwest::blocking::Client::new();
         let headers = self.get_headers()?;
         let body = mail.gen_json();
         let res = client.post(V3_API_URL).headers(headers).body(body).send()?;

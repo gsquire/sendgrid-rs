@@ -1,7 +1,4 @@
-use std::io::Read;
-
 use reqwest::header::{self, HeaderMap, HeaderValue};
-use reqwest::Client;
 use url::form_urlencoded::Serializer;
 
 use crate::errors::SendgridResult;
@@ -76,6 +73,8 @@ impl SGClient {
     /// argument. It returns the string response from the API as JSON.
     /// It sets the Content-Type to be application/x-www-form-urlencoded.
     pub fn send(&self, mail_info: Mail) -> SendgridResult<String> {
+        use reqwest::blocking::Client;
+
         let client = Client::new();
         let mut headers = HeaderMap::new();
         headers.insert(
@@ -89,14 +88,13 @@ impl SGClient {
         headers.insert(header::USER_AGENT, HeaderValue::from_static("sendgrid-rs"));
 
         let post_body = make_post_body(mail_info)?;
-        let mut res = client
+        let res = client
             .post(API_URL)
             .headers(headers)
             .body(post_body)
             .send()?;
-        let mut body = String::new();
-        res.read_to_string(&mut body)?;
-        Ok(body)
+
+        res.text().map_err(|e| e.into())
     }
 }
 

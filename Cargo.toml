@@ -13,7 +13,7 @@ readme = "README.md"
 
 [dependencies]
 data-encoding = "2.1"
-reqwest = "0.9"
+reqwest = { version = "0.10.1", features = ["json", "blocking"] }
 futures = "^0.1"
 serde = "1.0"
 serde_derive = "1.0"
