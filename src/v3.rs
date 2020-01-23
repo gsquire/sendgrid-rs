@@ -1,10 +1,10 @@
 //! This module encompasses all types needed to send mail using version 3 of the mail
 //! send API.
-use reqwest::header::InvalidHeaderValue;
 use std::collections::HashMap;
 
 use data_encoding::BASE64;
-use reqwest::header::{self, HeaderMap, HeaderValue};
+use reqwest::header::{self, HeaderMap, HeaderValue, InvalidHeaderValue};
+use serde::Serialize;
 use serde_json;
 
 #[cfg(feature = "async")]
@@ -143,7 +143,8 @@ impl Sender {
                 .post(V3_API_URL)
                 .headers(headers)
                 .body(mail.gen_json())
-                .send().await
+                .send()
+                .await
                 .map_err(|err| SendgridError::from(err))
         } else {
             Err(SendgridError::from(headers_res.unwrap_err()))

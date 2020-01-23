@@ -1,5 +1,6 @@
 use std::io;
 
+use failure::Fail;
 use reqwest::{self, header::InvalidHeaderValue};
 use serde_json;
 
