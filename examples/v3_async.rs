@@ -26,8 +26,7 @@ async fn main() -> Result<(), SendgridError> {
     let mut env_vars = ::std::env::vars();
     let api_key = env_vars.find(|v| v.0 == "SG_API_KEY").unwrap();
     let sender = Sender::new(api_key.1);
-    let resp = sender
-        .send(&m).await?;
+    let resp = sender.send(&m).await?;
     println!("status: {}", resp.status());
 
     Ok(())
