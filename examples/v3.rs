@@ -1,5 +1,3 @@
-extern crate sendgrid;
-
 use std::collections::HashMap;
 
 use sendgrid::v3::*;

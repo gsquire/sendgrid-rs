@@ -1,12 +1,10 @@
-extern crate futures;
-extern crate sendgrid;
-
 use std::collections::HashMap;
 
-use futures::future::Future;
+use sendgrid::errors::SendgridError;
 use sendgrid::v3::*;
 
-fn main() {
+#[tokio::main]
+async fn main() -> Result<(), SendgridError> {
     let mut cool_header = HashMap::new();
     cool_header.insert(String::from("x-cool"), String::from("indeed"));
     cool_header.insert(String::from("x-cooler"), String::from("cold"));
@@ -28,9 +26,9 @@ fn main() {
     let mut env_vars = ::std::env::vars();
     let api_key = env_vars.find(|v| v.0 == "SG_API_KEY").unwrap();
     let sender = Sender::new(api_key.1);
-    let code = sender
-        .send(&m)
-        .map(|resp| println!("{:?}", resp))
-        .map_err(|err| println!("err: {:?}", err));
-    tokio::run(code);
+    let resp = sender
+        .send(&m).await?;
+    println!("status: {}", resp.status());
+
+    Ok(())
 }

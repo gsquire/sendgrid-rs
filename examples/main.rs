@@ -1,5 +1,3 @@
-extern crate sendgrid;
-
 use sendgrid::SGClient;
 use sendgrid::{Destination, Mail};
 

@@ -7,13 +7,10 @@ use data_encoding::BASE64;
 use reqwest::header::{self, HeaderMap, HeaderValue};
 use serde_json;
 
-#[cfg(not(feature = "async"))]
-use crate::errors::SendgridResult;
-
 #[cfg(feature = "async")]
 use crate::errors::SendgridError;
-#[cfg(feature = "async")]
-use futures::{future::result, Future};
+
+use crate::errors::SendgridResult;
 
 const V3_API_URL: &str = "https://api.sendgrid.com/v3/mail/send";
 
@@ -136,7 +133,7 @@ impl Sender {
     /// The function needs to be polled as futures are lazy. For further information see
     /// [the future documentation](https://docs.rs/futures/0.1.29/futures/future/trait.Future.html) and
     /// [the tokio documentation](https://tokio.rs/docs/getting-started/futures/).
-    pub async fn send(&self, mail: &Message) -> Result<reqwest::Response, SendgridError> {
+    pub async fn send(&self, mail: &Message) -> SendgridResult<reqwest::Response> {
         use reqwest::Client;
 
         let headers_res = self.get_headers();
