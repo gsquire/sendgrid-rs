@@ -129,10 +129,7 @@ impl Sender {
     }
 
     #[cfg(feature = "async")]
-    /// Send an asynchronous V3 message and return a future.
-    /// The function needs to be polled as futures are lazy. For further information see
-    /// [the future documentation](https://docs.rs/futures/0.1.29/futures/future/trait.Future.html) and
-    /// [the tokio documentation](https://tokio.rs/docs/getting-started/futures/).
+    /// Send a V3 message and return the HTTP response or an error.
     pub async fn send(&self, mail: &Message) -> SendgridResult<reqwest::Response> {
         use reqwest::Client;
 
@@ -152,7 +149,7 @@ impl Sender {
     }
 
     #[cfg(not(feature = "async"))]
-    /// Send a V3 message and return the status code or an error from the request.
+    /// Send a V3 message and return the HTTP response or an error.
     pub fn send(&self, mail: &Message) -> SendgridResult<reqwest::blocking::Response> {
         let client = reqwest::blocking::Client::new();
         let headers = self.get_headers()?;
