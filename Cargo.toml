@@ -13,7 +13,7 @@ readme = "README.md"
 
 [dependencies]
 data-encoding = "2.1"
-reqwest = { version = "0.10", default-features = false, features = ["json", "blocking", "rustls-tls"] }
+reqwest = { version = "0.10", default-features = false, features = ["json", "blocking"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 url = "2.1"
@@ -24,6 +24,7 @@ tokio = { version = "0.2", features = ["macros"] }
 
 [features]
 async = []
+rustls = ["reqwest/rustls-tls"]
 
 [[example]]
 name = "v3_async"
