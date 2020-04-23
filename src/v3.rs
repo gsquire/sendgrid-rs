@@ -7,7 +7,6 @@ use reqwest::header::{self, HeaderMap, HeaderValue, InvalidHeaderValue};
 use serde::Serialize;
 use serde_json;
 
-#[cfg(feature = "async")]
 use crate::errors::SendgridError;
 
 use crate::errors::SendgridResult;
@@ -133,18 +132,19 @@ impl Sender {
     pub async fn send(&self, mail: &Message) -> SendgridResult<reqwest::Response> {
         use reqwest::Client;
 
-        let headers_res = self.get_headers();
+        let headers = self.get_headers()?;
 
-        if let Ok(headers) = headers_res {
-            Client::new()
-                .post(V3_API_URL)
-                .headers(headers)
-                .body(mail.gen_json())
-                .send()
-                .await
-                .map_err(|err| SendgridError::from(err))
+        let res = Client::new()
+            .post(V3_API_URL)
+            .headers(headers)
+            .body(mail.gen_json())
+            .send()
+            .await
+            .map_err(|err| SendgridError::from(err))?;
+        if !res.status().is_success() {
+            Err(SendgridError::RequestNotSuccessful(res.status()))
         } else {
-            Err(SendgridError::from(headers_res.unwrap_err()))
+            Ok(res)
         }
     }
 
@@ -155,7 +155,11 @@ impl Sender {
         let headers = self.get_headers()?;
         let body = mail.gen_json();
         let res = client.post(V3_API_URL).headers(headers).body(body).send()?;
-        Ok(res)
+        if !res.status().is_success() {
+            Err(SendgridError::RequestNotSuccessful(res.status()))
+        } else {
+            Ok(res)
+        }
     }
 }
 

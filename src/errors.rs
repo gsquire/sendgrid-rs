@@ -16,6 +16,8 @@ pub enum SendgridError {
     InvalidHeader(#[cause] InvalidHeaderValue),
     #[fail(display = "could not UTF-8 decode this filename")]
     InvalidFilename,
+    #[fail(display = "Request failed with StatusCode: {}", _0)]
+    RequestNotSuccessful(reqwest::StatusCode),
 }
 
 impl From<reqwest::Error> for SendgridError {

@@ -1,7 +1,7 @@
 use reqwest::header::{self, HeaderMap, HeaderValue};
 use url::form_urlencoded::Serializer;
 
-use crate::errors::SendgridResult;
+use crate::errors::{SendgridError, SendgridResult};
 use crate::mail::Mail;
 
 static API_URL: &str = "https://api.sendgrid.com/api/mail.send.json?";
@@ -94,7 +94,11 @@ impl SGClient {
             .body(post_body)
             .send()?;
 
-        res.text().map_err(|e| e.into())
+        if !res.status().is_success() {
+            Err(SendgridError::RequestNotSuccessful(res.status()))
+        } else {
+            Ok(res.text()?)
+        }
     }
 }
 
