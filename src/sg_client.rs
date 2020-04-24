@@ -95,7 +95,10 @@ impl SGClient {
             .send()?;
 
         if !res.status().is_success() {
-            Err(SendgridError::RequestNotSuccessful(res.status()))
+            Err(SendgridError::RequestNotSuccessful(
+                res.status(),
+                res.text()?,
+            ))
         } else {
             Ok(res.text()?)
         }

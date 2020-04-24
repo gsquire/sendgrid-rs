@@ -141,8 +141,12 @@ impl Sender {
             .send()
             .await
             .map_err(|err| SendgridError::from(err))?;
+
         if !res.status().is_success() {
-            Err(SendgridError::RequestNotSuccessful(res.status()))
+            Err(SendgridError::RequestNotSuccessful(
+                res.status(),
+                res.text()?,
+            ))
         } else {
             Ok(res)
         }
@@ -155,8 +159,12 @@ impl Sender {
         let headers = self.get_headers()?;
         let body = mail.gen_json();
         let res = client.post(V3_API_URL).headers(headers).body(body).send()?;
+
         if !res.status().is_success() {
-            Err(SendgridError::RequestNotSuccessful(res.status()))
+            Err(SendgridError::RequestNotSuccessful(
+                res.status(),
+                res.text()?,
+            ))
         } else {
             Ok(res)
         }
