@@ -145,7 +145,7 @@ impl Sender {
         if !res.status().is_success() {
             Err(SendgridError::RequestNotSuccessful(
                 res.status(),
-                res.text()?,
+                res.text().await?,
             ))
         } else {
             Ok(res)
