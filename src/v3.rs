@@ -20,6 +20,10 @@ pub type SGMap = HashMap<String, String>;
 #[derive(Clone, Debug)]
 pub struct Sender {
     api_key: String,
+    #[cfg(feature = "async")]
+    client: reqwest::Client,
+    #[cfg(not(feature = "async"))]
+    client: reqwest::blocking::Client
 }
 
 /// The main structure for a V3 API mail send call. This is composed of many other smaller
@@ -110,7 +114,13 @@ pub struct Attachment {
 impl Sender {
     /// Construct a new V3 message sender.
     pub fn new(api_key: String) -> Sender {
-        Sender { api_key }
+        Sender {
+            api_key,
+            #[cfg(feature = "async")]
+            client: reqwest::Client::new(),
+            #[cfg(not(feature = "async"))]
+            client: reqwest::blocking::Client::new(),
+        }
     }
 
     fn get_headers(&self) -> Result<HeaderMap, InvalidHeaderValue> {
@@ -130,11 +140,9 @@ impl Sender {
     #[cfg(feature = "async")]
     /// Send a V3 message and return the HTTP response or an error.
     pub async fn send(&self, mail: &Message) -> SendgridResult<reqwest::Response> {
-        use reqwest::Client;
-
         let headers = self.get_headers()?;
 
-        let res = Client::new()
+        let res = self.client
             .post(V3_API_URL)
             .headers(headers)
             .body(mail.gen_json())
@@ -155,10 +163,9 @@ impl Sender {
     #[cfg(not(feature = "async"))]
     /// Send a V3 message and return the HTTP response or an error.
     pub fn send(&self, mail: &Message) -> SendgridResult<reqwest::blocking::Response> {
-        let client = reqwest::blocking::Client::new();
         let headers = self.get_headers()?;
         let body = mail.gen_json();
-        let res = client.post(V3_API_URL).headers(headers).body(body).send()?;
+        let res = self.client.post(V3_API_URL).headers(headers).body(body).send()?;
 
         if !res.status().is_success() {
             Err(SendgridError::RequestNotSuccessful(
