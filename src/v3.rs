@@ -23,7 +23,7 @@ pub struct Sender {
     #[cfg(feature = "async")]
     client: reqwest::Client,
     #[cfg(not(feature = "async"))]
-    client: reqwest::blocking::Client
+    client: reqwest::blocking::Client,
 }
 
 /// The main structure for a V3 API mail send call. This is composed of many other smaller
@@ -142,7 +142,8 @@ impl Sender {
     pub async fn send(&self, mail: &Message) -> SendgridResult<reqwest::Response> {
         let headers = self.get_headers()?;
 
-        let res = self.client
+        let res = self
+            .client
             .post(V3_API_URL)
             .headers(headers)
             .body(mail.gen_json())
@@ -165,7 +166,12 @@ impl Sender {
     pub fn send(&self, mail: &Message) -> SendgridResult<reqwest::blocking::Response> {
         let headers = self.get_headers()?;
         let body = mail.gen_json();
-        let res = self.client.post(V3_API_URL).headers(headers).body(body).send()?;
+        let res = self
+            .client
+            .post(V3_API_URL)
+            .headers(headers)
+            .body(body)
+            .send()?;
 
         if !res.status().is_success() {
             Err(SendgridError::RequestNotSuccessful(

@@ -7,7 +7,7 @@ use crate::mail::Mail;
 static API_URL: &str = "https://api.sendgrid.com/api/mail.send.json?";
 
 /// This is the struct that allows you to authenticate to the SendGrid API.
-/// It contains the API key which allows you to send messages, as well as a blocking request client.
+/// It contains the API key which allows you to send messages as well as a blocking request client.
 #[derive(Clone, Debug)]
 pub struct SGClient {
     api_key: String,
@@ -67,7 +67,10 @@ fn make_post_body(mut mail_info: Mail) -> SendgridResult<String> {
 impl SGClient {
     /// Makes a new SendGrid cient with the specified API key.
     pub fn new(key: String) -> SGClient {
-        SGClient { api_key: key, client: reqwest::blocking::Client::new() }
+        SGClient {
+            api_key: key,
+            client: reqwest::blocking::Client::new(),
+        }
     }
 
     /// Sends a messages through the SendGrid API. It takes a Mail struct as an
@@ -86,7 +89,8 @@ impl SGClient {
         headers.insert(header::USER_AGENT, HeaderValue::from_static("sendgrid-rs"));
 
         let post_body = make_post_body(mail_info)?;
-        let res = self.client
+        let res = self
+            .client
             .post(API_URL)
             .headers(headers)
             .body(post_body)
