@@ -20,6 +20,11 @@
 //!
 //! # Features
 //! The projects has the following feature flags:
+//! * `rustls`: this feature flag switches the default SSL provider (OpenSSL) with RusTLS, which is
+//! an OpenSSL reimplementation in Rust.
+//! * `async`: this feature flag changes the `send` function on the `SGClient` into an `async fn`.
+//! Note that without this feature flag, constructing an `SGClient` inside an `async fn` is not
+//! possible.
 //! 
 //! ## Build Dependencies
 //! This library utilises [reqwest](https://crates.io/crates/reqwest). Follow the instructions on
