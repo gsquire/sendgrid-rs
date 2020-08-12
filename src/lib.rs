@@ -34,11 +34,6 @@
 //! the [reqwest README](https://github.com/seanmonstar/reqwest#requirements) in order to enable
 //! sending HTTPS requests to the SendGrid API.
 //! 
-//! ## Features
-//! You can take advantage of a couple features for the crate. To enable the asynchronous send
-//! function, you can use the `async` flag. To enable the [rustls](https://github.com/ctz/rustls)
-//! TLS feature, use the `rustls` flag.
-//! 
 //! ## Example
 //! An example of using this library can be found in the examples directory. This example code
 //! expects to find your SendGrid API key in the process environment. In shells such as Bash or ZSH
