@@ -68,13 +68,20 @@ fn make_post_body(mut mail_info: Mail) -> SendgridResult<String> {
 
 impl SGClient {
     /// Makes a new SendGrid cient with the specified API key.
-    pub fn new<S: std::string::ToString>(key: S) -> SGClient {
+    pub fn new<S: Into<String>>(key: S) -> SGClient {
+        #[cfg(feature = "async")]
+        use reqwest as rq;
+        #[cfg(not(feature = "async"))]
+        use reqwest::blocking as rq;
+
+        let builder = rq::ClientBuilder::new();
+        #[cfg(feature = "rustls")]
+        builder.use_rustls_tls();
+        let client = builder.build().unwrap(); 
+
         SGClient {
-            api_key: key.to_string(),
-            #[cfg(feature = "async")]
-            client: reqwest::Client::new(),
-            #[cfg(not(feature = "async"))]
-            client: reqwest::blocking::Client::new(),
+            api_key: key.into(),
+            client,
         }
     }
 
@@ -129,6 +136,8 @@ impl SGClient {
     /// 
     /// ### Example
     /// ```rust
+    /// # #[tokio::main]
+    /// # async fn main() {
     /// use sendgrid::{Mail, SGClient};
     ///
     /// let mail = Mail::new()
@@ -137,7 +146,9 @@ impl SGClient {
     ///     .add_to(("your-email@address.com", "Your Name").into());
     /// let response = SGClient::new("MY_SECRET_KEY")
     ///     .send(mail)
+    ///     .await
     ///     .unwrap();
+    /// # }
     /// ```
     #[cfg(feature = "async")]
     pub async fn send(&self, mail_info: Mail<'_>) -> SendgridResult<String> {
