@@ -1,0 +1,3 @@
+removed unnecessary imports
+added docs
+modified macro to handle docs

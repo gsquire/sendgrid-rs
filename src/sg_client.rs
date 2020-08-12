@@ -1,6 +1,5 @@
 use reqwest::header::{self, HeaderMap, HeaderValue};
 use url::form_urlencoded::Serializer;
-
 use crate::errors::{SendgridError, SendgridResult};
 use crate::mail::Mail;
 
@@ -11,12 +10,15 @@ static API_URL: &str = "https://api.sendgrid.com/api/mail.send.json?";
 #[derive(Clone, Debug)]
 pub struct SGClient {
     api_key: String,
+    #[cfg(feature = "async")]
+    client: reqwest::Client,
+    #[cfg(not(feature = "async"))]
     client: reqwest::blocking::Client,
 }
 
 // Given a form value and a key, generate the correct key.
 fn make_form_key(form: &str, key: &str) -> String {
-    let mut value = String::new();
+    let mut value = String::with_capacity(form.len() + key.len() + 2);
     value.push_str(form);
     value.push('[');
     value.push_str(key);
@@ -66,16 +68,32 @@ fn make_post_body(mut mail_info: Mail) -> SendgridResult<String> {
 
 impl SGClient {
     /// Makes a new SendGrid cient with the specified API key.
-    pub fn new(key: String) -> SGClient {
+    pub fn new<S: std::string::ToString>(key: S) -> SGClient {
         SGClient {
-            api_key: key,
+            api_key: key.to_string(),
+            #[cfg(feature = "async")]
+            client: reqwest::Client::new(),
+            #[cfg(not(feature = "async"))]
             client: reqwest::blocking::Client::new(),
         }
     }
 
-    /// Sends a messages through the SendGrid API. It takes a Mail struct as an
-    /// argument. It returns the string response from the API as JSON.
-    /// It sets the Content-Type to be application/x-www-form-urlencoded.
+    /// Sends a messages through the SendGrid API. It takes a Mail struct as an argument. It returns
+    /// the string response from the API as JSON.
+    /// 
+    /// ### Example
+    /// ```rust
+    /// use sendgrid::{Mail, SGClient};
+    ///
+    /// let mail = Mail::new()
+    ///     .add_from("my-email@address.com")
+    ///     .add_text("hi!")
+    ///     .add_to(("your-email@address.com", "Your Name").into());
+    /// let response = SGClient::new("MY_SECRET_KEY")
+    ///     .send(mail)
+    ///     .unwrap();
+    /// ```
+    #[cfg(not(feature = "async"))]
     pub fn send(&self, mail_info: Mail) -> SendgridResult<String> {
         let mut headers = HeaderMap::new();
         headers.insert(
@@ -103,6 +121,53 @@ impl SGClient {
             ))
         } else {
             Ok(res.text()?)
+        }
+    }
+
+    /// Sends a messages through the SendGrid API. It takes a Mail struct as an argument. It returns
+    /// the string response from the API as JSON.
+    /// 
+    /// ### Example
+    /// ```rust
+    /// use sendgrid::{Mail, SGClient};
+    ///
+    /// let mail = Mail::new()
+    ///     .add_from("my-email@address.com")
+    ///     .add_text("hi!")
+    ///     .add_to(("your-email@address.com", "Your Name").into());
+    /// let response = SGClient::new("MY_SECRET_KEY")
+    ///     .send(mail)
+    ///     .unwrap();
+    /// ```
+    #[cfg(feature = "async")]
+    pub async fn send(&self, mail_info: Mail<'_>) -> SendgridResult<String> {
+        let mut headers = HeaderMap::new();
+        headers.insert(
+            header::AUTHORIZATION,
+            HeaderValue::from_str(&format!("Bearer {}", self.api_key.clone()))?,
+        );
+        headers.insert(
+            header::CONTENT_TYPE,
+            HeaderValue::from_static("application/x-www-form-urlencoded"),
+        );
+        headers.insert(header::USER_AGENT, HeaderValue::from_static("sendgrid-rs"));
+
+        let post_body = make_post_body(mail_info)?;
+        let res = self
+            .client
+            .post(API_URL)
+            .headers(headers)
+            .body(post_body)
+            .send()
+            .await?;
+
+        if !res.status().is_success() {
+            Err(SendgridError::RequestNotSuccessful(
+                res.status(),
+                res.text().await?,
+            ))
+        } else {
+            Ok(res.text().await?)
         }
     }
 }
