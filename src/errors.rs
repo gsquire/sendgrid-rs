@@ -5,10 +5,10 @@ use reqwest::{self, header::InvalidHeaderValue};
 /// Represents any of the ways that using this library can fail.
 #[derive(Fail, Debug)]
 pub enum SendgridError {
-    /// The failure was due to some IO failure, for example an interrupted network connection.
+    /// The failure was due to some IO error, for example an interrupted network connection.
     #[fail(display = "IO Error: {}", _0)]
     Io(#[cause] io::Error),
-    /// The failure was due to invalid json being received.
+    /// The failure was due to invalid JSON being received.
     #[fail(display = "JSON Error: {}", _0)]
     JSONDecode(#[cause] serde_json::Error),
     /// The failure was due to the network client not working properly.
@@ -20,7 +20,7 @@ pub enum SendgridError {
     /// The failure was due to a file containing invalid UTF-8.
     #[fail(display = "could not UTF-8 decode this filename")]
     InvalidFilename,
-    /// The failure was due to a non-2xx status response from Sendgrid.
+    /// SendGrid returned an unsuccessful HTTP status code.
     #[fail(display = "Request failed with StatusCode: {}", _0)]
     RequestNotSuccessful(reqwest::StatusCode, String),
 }
@@ -48,6 +48,10 @@ impl From<serde_json::Error> for SendgridError {
         SendgridError::JSONDecode(error)
     }
 }
+
+// impl std::error::Error for SendgridError {
+
+// }
 
 /// A type alias used throughout the library for concise error notation.
 pub type SendgridResult<T> = Result<T, SendgridError>;

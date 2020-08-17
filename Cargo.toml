@@ -21,6 +21,7 @@ failure = "0.1"
 
 [dev-dependencies]
 tokio = { version = "0.2", features = ["macros", "rt-threaded"] }
+dotenv = "0.15"
 
 [features]
 default = ["native-tls"]

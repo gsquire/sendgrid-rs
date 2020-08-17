@@ -67,7 +67,9 @@ fn make_post_body(mut mail_info: Mail) -> SendgridResult<String> {
 }
 
 impl SGClient {
-    /// Makes a new SendGrid cient with the specified API key.
+    /// Makes a new SendGrid cient with the specified API key. This will panic if you are using the
+    /// default TLS backend and do not have a default tls backend available. If you are using the
+    /// RustTLS backend, this can never panic, because RustTLS is statically linked.
     pub fn new<S: Into<String>>(key: S) -> SGClient {
         #[cfg(feature = "async")]
         use reqwest as rq;
@@ -90,34 +92,29 @@ impl SGClient {
     /// 
     /// ### Example
     /// ```rust
+    /// # use sendgrid::SendgridError;
+    /// # fn main() -> Result<(), SendgridError> {
+    /// # dotenv::dotenv().ok();
+    /// # let my_secret_key = std::env::var("SENDGRID_KEY").expect("need SENDGRID_KEY to test");
     /// use sendgrid::{Mail, SGClient};
     ///
     /// let mail = Mail::new()
     ///     .add_from("my-email@address.com")
     ///     .add_text("hi!")
+    ///     .add_subject("Hello")
     ///     .add_to(("your-email@address.com", "Your Name").into());
-    /// let response = SGClient::new("MY_SECRET_KEY")
-    ///     .send(mail)
-    ///     .unwrap();
+    /// let response = SGClient::new(my_secret_key)
+    ///     .send(mail)?;
+    /// # Ok(())
+    /// # }
     /// ```
     #[cfg(not(feature = "async"))]
     pub fn send(&self, mail_info: Mail) -> SendgridResult<String> {
-        let mut headers = HeaderMap::new();
-        headers.insert(
-            header::AUTHORIZATION,
-            HeaderValue::from_str(&format!("Bearer {}", self.api_key.clone()))?,
-        );
-        headers.insert(
-            header::CONTENT_TYPE,
-            HeaderValue::from_static("application/x-www-form-urlencoded"),
-        );
-        headers.insert(header::USER_AGENT, HeaderValue::from_static("sendgrid-rs"));
-
         let post_body = make_post_body(mail_info)?;
         let res = self
             .client
             .post(API_URL)
-            .headers(headers)
+            .headers(self.headers()?)
             .body(post_body)
             .send()?;
 
@@ -136,38 +133,31 @@ impl SGClient {
     /// 
     /// ### Example
     /// ```rust
+    /// # use sendgrid::SendgridError;
     /// # #[tokio::main]
-    /// # async fn main() {
+    /// # async fn main() -> Result<(), SendgridError> {
+    /// # dotenv::dotenv().ok();
+    /// # let my_secret_key = std::env::var("SENDGRID_KEY").expect("need SENDGRID_KEY to test");
     /// use sendgrid::{Mail, SGClient};
     ///
     /// let mail = Mail::new()
     ///     .add_from("my-email@address.com")
     ///     .add_text("hi!")
+    ///     .add_subject("Hello")
     ///     .add_to(("your-email@address.com", "Your Name").into());
-    /// let response = SGClient::new("MY_SECRET_KEY")
+    /// let response = SGClient::new(my_secret_key)
     ///     .send(mail)
-    ///     .await
-    ///     .unwrap();
+    ///     .await?;
+    /// # Ok(())
     /// # }
     /// ```
     #[cfg(feature = "async")]
     pub async fn send(&self, mail_info: Mail<'_>) -> SendgridResult<String> {
-        let mut headers = HeaderMap::new();
-        headers.insert(
-            header::AUTHORIZATION,
-            HeaderValue::from_str(&format!("Bearer {}", self.api_key.clone()))?,
-        );
-        headers.insert(
-            header::CONTENT_TYPE,
-            HeaderValue::from_static("application/x-www-form-urlencoded"),
-        );
-        headers.insert(header::USER_AGENT, HeaderValue::from_static("sendgrid-rs"));
-
         let post_body = make_post_body(mail_info)?;
         let res = self
             .client
             .post(API_URL)
-            .headers(headers)
+            .headers(self.headers()?)
             .body(post_body)
             .send()
             .await?;
@@ -180,6 +170,20 @@ impl SGClient {
         } else {
             Ok(res.text().await?)
         }
+    }
+
+    fn headers(&self) -> SendgridResult<HeaderMap> {
+        let mut headers = HeaderMap::new();
+        headers.insert(
+            header::AUTHORIZATION,
+            HeaderValue::from_str(&format!("Bearer {}", self.api_key.clone()))?,
+        );
+        headers.insert(
+            header::CONTENT_TYPE,
+            HeaderValue::from_static("application/x-www-form-urlencoded"),
+        );
+        headers.insert(header::USER_AGENT, HeaderValue::from_static("sendgrid-rs"));
+        Ok(headers)
     }
 }
 

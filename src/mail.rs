@@ -66,18 +66,18 @@ impl<'a> From<(&'a str, &'a str)> for Destination<'a> {
 pub struct Mail<'a> {
     /// The list of people to whom the email will be sent.
     pub to: Vec<Destination<'a>>,
-    /// The list of people that are cc'd in this email.
+    /// The list of people that are CC'd in this email.
     pub cc: Vec<&'a str>,
-    /// The list of people that are bcc'd in this email.
+    /// The list of people that are BCC'd in this email.
     pub bcc: Vec<&'a str>,
     /// The email address that will be used as sender.
     pub from: &'a str,
     /// The subject field of the email.
     pub subject: &'a str,
     /// When the client is sufficiently modern (this should almost always be the case), the email is
-    /// displayed as html.
+    /// displayed as HTML.
     pub html: &'a str,
-    /// This is used as a fallback when either the client is too old or the html field was not
+    /// This is used as a fallback when either the client is too old or the HTML field was not
     /// provided.
     pub text: &'a str,
     /// This is the name that will be used as sender.
@@ -88,8 +88,8 @@ pub struct Mail<'a> {
     pub date: &'a str,
     /// The attachments of this email, smaller than 7MB.
     pub attachments: HashMap<String, String>,
-    /// Content IDs of the files to be used as inline images. Content IDs should match the cids used
-    /// in the HTML markup.
+    /// Content IDs of the files to be used as inline images. Content IDs should match the content
+    /// IDS used in the HTML markup.
     pub content: HashMap<String, &'a str>,
     /// A collection of key/value pairs in JSON format. This is specifically for non-SendGrid custom
     /// extension headers. Each key represents a header name and the value the header value.
@@ -99,7 +99,7 @@ pub struct Mail<'a> {
     /// {"X-Accept-Language": "en", "X-Mailer": "MyApp"}
     /// ```
     pub headers: HashMap<String, &'a str>,
-    /// The `x-smtpapi` header that is used.
+    /// The `X-SMTPAPI` header that is used.
     pub x_smtpapi: &'a str,
 }
 
@@ -109,7 +109,6 @@ impl<'a> Mail<'a> {
     pub fn new() -> Mail<'a> {
         Mail::default()
     }
-
     
     add_field!(
         /// Adds a CC recipient to the Mail struct.
@@ -209,9 +208,9 @@ impl<'a> Mail<'a> {
     }
 
     add_field!(
-        /// Add an X-SMTPAPI string to the message. This can be done by using the
-        /// 'rustc_serialize' crate and JSON encoding a map or custom struct. Or
-        /// a regular String type can be escaped and used.
+        /// Add an X-SMTPAPI string to the message. This can be done by using the `serde_json` crate
+        /// to JSON encode a map or custom struct. Alternatively a regular `String` type can be
+        /// escaped and used.
         add_x_smtpapi = x_smtpapi: &'a str
     );
 }

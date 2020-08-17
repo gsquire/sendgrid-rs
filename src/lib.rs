@@ -24,7 +24,6 @@
 //! OpenSSL) with RusTLS, which is an OpenSSL reimplementation in Rust.
 //! * `native-tls`: enabled by default, this feature flag enabled the default SSL provider in the
 //! operating system (usually OpenSSL).
-//! an OpenSSL reimplementation in Rust.
 //! * `async`: this feature flag changes the `send` function on the `SGClient` into an `async fn`.
 //! Note that without this feature flag, constructing an `SGClient` inside an `async fn` is not
 //! possible.
