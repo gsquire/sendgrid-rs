@@ -1,8 +1,8 @@
 [package]
 name = "sendgrid"
-version = "0.11.3"
+version = "0.12.0"
 edition = "2018"
-authors = ["Garrett Squire <garrettsquire@gmail.com>"]
+authors = ["Garrett Squire <github@garrettsquire.com>"]
 description = "An unofficial client library for the SendGrid API"
 repository = "https://github.com/gsquire/sendgrid-rs"
 license = "MIT"
@@ -21,7 +21,6 @@ failure = "0.1"
 
 [dev-dependencies]
 tokio = { version = "0.2", features = ["macros", "rt-threaded"] }
-dotenv = "0.15"
 
 [features]
 default = ["native-tls"]
