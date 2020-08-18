@@ -1,8 +1,9 @@
-use crate::{SendgridError, SendgridResult};
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
+
+use crate::{SendgridError, SendgridResult};
 
 macro_rules! add_field {
     // Create a setter that appends.

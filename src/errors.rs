@@ -1,6 +1,7 @@
+use std::io;
+
 use failure::Fail;
 use reqwest::{self, header::InvalidHeaderValue};
-use std::io;
 
 /// Represents any of the ways that using this library can fail.
 #[derive(Fail, Debug)]
