@@ -11,5 +11,4 @@
 /target/
 Cargo.lock
 
-# test environment parameters
 .env

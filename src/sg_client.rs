@@ -1,7 +1,7 @@
-use reqwest::header::{self, HeaderMap, HeaderValue};
-use url::form_urlencoded::Serializer;
 use crate::errors::{SendgridError, SendgridResult};
 use crate::mail::Mail;
+use reqwest::header::{self, HeaderMap, HeaderValue};
+use url::form_urlencoded::Serializer;
 
 static API_URL: &str = "https://api.sendgrid.com/api/mail.send.json?";
 
@@ -68,8 +68,8 @@ fn make_post_body(mut mail_info: Mail) -> SendgridResult<String> {
 
 impl SGClient {
     /// Makes a new SendGrid cient with the specified API key. This will panic if you are using the
-    /// default TLS backend and do not have a default tls backend available. If you are using the
-    /// RustTLS backend, this can never panic, because RustTLS is statically linked.
+    /// default TLS backend and do not have a default TLS backend available. If you are using the
+    /// RustTLS backend, this can never panic because RustTLS is statically linked.
     pub fn new<S: Into<String>>(key: S) -> SGClient {
         #[cfg(feature = "async")]
         use reqwest as rq;
@@ -79,7 +79,7 @@ impl SGClient {
         let builder = rq::ClientBuilder::new();
         #[cfg(feature = "rustls")]
         builder.use_rustls_tls();
-        let client = builder.build().unwrap(); 
+        let client = builder.build().unwrap();
 
         SGClient {
             api_key: key.into(),
@@ -89,24 +89,25 @@ impl SGClient {
 
     /// Sends a messages through the SendGrid API. It takes a Mail struct as an argument. It returns
     /// the string response from the API as JSON.
-    /// 
-    /// ### Example
-    /// ```rust
-    /// # use sendgrid::SendgridError;
-    /// # fn main() -> Result<(), SendgridError> {
-    /// # dotenv::dotenv().ok();
-    /// # let my_secret_key = std::env::var("SENDGRID_KEY").expect("need SENDGRID_KEY to test");
-    /// use sendgrid::{Mail, SGClient};
     ///
-    /// let mail = Mail::new()
-    ///     .add_from("my-email@address.com")
-    ///     .add_text("hi!")
-    ///     .add_subject("Hello")
-    ///     .add_to(("your-email@address.com", "Your Name").into());
-    /// let response = SGClient::new(my_secret_key)
-    ///     .send(mail)?;
-    /// # Ok(())
-    /// # }
+    /// ### Example
+    ///
+    /// ```rust,ignore
+    /// use sendgrid::SendgridError;
+    ///
+    /// fn main() -> Result<(), SendgridError> {
+    ///     let my_secret_key = std::env::var("SENDGRID_KEY").expect("need SENDGRID_KEY to test");
+    ///     use sendgrid::{Mail, SGClient};
+    ///
+    ///     let mail = Mail::new()
+    ///         .add_from("my-email@address.com")
+    ///         .add_text("hi!")
+    ///         .add_subject("Hello")
+    ///         .add_to(("your-email@address.com", "Your Name").into());
+    ///     let response = SGClient::new(my_secret_key)
+    ///         .send(mail)?;
+    ///     Ok(())
+    /// }
     /// ```
     #[cfg(not(feature = "async"))]
     pub fn send(&self, mail_info: Mail) -> SendgridResult<String> {
@@ -130,26 +131,27 @@ impl SGClient {
 
     /// Sends a messages through the SendGrid API. It takes a Mail struct as an argument. It returns
     /// the string response from the API as JSON.
-    /// 
-    /// ### Example
-    /// ```rust
-    /// # use sendgrid::SendgridError;
-    /// # #[tokio::main]
-    /// # async fn main() -> Result<(), SendgridError> {
-    /// # dotenv::dotenv().ok();
-    /// # let my_secret_key = std::env::var("SENDGRID_KEY").expect("need SENDGRID_KEY to test");
-    /// use sendgrid::{Mail, SGClient};
     ///
-    /// let mail = Mail::new()
-    ///     .add_from("my-email@address.com")
-    ///     .add_text("hi!")
-    ///     .add_subject("Hello")
-    ///     .add_to(("your-email@address.com", "Your Name").into());
-    /// let response = SGClient::new(my_secret_key)
-    ///     .send(mail)
-    ///     .await?;
-    /// # Ok(())
-    /// # }
+    /// ### Example
+    ///
+    /// ```rust,ignore
+    /// use sendgrid::SendgridError;
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> Result<(), SendgridError> {
+    ///     let my_secret_key = std::env::var("SENDGRID_KEY").expect("need SENDGRID_KEY to test");
+    ///     use sendgrid::{Mail, SGClient};
+    ///
+    ///     let mail = Mail::new()
+    ///         .add_from("my-email@address.com")
+    ///         .add_text("hi!")
+    ///         .add_subject("Hello")
+    ///         .add_to(("your-email@address.com", "Your Name").into());
+    ///     let response = SGClient::new(my_secret_key)
+    ///         .send(mail)
+    ///         .await?;
+    ///     Ok(())
+    /// }
     /// ```
     #[cfg(feature = "async")]
     pub async fn send(&self, mail_info: Mail<'_>) -> SendgridResult<String> {
