@@ -20,12 +20,22 @@ url = "2.1"
 failure = "0.1"
 
 [dev-dependencies]
-tokio = { version = "0.2", features = ["macros"] }
+tokio = { version = "0.2", features = ["macros", "rt-threaded"] }
+dotenv = "0.15"
 
 [features]
+default = ["native-tls"]
+
 async = []
 rustls = ["reqwest/rustls-tls"]
+native-tls = ["reqwest/default-tls"]
 
 [[example]]
 name = "v3_async"
 required-features = ["async"]
+
+[[example]]
+name = "main"
+
+[[example]]
+name = "v3"

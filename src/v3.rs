@@ -1,11 +1,11 @@
 //! This module encompasses all types needed to send mail using version 3 of the mail
 //! send API.
+
 use std::collections::HashMap;
 
 use data_encoding::BASE64;
 use reqwest::header::{self, HeaderMap, HeaderValue, InvalidHeaderValue};
 use serde::Serialize;
-use serde_json;
 
 use crate::errors::SendgridError;
 
