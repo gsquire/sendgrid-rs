@@ -79,7 +79,7 @@ impl SGClient {
 
         let builder = rq::ClientBuilder::new();
         #[cfg(feature = "rustls")]
-        builder.use_rustls_tls();
+        let builder = builder.use_rustls_tls();
         let client = builder.build().unwrap();
 
         SGClient {
