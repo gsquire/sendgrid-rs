@@ -1,7 +1,7 @@
 use reqwest::header::{self, HeaderMap, HeaderValue};
 use url::form_urlencoded::Serializer;
 
-use crate::errors::{SendgridError, SendgridResult};
+use crate::error::{SendgridError, SendgridResult};
 use crate::mail::Mail;
 
 static API_URL: &str = "https://api.sendgrid.com/api/mail.send.json?";

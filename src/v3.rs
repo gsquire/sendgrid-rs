@@ -7,9 +7,7 @@ use data_encoding::BASE64;
 use reqwest::header::{self, HeaderMap, HeaderValue, InvalidHeaderValue};
 use serde::Serialize;
 
-use crate::errors::SendgridError;
-
-use crate::errors::SendgridResult;
+use crate::error::{SendgridError, SendgridResult};
 
 const V3_API_URL: &str = "https://api.sendgrid.com/v3/mail/send";
 
