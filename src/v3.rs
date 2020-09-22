@@ -8,9 +8,9 @@ use reqwest::header::{self, HeaderMap, HeaderValue, InvalidHeaderValue};
 use serde::Serialize;
 
 #[cfg(not(feature = "async"))]
-use reqwest::blocking::Client;
+use reqwest::blocking::{Client, Response};
 #[cfg(feature = "async")]
-use reqwest::Client;
+use reqwest::{Client, Response};
 
 use crate::error::SendgridResult;
 
@@ -116,10 +116,7 @@ impl Sender {
     pub fn new(api_key: String) -> Sender {
         Sender {
             api_key,
-            #[cfg(feature = "async")]
-            client: reqwest::Client::new(),
-            #[cfg(not(feature = "async"))]
-            client: reqwest::blocking::Client::new(),
+            client: Client::new(),
         }
     }
 
@@ -139,7 +136,7 @@ impl Sender {
 
     #[cfg(feature = "async")]
     /// Send a V3 message and return the HTTP response or an error.
-    pub async fn send(&self, mail: &Message) -> SendgridResult<reqwest::Response> {
+    pub async fn send(&self, mail: &Message) -> SendgridResult<Response> {
         let headers = self.get_headers()?;
 
         Ok(self
@@ -154,7 +151,7 @@ impl Sender {
 
     #[cfg(not(feature = "async"))]
     /// Send a V3 message and return the HTTP response or an error.
-    pub fn send(&self, mail: &Message) -> SendgridResult<reqwest::blocking::Response> {
+    pub fn send(&self, mail: &Message) -> SendgridResult<Response> {
         let headers = self.get_headers()?;
         let body = mail.gen_json();
         Ok(self

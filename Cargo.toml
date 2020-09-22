@@ -23,9 +23,10 @@ thiserror = "1.0.20"
 tokio = { version = "0.2", features = ["macros", "rt-threaded"] }
 
 [features]
-default = ["native-tls", "reqwest/blocking"]
+default = ["native-tls", "blocking"]
 
 async = []
+blocking = ["reqwest/blocking"]
 rustls = ["reqwest/rustls-tls"]
 native-tls = ["reqwest/default-tls"]
 
@@ -35,6 +36,8 @@ required-features = ["async"]
 
 [[example]]
 name = "main"
+required-features = ["blocking"]
 
 [[example]]
 name = "v3"
+required-features = ["blocking"]
