@@ -7,19 +7,19 @@ use thiserror::Error as ThisError;
 #[derive(ThisError, Debug)]
 pub enum SendgridError {
     /// The failure was due to some IO error, for example an interrupted network connection.
-    #[error("IO Error: `{0:?}`")]
+    #[error("IO Error: `{0}`")]
     Io(#[from] io::Error),
 
     /// The failure was due to invalid JSON being received.
-    #[error("JSON Error: `{0:?}`")]
+    #[error("JSON Error: `{0}`")]
     JSONDecode(#[from] serde_json::Error),
 
     /// The failure was due to the network client not working properly.
-    #[error("HTTP Error: `{0:?}`")]
+    #[error("HTTP Error: `{0}`")]
     ReqwestError(#[from] reqwest::Error),
 
     /// The failure was due to the authorization headers not working as expected.
-    #[error("Invalid Header Error: `{0:?}`")]
+    #[error("Invalid Header Error: `{0}`")]
     InvalidHeader(#[from] InvalidHeaderValue),
 
     /// The failure was due to a file containing invalid UTF-8.
