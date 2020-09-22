@@ -25,10 +25,6 @@ pub enum SendgridError {
     /// The failure was due to a file containing invalid UTF-8.
     #[error("could not UTF-8 decode this filename")]
     InvalidFilename,
-
-    /// SendGrid returned an unsuccessful HTTP status code.
-    #[error("Request failed with StatusCode: `{0:?}, Body: `{1:?}")]
-    RequestNotSuccessful(reqwest::StatusCode, String),
 }
 
 /// A type alias used throughout the library for concise error notation.

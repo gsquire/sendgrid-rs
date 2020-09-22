@@ -1,8 +1,13 @@
 use reqwest::header::{self, HeaderMap, HeaderValue};
+
+#[cfg(not(feature = "async"))]
+use reqwest::blocking::Response;
+#[cfg(feature = "async")]
+use reqwest::Response;
+
 use url::form_urlencoded::Serializer;
 
-use crate::error::{SendgridError, SendgridResult};
-use crate::mail::Mail;
+use crate::{error::SendgridResult, mail::Mail};
 
 static API_URL: &str = "https://api.sendgrid.com/api/mail.send.json?";
 
@@ -111,23 +116,15 @@ impl SGClient {
     /// }
     /// ```
     #[cfg(not(feature = "async"))]
-    pub fn send(&self, mail_info: Mail) -> SendgridResult<String> {
+    pub fn send(&self, mail_info: Mail) -> SendgridResult<Response> {
         let post_body = make_post_body(mail_info)?;
-        let res = self
+        Ok(self
             .client
             .post(API_URL)
             .headers(self.headers()?)
             .body(post_body)
-            .send()?;
-
-        if !res.status().is_success() {
-            Err(SendgridError::RequestNotSuccessful(
-                res.status(),
-                res.text()?,
-            ))
-        } else {
-            Ok(res.text()?)
-        }
+            .send()
+            .and_then(|x| x.error_for_status())?)
     }
 
     /// Sends a messages through the SendGrid API. It takes a Mail struct as an argument. It returns
@@ -155,24 +152,16 @@ impl SGClient {
     /// }
     /// ```
     #[cfg(feature = "async")]
-    pub async fn send(&self, mail_info: Mail<'_>) -> SendgridResult<String> {
+    pub async fn send(&self, mail_info: Mail<'_>) -> SendgridResult<Response> {
         let post_body = make_post_body(mail_info)?;
-        let res = self
+        Ok(self
             .client
             .post(API_URL)
             .headers(self.headers()?)
             .body(post_body)
             .send()
-            .await?;
-
-        if !res.status().is_success() {
-            Err(SendgridError::RequestNotSuccessful(
-                res.status(),
-                res.text().await?,
-            ))
-        } else {
-            Ok(res.text().await?)
-        }
+            .await
+            .and_then(|x| x.error_for_status())?)
     }
 
     fn headers(&self) -> SendgridResult<HeaderMap> {

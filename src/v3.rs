@@ -7,7 +7,12 @@ use data_encoding::BASE64;
 use reqwest::header::{self, HeaderMap, HeaderValue, InvalidHeaderValue};
 use serde::Serialize;
 
-use crate::error::{SendgridError, SendgridResult};
+#[cfg(not(feature = "async"))]
+use reqwest::blocking::Client;
+#[cfg(feature = "async")]
+use reqwest::Client;
+
+use crate::error::SendgridResult;
 
 const V3_API_URL: &str = "https://api.sendgrid.com/v3/mail/send";
 
@@ -18,10 +23,7 @@ pub type SGMap = HashMap<String, String>;
 #[derive(Clone, Debug)]
 pub struct Sender {
     api_key: String,
-    #[cfg(feature = "async")]
-    client: reqwest::Client,
-    #[cfg(not(feature = "async"))]
-    client: reqwest::blocking::Client,
+    client: Client,
 }
 
 /// The main structure for a V3 API mail send call. This is composed of many other smaller
@@ -140,23 +142,14 @@ impl Sender {
     pub async fn send(&self, mail: &Message) -> SendgridResult<reqwest::Response> {
         let headers = self.get_headers()?;
 
-        let res = self
+        Ok(self
             .client
             .post(V3_API_URL)
             .headers(headers)
             .body(mail.gen_json())
             .send()
             .await
-            .map_err(|err| SendgridError::from(err))?;
-
-        if !res.status().is_success() {
-            Err(SendgridError::RequestNotSuccessful(
-                res.status(),
-                res.text().await?,
-            ))
-        } else {
-            Ok(res)
-        }
+            .and_then(|x| x.error_for_status())?)
     }
 
     #[cfg(not(feature = "async"))]
@@ -164,21 +157,13 @@ impl Sender {
     pub fn send(&self, mail: &Message) -> SendgridResult<reqwest::blocking::Response> {
         let headers = self.get_headers()?;
         let body = mail.gen_json();
-        let res = self
+        Ok(self
             .client
             .post(V3_API_URL)
             .headers(headers)
             .body(body)
-            .send()?;
-
-        if !res.status().is_success() {
-            Err(SendgridError::RequestNotSuccessful(
-                res.status(),
-                res.text()?,
-            ))
-        } else {
-            Ok(res)
-        }
+            .send()
+            .and_then(|x| x.error_for_status())?)
     }
 }
 

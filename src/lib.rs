@@ -59,9 +59,9 @@
 /// Contains the error type used in this library.
 pub mod error;
 mod mail;
-mod sg_client;
+mod client;
 pub mod v3;
 
 pub use error::{SendgridError, SendgridResult};
 pub use mail::{Destination, Mail};
-pub use sg_client::SGClient;
+pub use client::SGClient;
