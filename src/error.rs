@@ -1,7 +1,32 @@
-use std::io;
+use std::{
+    fmt::{self, Display},
+    io,
+};
 
-use reqwest::{self, header::InvalidHeaderValue};
+use reqwest::{self, header::InvalidHeaderValue, StatusCode};
 use thiserror::Error as ThisError;
+
+/// Wrapper type which contains failed request's status code and body
+#[derive(Debug)]
+pub struct RequestNotSuccessful {
+    status: StatusCode,
+    body: String,
+}
+
+impl RequestNotSuccessful {
+    /// create RequestNotSuccessful error from reqwest::Response's statuscode and body
+    pub fn new(status: StatusCode, body: String) -> Self {
+        Self { status, body }
+    }
+}
+
+impl std::error::Error for RequestNotSuccessful {}
+
+impl Display for RequestNotSuccessful {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "StatusCode: {}, Body: {}", self.status, self.body)
+    }
+}
 
 /// Represents any of the ways that using this library can fail.
 #[derive(ThisError, Debug)]
@@ -25,6 +50,10 @@ pub enum SendgridError {
     /// The failure was due to a file containing invalid UTF-8.
     #[error("could not UTF-8 decode this filename")]
     InvalidFilename,
+
+    /// SendGrid returned an unsuccessful HTTP status code.
+    #[error("Request failed: `{0}`")]
+    RequestNotSuccessful(#[from] RequestNotSuccessful),
 }
 
 /// A type alias used throughout the library for concise error notation.

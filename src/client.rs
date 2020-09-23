@@ -7,7 +7,10 @@ use reqwest::Response;
 
 use url::form_urlencoded::Serializer;
 
-use crate::{error::SendgridResult, mail::Mail};
+use crate::{
+    error::{RequestNotSuccessful, SendgridResult},
+    mail::Mail,
+};
 
 static API_URL: &str = "https://api.sendgrid.com/api/mail.send.json?";
 
@@ -118,13 +121,18 @@ impl SGClient {
     #[cfg(not(feature = "async"))]
     pub fn send(&self, mail_info: Mail) -> SendgridResult<Response> {
         let post_body = make_post_body(mail_info)?;
-        Ok(self
+        let resp = self
             .client
             .post(API_URL)
             .headers(self.headers()?)
             .body(post_body)
-            .send()
-            .and_then(|x| x.error_for_status())?)
+            .send()?;
+
+        if let Err(_) = resp.error_for_status_ref() {
+            return Err(RequestNotSuccessful::new(resp.status(), resp.text()?).into());
+        }
+
+        Ok(resp)
     }
 
     /// Sends a messages through the SendGrid API. It takes a Mail struct as an argument. It returns
@@ -154,14 +162,19 @@ impl SGClient {
     #[cfg(feature = "async")]
     pub async fn send(&self, mail_info: Mail<'_>) -> SendgridResult<Response> {
         let post_body = make_post_body(mail_info)?;
-        Ok(self
+        let resp = self
             .client
             .post(API_URL)
             .headers(self.headers()?)
             .body(post_body)
             .send()
-            .await
-            .and_then(|x| x.error_for_status())?)
+            .await?;
+
+        if let Err(_) = resp.error_for_status_ref() {
+            return Err(RequestNotSuccessful::new(resp.status(), resp.text().await?).into());
+        }
+
+        Ok(resp)
     }
 
     fn headers(&self) -> SendgridResult<HeaderMap> {

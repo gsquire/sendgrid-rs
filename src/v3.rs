@@ -12,7 +12,7 @@ use reqwest::blocking::{Client, Response};
 #[cfg(feature = "async")]
 use reqwest::{Client, Response};
 
-use crate::error::SendgridResult;
+use crate::error::{RequestNotSuccessful, SendgridResult};
 
 const V3_API_URL: &str = "https://api.sendgrid.com/v3/mail/send";
 
@@ -139,14 +139,19 @@ impl Sender {
     pub async fn send(&self, mail: &Message) -> SendgridResult<Response> {
         let headers = self.get_headers()?;
 
-        Ok(self
+        let resp = self
             .client
             .post(V3_API_URL)
             .headers(headers)
             .body(mail.gen_json())
             .send()
-            .await
-            .and_then(|x| x.error_for_status())?)
+            .await?;
+
+        if let Err(_) = resp.error_for_status_ref() {
+            return Err(RequestNotSuccessful::new(resp.status(), resp.text().await?).into());
+        }
+
+        Ok(resp)
     }
 
     #[cfg(not(feature = "async"))]
@@ -154,13 +159,19 @@ impl Sender {
     pub fn send(&self, mail: &Message) -> SendgridResult<Response> {
         let headers = self.get_headers()?;
         let body = mail.gen_json();
-        Ok(self
+
+        let resp = self
             .client
             .post(V3_API_URL)
             .headers(headers)
             .body(body)
-            .send()
-            .and_then(|x| x.error_for_status())?)
+            .send()?;
+
+        if let Err(_) = resp.error_for_status_ref() {
+            return Err(RequestNotSuccessful::new(resp.status(), resp.text()?).into());
+        }
+
+        Ok(resp)
     }
 }
 

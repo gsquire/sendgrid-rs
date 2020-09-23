@@ -56,12 +56,12 @@
 //! ## License
 //! MIT
 
+mod client;
 /// Contains the error type used in this library.
 pub mod error;
 mod mail;
-mod client;
 pub mod v3;
 
+pub use client::SGClient;
 pub use error::{SendgridError, SendgridResult};
 pub use mail::{Destination, Mail};
-pub use client::SGClient;
