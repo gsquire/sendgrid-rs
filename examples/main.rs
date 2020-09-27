@@ -29,6 +29,6 @@ fn main() {
 
     match sg.send(mail_info) {
         Err(err) => println!("Error: {}", err),
-        Ok(body) => println!("Response: {}", body),
+        Ok(body) => println!("Response: {:?}", body),
     };
 }

@@ -7,9 +7,12 @@ use data_encoding::BASE64;
 use reqwest::header::{self, HeaderMap, HeaderValue, InvalidHeaderValue};
 use serde::Serialize;
 
-use crate::errors::SendgridError;
+#[cfg(not(feature = "async"))]
+use reqwest::blocking::{Client, Response};
+#[cfg(feature = "async")]
+use reqwest::{Client, Response};
 
-use crate::errors::SendgridResult;
+use crate::error::{RequestNotSuccessful, SendgridResult};
 
 const V3_API_URL: &str = "https://api.sendgrid.com/v3/mail/send";
 
@@ -20,10 +23,7 @@ pub type SGMap = HashMap<String, String>;
 #[derive(Clone, Debug)]
 pub struct Sender {
     api_key: String,
-    #[cfg(feature = "async")]
-    client: reqwest::Client,
-    #[cfg(not(feature = "async"))]
-    client: reqwest::blocking::Client,
+    client: Client,
 }
 
 /// The main structure for a V3 API mail send call. This is composed of many other smaller
@@ -116,10 +116,7 @@ impl Sender {
     pub fn new(api_key: String) -> Sender {
         Sender {
             api_key,
-            #[cfg(feature = "async")]
-            client: reqwest::Client::new(),
-            #[cfg(not(feature = "async"))]
-            client: reqwest::blocking::Client::new(),
+            client: Client::new(),
         }
     }
 
@@ -139,48 +136,42 @@ impl Sender {
 
     #[cfg(feature = "async")]
     /// Send a V3 message and return the HTTP response or an error.
-    pub async fn send(&self, mail: &Message) -> SendgridResult<reqwest::Response> {
+    pub async fn send(&self, mail: &Message) -> SendgridResult<Response> {
         let headers = self.get_headers()?;
 
-        let res = self
+        let resp = self
             .client
             .post(V3_API_URL)
             .headers(headers)
             .body(mail.gen_json())
             .send()
-            .await
-            .map_err(|err| SendgridError::from(err))?;
+            .await?;
 
-        if !res.status().is_success() {
-            Err(SendgridError::RequestNotSuccessful(
-                res.status(),
-                res.text().await?,
-            ))
-        } else {
-            Ok(res)
+        if let Err(_) = resp.error_for_status_ref() {
+            return Err(RequestNotSuccessful::new(resp.status(), resp.text().await?).into());
         }
+
+        Ok(resp)
     }
 
     #[cfg(not(feature = "async"))]
     /// Send a V3 message and return the HTTP response or an error.
-    pub fn send(&self, mail: &Message) -> SendgridResult<reqwest::blocking::Response> {
+    pub fn send(&self, mail: &Message) -> SendgridResult<Response> {
         let headers = self.get_headers()?;
         let body = mail.gen_json();
-        let res = self
+
+        let resp = self
             .client
             .post(V3_API_URL)
             .headers(headers)
             .body(body)
             .send()?;
 
-        if !res.status().is_success() {
-            Err(SendgridError::RequestNotSuccessful(
-                res.status(),
-                res.text()?,
-            ))
-        } else {
-            Ok(res)
+        if let Err(_) = resp.error_for_status_ref() {
+            return Err(RequestNotSuccessful::new(resp.status(), resp.text()?).into());
         }
+
+        Ok(resp)
     }
 }
 

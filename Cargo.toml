@@ -13,19 +13,20 @@ readme = "README.md"
 
 [dependencies]
 data-encoding = "2.1"
-reqwest = { version = "0.10", default-features = false, features = ["json", "blocking"] }
+reqwest = { version = "0.10", default-features = false, features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 url = "2.1"
-failure = "0.1"
+thiserror = "1.0.20"
 
 [dev-dependencies]
 tokio = { version = "0.2", features = ["macros", "rt-threaded"] }
 
 [features]
-default = ["native-tls"]
+default = ["native-tls", "blocking"]
 
 async = []
+blocking = ["reqwest/blocking"]
 rustls = ["reqwest/rustls-tls"]
 native-tls = ["reqwest/default-tls"]
 
@@ -35,6 +36,8 @@ required-features = ["async"]
 
 [[example]]
 name = "main"
+required-features = ["blocking"]
 
 [[example]]
 name = "v3"
+required-features = ["blocking"]

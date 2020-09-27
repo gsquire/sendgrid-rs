@@ -1,8 +1,16 @@
 use reqwest::header::{self, HeaderMap, HeaderValue};
+
+#[cfg(not(feature = "async"))]
+use reqwest::blocking::Response;
+#[cfg(feature = "async")]
+use reqwest::Response;
+
 use url::form_urlencoded::Serializer;
 
-use crate::errors::{SendgridError, SendgridResult};
-use crate::mail::Mail;
+use crate::{
+    error::{RequestNotSuccessful, SendgridResult},
+    mail::Mail,
+};
 
 static API_URL: &str = "https://api.sendgrid.com/api/mail.send.json?";
 
@@ -111,23 +119,20 @@ impl SGClient {
     /// }
     /// ```
     #[cfg(not(feature = "async"))]
-    pub fn send(&self, mail_info: Mail) -> SendgridResult<String> {
+    pub fn send(&self, mail_info: Mail) -> SendgridResult<Response> {
         let post_body = make_post_body(mail_info)?;
-        let res = self
+        let resp = self
             .client
             .post(API_URL)
             .headers(self.headers()?)
             .body(post_body)
             .send()?;
 
-        if !res.status().is_success() {
-            Err(SendgridError::RequestNotSuccessful(
-                res.status(),
-                res.text()?,
-            ))
-        } else {
-            Ok(res.text()?)
+        if let Err(_) = resp.error_for_status_ref() {
+            return Err(RequestNotSuccessful::new(resp.status(), resp.text()?).into());
         }
+
+        Ok(resp)
     }
 
     /// Sends a messages through the SendGrid API. It takes a Mail struct as an argument. It returns
@@ -155,9 +160,9 @@ impl SGClient {
     /// }
     /// ```
     #[cfg(feature = "async")]
-    pub async fn send(&self, mail_info: Mail<'_>) -> SendgridResult<String> {
+    pub async fn send(&self, mail_info: Mail<'_>) -> SendgridResult<Response> {
         let post_body = make_post_body(mail_info)?;
-        let res = self
+        let resp = self
             .client
             .post(API_URL)
             .headers(self.headers()?)
@@ -165,14 +170,11 @@ impl SGClient {
             .send()
             .await?;
 
-        if !res.status().is_success() {
-            Err(SendgridError::RequestNotSuccessful(
-                res.status(),
-                res.text().await?,
-            ))
-        } else {
-            Ok(res.text().await?)
+        if let Err(_) = resp.error_for_status_ref() {
+            return Err(RequestNotSuccessful::new(resp.status(), resp.text().await?).into());
         }
+
+        Ok(resp)
     }
 
     fn headers(&self) -> SendgridResult<HeaderMap> {

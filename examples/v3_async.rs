@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use sendgrid::errors::SendgridError;
+use sendgrid::error::SendgridError;
 use sendgrid::v3::*;
 
 #[tokio::main]
