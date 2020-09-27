@@ -10,10 +10,10 @@ matrix:
         - rust: nightly
 script:
     - cargo test
-    - cargo test --no-default-features --features native-tls, blocking
-    - cargo test --no-default-features --features rustls, blocking
-    - cargo test --no-default-features --features native-tls, async
-    - cargo test --no-default-features --features rustls, async
+    - cargo test --no-default-features --features native-tls,blocking
+    - cargo test --no-default-features --features rustls,blocking
+    - cargo test --no-default-features --features native-tls,async
+    - cargo test --no-default-features --features rustls,async
 
 notifications:
     email: false
