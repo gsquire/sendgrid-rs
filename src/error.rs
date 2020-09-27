@@ -6,7 +6,7 @@ use std::{
 use reqwest::{self, header::InvalidHeaderValue, StatusCode};
 use thiserror::Error as ThisError;
 
-/// Wrapper type which contains failed request's status code and body
+/// Wrapper type which contains failed request's status code and body.
 #[derive(Debug)]
 pub struct RequestNotSuccessful {
     status: StatusCode,
@@ -14,7 +14,7 @@ pub struct RequestNotSuccessful {
 }
 
 impl RequestNotSuccessful {
-    /// create RequestNotSuccessful error from reqwest::Response's statuscode and body
+    /// Create a new unsuccessful request error.
     pub fn new(status: StatusCode, body: String) -> Self {
         Self { status, body }
     }
