@@ -381,4 +381,10 @@ impl Attachment {
         self.mime_type = Some(String::from(mime));
         self
     }
+
+    /// Set an optional content id.
+    pub fn set_content_id(mut self, content_id: &str) -> Attachment {
+        self.content_id = Some(String::from(content_id));
+        self
+    }
 }
