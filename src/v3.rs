@@ -358,27 +358,33 @@ impl Attachment {
     }
 
     /// The raw body of the attachment.
-    pub fn set_content(mut self, c: &[u8]) -> Attachment {
+    pub fn set_content(mut self, c: &[u8]) -> Self {
         self.content = BASE64.encode(c);
         self
     }
 
     /// The base64 body of the attachment.
-    pub fn set_base64_content(mut self, c: &str) -> Attachment {
-        self.content = String::from(c);
+    pub fn set_base64_content(mut self, c: &str) -> Self {
+        self.content = c.to_string();
         self
     }
 
     /// Sets the filename for the attachment.
-    pub fn set_filename(mut self, filename: &str) -> Attachment {
+    pub fn set_filename(mut self, filename: &str) -> Self {
         self.filename = filename.into();
         self
     }
 
     /// Set an optional mime type. Sendgrid will default to 'application/octet-stream'
     /// if unspecified.
-    pub fn set_mime_type(mut self, mime: &str) -> Attachment {
-        self.mime_type = Some(String::from(mime));
+    pub fn set_mime_type(mut self, mime: &str) -> Self {
+        self.mime_type = Some(mime.to_string());
+        self
+    }
+
+    /// Set an optional content id.
+    pub fn set_content_id(mut self, content_id: &str) -> Self {
+        self.content_id = Some(content_id.to_string());
         self
     }
 }
