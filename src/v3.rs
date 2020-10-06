@@ -353,7 +353,7 @@ impl Personalization {
 
 impl Attachment {
     /// Construct a new attachment for this message.
-    pub fn new() -> Attachment {
+    pub fn new() -> Self {
         Attachment::default()
     }
 
