@@ -92,6 +92,22 @@ pub struct Personalization {
     send_at: Option<u64>,
 }
 
+/// The content-disposition of the attachment specifying how you would like
+/// the attachment to be displayed. For example, “inline” results in the
+/// attached file being displayed automatically within the message while
+/// “attachment” results in the attached file requiring some action to be
+/// taken before it is displayed (e.g. opening or downloading the file).
+#[derive(Clone, Copy, Serialize)]
+pub enum Disposition {
+    /// Displayed automatically within the message
+    #[serde(rename = "inline")]
+    Inline,
+
+    /// Made available to separate download
+    #[serde(rename = "attachment")]
+    Attachment,
+}
+
 /// An attachment block for a V3 message. Content and filename are required. If the
 /// mime_type is unspecified, the email will use Sendgrid's default for attachments
 /// which is 'application/octet-stream'.
@@ -105,7 +121,7 @@ pub struct Attachment {
     mime_type: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    disposition: Option<String>,
+    disposition: Option<Disposition>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     content_id: Option<String>,
@@ -385,6 +401,12 @@ impl Attachment {
     /// Set an optional content id.
     pub fn set_content_id(mut self, content_id: &str) -> Attachment {
         self.content_id = Some(String::from(content_id));
+        self
+    }
+
+    /// Set an optional content id.
+    pub fn set_disposition(mut self, disposition: Disposition) -> Attachment {
+        self.disposition = Some(disposition);
         self
     }
 }
