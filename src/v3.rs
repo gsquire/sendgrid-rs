@@ -103,7 +103,7 @@ pub enum Disposition {
     #[serde(rename = "inline")]
     Inline,
 
-    /// Made available to separate download
+    /// Displayed as an attached file
     #[serde(rename = "attachment")]
     Attachment,
 }
