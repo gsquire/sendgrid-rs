@@ -277,8 +277,9 @@ impl Content {
 }
 
 impl Personalization {
-    /// Construct a new personalization block for this message.
-    pub fn with_to(email: Email) -> Personalization {
+    /// Construct a new personalization block for this message with to as vec containing one element, the email provided
+    /// as argument
+    pub fn new(email: Email) -> Personalization {
         Personalization {
             to: vec![email],
             cc: None,
