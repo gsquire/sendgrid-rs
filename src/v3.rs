@@ -233,7 +233,7 @@ impl Email {
     /// Construct a new email type with name set as None.
     ///
     /// ```rust
-    /// use sendgrid::Email;
+    /// use sendgrid::v3::Email;
     ///
     /// let my_email = Email::new("test@mail.com".to_owned());
     /// ```
@@ -247,7 +247,7 @@ impl Email {
     /// Set an optional name.
     ///
     /// ```rust
-    /// use sendgrid::Email;
+    /// use sendgrid::v3::Email;
     ///
     /// let my_email = Email::new("test@mail.com".to_owned()).set_name("My Name".to_owned());
     /// ```
