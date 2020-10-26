@@ -235,7 +235,7 @@ impl Email {
     /// ```rust
     /// use sendgrid::v3::Email;
     ///
-    /// let my_email = Email::new("test@mail.com".to_owned());
+    /// let my_email = Email::new("test@mail.com");
     /// ```
     pub fn new<S: Into<String>>(email: S) -> Email {
         Email {
@@ -249,7 +249,7 @@ impl Email {
     /// ```rust
     /// use sendgrid::v3::Email;
     ///
-    /// let my_email = Email::new("test@mail.com".to_owned()).set_name("My Name".to_owned());
+    /// let my_email = Email::new("test@mail.com").set_name("My Name");
     /// ```
     pub fn set_name<S: Into<String>>(mut self, name: S) -> Email {
         self.name = Some(name.into());
@@ -277,8 +277,7 @@ impl Content {
 }
 
 impl Personalization {
-    /// Construct a new personalization block for this message with to as vec containing one element, the email provided
-    /// as argument
+    /// Construct a new personalization block for this message with a single `to` email address
     pub fn new(email: Email) -> Personalization {
         Personalization {
             to: vec![email],
