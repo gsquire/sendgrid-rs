@@ -99,11 +99,11 @@ pub struct Personalization {
 /// taken before it is displayed (e.g. opening or downloading the file).
 #[derive(Clone, Copy, Serialize)]
 pub enum Disposition {
-    /// Displayed automatically within the message
+    /// Displayed automatically within the message.
     #[serde(rename = "inline")]
     Inline,
 
-    /// Displayed as an attached file
+    /// Displayed as an attached file.
     #[serde(rename = "attachment")]
     Attachment,
 }
@@ -404,7 +404,7 @@ impl Attachment {
         self
     }
 
-    /// Set an optional content id.
+    /// Set an optional disposition.
     pub fn set_disposition(mut self, disposition: Disposition) -> Attachment {
         self.disposition = Some(disposition);
         self
