@@ -92,11 +92,10 @@ pub struct Personalization {
     send_at: Option<u64>,
 }
 
-/// The content-disposition of the attachment specifying how you would like
-/// the attachment to be displayed. For example, “inline” results in the
-/// attached file being displayed automatically within the message while
-/// “attachment” results in the attached file requiring some action to be
-/// taken before it is displayed (e.g. opening or downloading the file).
+/// The Content-Disposition of the attachment specifying how you would like the attachment to be
+/// displayed. For example, inline results in the attached file being displayed automatically
+/// within the message. By specifying attachment, it will prompt the user to either view or
+/// download the file.
 #[derive(Clone, Copy, Serialize)]
 pub enum Disposition {
     /// Displayed automatically within the message.
@@ -293,7 +292,7 @@ impl Content {
 }
 
 impl Personalization {
-    /// Construct a new personalization block for this message with a single `to` email address
+    /// Construct a new personalization block for this message with a single to address.
     pub fn new(email: Email) -> Personalization {
         Personalization {
             to: vec![email],
