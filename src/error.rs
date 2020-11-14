@@ -9,8 +9,10 @@ use thiserror::Error as ThisError;
 /// Wrapper type which contains a failed request's status code and body.
 #[derive(Debug)]
 pub struct RequestNotSuccessful {
-    status: StatusCode,
-    body: String,
+    /// Status code returned by the http call to the sendgrid API
+    pub status: StatusCode,
+    /// Body returned by the http call to the sendgrid API
+    pub body: String,
 }
 
 impl RequestNotSuccessful {
