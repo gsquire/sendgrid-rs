@@ -1,43 +1,43 @@
 [package]
-name = "sendgrid"
-version = "0.15.0"
-edition = "2018"
-authors = ["Garrett Squire <github@garrettsquire.com>"]
-description = "An unofficial client library for the SendGrid API"
-repository = "https://github.com/gsquire/sendgrid-rs"
-license = "MIT"
-homepage = "https://sendgrid.com"
-keywords = ["email"]
+authors       = ["Garrett Squire <github@garrettsquire.com>"]
+description   = "An unofficial client library for the SendGrid API"
 documentation = "https://docs.rs/sendgrid"
-readme = "README.md"
+edition       = "2018"
+homepage      = "https://sendgrid.com"
+keywords      = ["email"]
+license       = "MIT"
+name          = "sendgrid"
+readme        = "README.md"
+repository    = "https://github.com/gsquire/sendgrid-rs"
+version       = "0.15.0"
 
 [dependencies]
 data-encoding = "2.1"
-reqwest = { version = "0.10", default-features = false, features = ["json"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-thiserror = "1.0"
-url = "2.1"
+reqwest       = { version = "0.10", default-features = false, features = ["json"] }
+serde         = { version = "1.0", features = ["derive"] }
+serde_json    = "1.0"
+thiserror     = "1.0"
+url           = "2.1"
 
 [dev-dependencies]
 tokio = { version = "0.3", features = ["full"] }
 
 [features]
-default = ["native-tls", "blocking"]
+default = ["native-tls", "async"]
 
-async = []
-blocking = ["reqwest/blocking"]
-rustls = ["reqwest/rustls-tls"]
+async      = []
+blocking   = ["reqwest/blocking"]
 native-tls = ["reqwest/default-tls"]
+rustls     = ["reqwest/rustls-tls"]
 
 [[example]]
-name = "v3_async"
+name              = "v3_async"
 required-features = ["async"]
 
 [[example]]
-name = "main"
+name              = "main"
 required-features = ["blocking"]
 
 [[example]]
-name = "v3"
+name              = "v3"
 required-features = ["blocking"]

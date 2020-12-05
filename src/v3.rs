@@ -28,7 +28,7 @@ pub struct Sender {
 
 /// The main structure for a V3 API mail send call. This is composed of many other smaller
 /// structures used to add lots of customization to your message.
-#[derive(Serialize)]
+#[derive(Clone, Debug, Serialize)]
 pub struct Message {
     from: Email,
     subject: String,
@@ -45,7 +45,7 @@ pub struct Message {
 }
 
 /// An email with a required address and an optional name field.
-#[derive(Clone, Serialize)]
+#[derive(Clone, Debug, Serialize)]
 pub struct Email {
     email: String,
 
@@ -54,7 +54,7 @@ pub struct Email {
 }
 
 /// The body of an email with the content type and the message.
-#[derive(Clone, Default, Serialize)]
+#[derive(Clone, Default, Debug, Serialize)]
 pub struct Content {
     #[serde(rename = "type")]
     content_type: String,
@@ -63,7 +63,7 @@ pub struct Content {
 
 /// A personalization block for a V3 message. It has to at least contain one email as a to
 /// address. All other fields are optional.
-#[derive(Serialize)]
+#[derive(Clone, Default, Debug, Serialize)]
 pub struct Personalization {
     to: Vec<Email>,
 
@@ -96,7 +96,7 @@ pub struct Personalization {
 /// displayed. For example, inline results in the attached file being displayed automatically
 /// within the message. By specifying attachment, it will prompt the user to either view or
 /// download the file.
-#[derive(Clone, Copy, Serialize)]
+#[derive(Clone, Copy, Debug, Serialize)]
 pub enum Disposition {
     /// Displayed automatically within the message.
     #[serde(rename = "inline")]
@@ -110,7 +110,7 @@ pub enum Disposition {
 /// An attachment block for a V3 message. Content and filename are required. If the
 /// mime_type is unspecified, the email will use Sendgrid's default for attachments
 /// which is 'application/octet-stream'.
-#[derive(Default, Serialize)]
+#[derive(Clone, Default, Debug, Serialize)]
 pub struct Attachment {
     content: String,
 
