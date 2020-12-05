@@ -171,7 +171,7 @@ impl<'a> Mail<'a> {
         add_reply_to = reply_to: &'a str
     );
 
-    // TODO(richo) Should this be a chronos::Utc ?
+    // TODO(richo) Should this be a chrono::Utc ?
     add_field!(
         /// Set the date for the message. This must be a valid RFC 822 timestamp.
         add_date = date: &'a str
