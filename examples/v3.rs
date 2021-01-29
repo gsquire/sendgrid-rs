@@ -18,9 +18,8 @@ fn main() {
         )
         .add_personalization(p);
 
-    let mut env_vars = ::std::env::vars();
-    let api_key = env_vars.find(|v| v.0 == "SG_API_KEY").unwrap();
-    let sender = Sender::new(api_key.1);
+    let api_key = ::std::env::var("SG_API_KEY").unwrap();
+    let sender = Sender::new(api_key);
     let code = sender.send(&m);
     println!("{:?}", code);
 }
