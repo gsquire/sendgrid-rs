@@ -6,13 +6,14 @@ use std::collections::HashMap;
 use data_encoding::BASE64;
 use reqwest::header::{self, HeaderMap, HeaderValue, InvalidHeaderValue};
 use serde::Serialize;
+use serde_json::{to_value, value::Value, value::Value::Object, Map};
 
 #[cfg(not(feature = "async"))]
 use reqwest::blocking::{Client, Response};
 #[cfg(feature = "async")]
 use reqwest::{Client, Response};
 
-use crate::error::{RequestNotSuccessful, SendgridResult};
+use crate::error::{RequestNotSuccessful, SendgridError, SendgridResult};
 
 const V3_API_URL: &str = "https://api.sendgrid.com/v3/mail/send";
 
@@ -86,7 +87,7 @@ pub struct Personalization {
     custom_args: Option<SGMap>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    dynamic_template_data: Option<SGMap>,
+    dynamic_template_data: Option<Map<String, Value>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     send_at: Option<u64>,
@@ -339,10 +340,43 @@ impl Personalization {
 
     /// Add a dynamic template data field.
     pub fn add_dynamic_template_data(mut self, dynamic_template_data: SGMap) -> Personalization {
-        self.dynamic_template_data
-            .get_or_insert_with(|| SGMap::with_capacity(dynamic_template_data.len()))
-            .extend(dynamic_template_data);
+        let mut new_vals = match to_value(dynamic_template_data).unwrap() {
+            Object(map) => map,
+            _ => unreachable!(),
+        };
+        if let Some(mut old_vals) = self.dynamic_template_data {
+            old_vals.append(&mut new_vals);
+            self.dynamic_template_data = Some(old_vals);
+        } else {
+            self.dynamic_template_data = Some(new_vals);
+        }
         self
+    }
+
+    /// Add a dynamic template data fields from a json object.
+    pub fn add_dynamic_template_data_json<T: Serialize + ?Sized>(
+        mut self,
+        json_object: &T,
+    ) -> SendgridResult<Personalization> {
+        let mut new_vals = match to_value(json_object) {
+            Ok(Object(map)) => map,
+            Err(err) => return Err(SendgridError::JSONDecode(err)),
+            Ok(_) => {
+                return Err(SendgridError::RequestNotSuccessful(
+                    RequestNotSuccessful::new(
+                        reqwest::StatusCode::BAD_REQUEST,
+                        "invalid json object".to_string(),
+                    ),
+                ))
+            }
+        };
+        if let Some(mut old_vals) = self.dynamic_template_data {
+            old_vals.append(&mut new_vals);
+            self.dynamic_template_data = Some(old_vals);
+        } else {
+            self.dynamic_template_data = Some(new_vals);
+        }
+        Ok(self)
     }
 }
 
