@@ -340,6 +340,8 @@ impl Personalization {
 
     /// Add a dynamic template data field.
     pub fn add_dynamic_template_data(mut self, dynamic_template_data: SGMap) -> Personalization {
+        // We can safely unwrap & unreachable here since SGMap will always serialize
+        // to a JSON object.
         let mut new_vals = match to_value(dynamic_template_data).unwrap() {
             Object(map) => map,
             _ => unreachable!(),
@@ -358,14 +360,13 @@ impl Personalization {
         mut self,
         json_object: &T,
     ) -> SendgridResult<Personalization> {
-        let mut new_vals = match to_value(json_object) {
-            Ok(Object(map)) => map,
-            Err(err) => return Err(SendgridError::JSONDecode(err)),
-            Ok(_) => {
+        let mut new_vals = match to_value(json_object)? {
+            Object(map) => map,
+            _ => {
                 return Err(SendgridError::RequestNotSuccessful(
                     RequestNotSuccessful::new(
                         reqwest::StatusCode::BAD_REQUEST,
-                        "invalid json object".to_string(),
+                        "provided serializable data must be an object".to_string(),
                     ),
                 ))
             }
@@ -422,4 +423,51 @@ impl Attachment {
         self.disposition = Some(disposition);
         self
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::v3::{Message, Email, Personalization};
+    use serde::{Serialize};
+
+    #[derive(Serialize)]
+    struct OuterModel {
+	inners: Vec<InnerModel>,
+    }
+
+    #[derive(Serialize)]
+    struct InnerModel {
+	x: String,
+	y: String,
+	z: String,
+    }
+    
+    #[test]
+    fn dynamic_template_data_sgmap() {
+        let json_str = Message::new(Email::new("from_email@test.com"))
+            .add_personalization(
+                Personalization::new(Email::new("to_email@test.com")).add_dynamic_template_data(
+                    [
+                        ("Norway".to_string(), "100".to_string()),
+                        ("Denmark".to_string(), "50".to_string()),
+                        ("Iceland".to_string(), "10".to_string()),
+                    ]
+                    .iter()
+                    .cloned()
+                    .collect(),
+                ),
+            )
+            .gen_json();
+        let expected = r#"{"from":{"email":"from_email@test.com"},"subject":"","personalizations":[{"to":[{"email":"to_email@test.com"}],"dynamic_template_data":{"Denmark":"50","Iceland":"10","Norway":"100"}}]}"#;
+        assert_eq!(json_str, expected);
+    }
+
+        #[test]
+    fn dynamic_template_data_json() {
+            let json_str = Message::new(Email::new("from_email@test.com"))
+                .add_personalization(Personalization::new(Email::new("to_email@test.com"))
+                        .add_dynamic_template_data_json(&OuterModel{inners: vec![InnerModel{x: "1".to_string(), y: "2".to_string(), z: "3".to_string()}, InnerModel{x: "1".to_string(), y: "2".to_string(), z: "3".to_string()}]}).unwrap()).gen_json();
+            let expected = r#"{"from":{"email":"from_email@test.com"},"subject":"","personalizations":[{"to":[{"email":"to_email@test.com"}],"dynamic_template_data":{"inners":[{"x":"1","y":"2","z":"3"},{"x":"1","y":"2","z":"3"}]}}]}"#;
+            assert_eq!(json_str, expected);
+        }
 }
