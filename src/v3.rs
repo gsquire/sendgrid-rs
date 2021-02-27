@@ -427,21 +427,21 @@ impl Attachment {
 
 #[cfg(test)]
 mod tests {
-    use crate::v3::{Message, Email, Personalization};
-    use serde::{Serialize};
+    use crate::v3::{Email, Message, Personalization};
+    use serde::Serialize;
 
     #[derive(Serialize)]
     struct OuterModel {
-	inners: Vec<InnerModel>,
+        inners: Vec<InnerModel>,
     }
 
     #[derive(Serialize)]
     struct InnerModel {
-	x: String,
-	y: String,
-	z: String,
+        x: String,
+        y: String,
+        z: String,
     }
-    
+
     #[test]
     fn dynamic_template_data_sgmap() {
         let json_str = Message::new(Email::new("from_email@test.com"))
@@ -462,12 +462,29 @@ mod tests {
         assert_eq!(json_str, expected);
     }
 
-        #[test]
+    #[test]
     fn dynamic_template_data_json() {
-            let json_str = Message::new(Email::new("from_email@test.com"))
-                .add_personalization(Personalization::new(Email::new("to_email@test.com"))
-                        .add_dynamic_template_data_json(&OuterModel{inners: vec![InnerModel{x: "1".to_string(), y: "2".to_string(), z: "3".to_string()}, InnerModel{x: "1".to_string(), y: "2".to_string(), z: "3".to_string()}]}).unwrap()).gen_json();
-            let expected = r#"{"from":{"email":"from_email@test.com"},"subject":"","personalizations":[{"to":[{"email":"to_email@test.com"}],"dynamic_template_data":{"inners":[{"x":"1","y":"2","z":"3"},{"x":"1","y":"2","z":"3"}]}}]}"#;
-            assert_eq!(json_str, expected);
-        }
+        let json_str = Message::new(Email::new("from_email@test.com"))
+            .add_personalization(
+                Personalization::new(Email::new("to_email@test.com"))
+                    .add_dynamic_template_data_json(&OuterModel {
+                        inners: vec![
+                            InnerModel {
+                                x: "1".to_string(),
+                                y: "2".to_string(),
+                                z: "3".to_string(),
+                            },
+                            InnerModel {
+                                x: "1".to_string(),
+                                y: "2".to_string(),
+                                z: "3".to_string(),
+                            },
+                        ],
+                    })
+                    .unwrap(),
+            )
+            .gen_json();
+        let expected = r#"{"from":{"email":"from_email@test.com"},"subject":"","personalizations":[{"to":[{"email":"to_email@test.com"}],"dynamic_template_data":{"inners":[{"x":"1","y":"2","z":"3"},{"x":"1","y":"2","z":"3"}]}}]}"#;
+        assert_eq!(json_str, expected);
+    }
 }
