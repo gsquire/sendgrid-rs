@@ -342,16 +342,13 @@ impl Personalization {
     pub fn add_dynamic_template_data(mut self, dynamic_template_data: SGMap) -> Personalization {
         // We can safely unwrap & unreachable here since SGMap will always serialize
         // to a JSON object.
-        let mut new_vals = match to_value(dynamic_template_data).unwrap() {
+        let new_vals = match to_value(dynamic_template_data).unwrap() {
             Object(map) => map,
             _ => unreachable!(),
         };
-        if let Some(mut old_vals) = self.dynamic_template_data {
-            old_vals.append(&mut new_vals);
-            self.dynamic_template_data = Some(old_vals);
-        } else {
-            self.dynamic_template_data = Some(new_vals);
-        }
+        self.dynamic_template_data
+            .get_or_insert_with(|| Map::with_capacity(new_vals.len()))
+            .extend(new_vals);
         self
     }
 
@@ -360,7 +357,7 @@ impl Personalization {
         mut self,
         json_object: &T,
     ) -> SendgridResult<Personalization> {
-        let mut new_vals = match to_value(json_object)? {
+        let new_vals = match to_value(json_object)? {
             Object(map) => map,
             _ => {
                 return Err(SendgridError::RequestNotSuccessful(
@@ -371,12 +368,9 @@ impl Personalization {
                 ))
             }
         };
-        if let Some(mut old_vals) = self.dynamic_template_data {
-            old_vals.append(&mut new_vals);
-            self.dynamic_template_data = Some(old_vals);
-        } else {
-            self.dynamic_template_data = Some(new_vals);
-        }
+        self.dynamic_template_data
+            .get_or_insert_with(|| Map::with_capacity(new_vals.len()))
+            .extend(new_vals);
         Ok(self)
     }
 }
