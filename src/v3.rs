@@ -359,14 +359,7 @@ impl Personalization {
     ) -> SendgridResult<Personalization> {
         let new_vals = match to_value(json_object)? {
             Object(map) => map,
-            _ => {
-                return Err(SendgridError::RequestNotSuccessful(
-                    RequestNotSuccessful::new(
-                        reqwest::StatusCode::BAD_REQUEST,
-                        "provided serializable data must be an object".to_string(),
-                    ),
-                ))
-            }
+            _ => return Err(SendgridError::InvalidTemplateValue),
         };
         self.dynamic_template_data
             .get_or_insert_with(|| Map::with_capacity(new_vals.len()))
