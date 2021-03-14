@@ -53,7 +53,7 @@ pub enum SendgridError {
     #[error("could not UTF-8 decode this filename")]
     InvalidFilename,
 
-    /// The failure was due to a non-object being used as template data.
+    /// A failure that indicates that the type was not a valid object.
     #[error("dynamic template data must be a serializable object")]
     InvalidTemplateValue,
 

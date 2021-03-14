@@ -183,7 +183,7 @@ impl Sender {
             .body(body)
             .send()?;
 
-        if let Err(_) = resp.error_for_status_ref() {
+        if resp.error_for_status_ref().is_err() {
             return Err(RequestNotSuccessful::new(resp.status(), resp.text()?).into());
         }
 
@@ -352,7 +352,7 @@ impl Personalization {
         self
     }
 
-    /// Add a dynamic template data fields from a json object.
+    /// Add a dynamic template data fields from a JSON object.
     pub fn add_dynamic_template_data_json<T: Serialize + ?Sized>(
         mut self,
         json_object: &T,
