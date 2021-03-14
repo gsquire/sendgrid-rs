@@ -6,13 +6,14 @@ use std::collections::HashMap;
 use data_encoding::BASE64;
 use reqwest::header::{self, HeaderMap, HeaderValue, InvalidHeaderValue};
 use serde::Serialize;
+use serde_json::{to_value, value::Value, value::Value::Object, Map};
 
 #[cfg(not(feature = "async"))]
 use reqwest::blocking::{Client, Response};
 #[cfg(feature = "async")]
 use reqwest::{Client, Response};
 
-use crate::error::{RequestNotSuccessful, SendgridResult};
+use crate::error::{RequestNotSuccessful, SendgridError, SendgridResult};
 
 const V3_API_URL: &str = "https://api.sendgrid.com/v3/mail/send";
 
@@ -86,7 +87,7 @@ pub struct Personalization {
     custom_args: Option<SGMap>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    dynamic_template_data: Option<SGMap>,
+    dynamic_template_data: Option<Map<String, Value>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     send_at: Option<u64>,
@@ -339,10 +340,31 @@ impl Personalization {
 
     /// Add a dynamic template data field.
     pub fn add_dynamic_template_data(mut self, dynamic_template_data: SGMap) -> Personalization {
+        // We can safely unwrap & unreachable here since SGMap will always serialize
+        // to a JSON object.
+        let new_vals = match to_value(dynamic_template_data).unwrap() {
+            Object(map) => map,
+            _ => unreachable!(),
+        };
         self.dynamic_template_data
-            .get_or_insert_with(|| SGMap::with_capacity(dynamic_template_data.len()))
-            .extend(dynamic_template_data);
+            .get_or_insert_with(|| Map::with_capacity(new_vals.len()))
+            .extend(new_vals);
         self
+    }
+
+    /// Add a dynamic template data fields from a json object.
+    pub fn add_dynamic_template_data_json<T: Serialize + ?Sized>(
+        mut self,
+        json_object: &T,
+    ) -> SendgridResult<Personalization> {
+        let new_vals = match to_value(json_object)? {
+            Object(map) => map,
+            _ => return Err(SendgridError::InvalidTemplateValue),
+        };
+        self.dynamic_template_data
+            .get_or_insert_with(|| Map::with_capacity(new_vals.len()))
+            .extend(new_vals);
+        Ok(self)
     }
 }
 
@@ -387,5 +409,69 @@ impl Attachment {
     pub fn set_disposition(mut self, disposition: Disposition) -> Attachment {
         self.disposition = Some(disposition);
         self
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::v3::{Email, Message, Personalization};
+    use serde::Serialize;
+
+    #[derive(Serialize)]
+    struct OuterModel {
+        inners: Vec<InnerModel>,
+    }
+
+    #[derive(Serialize)]
+    struct InnerModel {
+        x: String,
+        y: String,
+        z: String,
+    }
+
+    #[test]
+    fn dynamic_template_data_sgmap() {
+        let json_str = Message::new(Email::new("from_email@test.com"))
+            .add_personalization(
+                Personalization::new(Email::new("to_email@test.com")).add_dynamic_template_data(
+                    [
+                        ("Norway".to_string(), "100".to_string()),
+                        ("Denmark".to_string(), "50".to_string()),
+                        ("Iceland".to_string(), "10".to_string()),
+                    ]
+                    .iter()
+                    .cloned()
+                    .collect(),
+                ),
+            )
+            .gen_json();
+        let expected = r#"{"from":{"email":"from_email@test.com"},"subject":"","personalizations":[{"to":[{"email":"to_email@test.com"}],"dynamic_template_data":{"Denmark":"50","Iceland":"10","Norway":"100"}}]}"#;
+        assert_eq!(json_str, expected);
+    }
+
+    #[test]
+    fn dynamic_template_data_json() {
+        let json_str = Message::new(Email::new("from_email@test.com"))
+            .add_personalization(
+                Personalization::new(Email::new("to_email@test.com"))
+                    .add_dynamic_template_data_json(&OuterModel {
+                        inners: vec![
+                            InnerModel {
+                                x: "1".to_string(),
+                                y: "2".to_string(),
+                                z: "3".to_string(),
+                            },
+                            InnerModel {
+                                x: "1".to_string(),
+                                y: "2".to_string(),
+                                z: "3".to_string(),
+                            },
+                        ],
+                    })
+                    .unwrap(),
+            )
+            .gen_json();
+        let expected = r#"{"from":{"email":"from_email@test.com"},"subject":"","personalizations":[{"to":[{"email":"to_email@test.com"}],"dynamic_template_data":{"inners":[{"x":"1","y":"2","z":"3"},{"x":"1","y":"2","z":"3"}]}}]}"#;
+        assert_eq!(json_str, expected);
     }
 }
