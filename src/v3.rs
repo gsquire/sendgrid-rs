@@ -36,6 +36,9 @@ pub struct Message {
     personalizations: Vec<Personalization>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
+    reply_to: Option<Email>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     content: Option<Vec<Content>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -198,6 +201,7 @@ impl Message {
             from,
             subject: String::new(),
             personalizations: Vec::new(),
+            reply_to: None,
             content: None,
             attachments: None,
             template_id: None,
@@ -207,6 +211,12 @@ impl Message {
     /// Set the from address.
     pub fn set_from(mut self, from: Email) -> Message {
         self.from = from;
+        self
+    }
+
+    /// Set the Reply-To header.
+    pub fn set_reply_to(mut self, reply_to: Email) -> Message {
+        self.reply_to = Some(reply_to);
         self
     }
 
