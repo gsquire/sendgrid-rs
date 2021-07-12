@@ -36,6 +36,12 @@ pub struct Message {
     personalizations: Vec<Personalization>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
+    categories: Option<Vec<String>>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    ip_pool_name: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     reply_to: Option<Email>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -205,6 +211,8 @@ impl Message {
             content: None,
             attachments: None,
             template_id: None,
+            categories: None,
+            ip_pool_name: None,
         }
     }
 
@@ -229,6 +237,20 @@ impl Message {
     /// Set the template id.
     pub fn set_template_id(mut self, template_id: &str) -> Message {
         self.template_id = Some(String::from(template_id));
+        self
+    }
+
+    /// Set the ip pool name.
+    pub fn set_ip_pool_name(mut self, ip_pool_name: &str) -> Message {
+        self.ip_pool_name = Some(String::from(ip_pool_name));
+        self
+    }
+
+    /// Add a category
+    pub fn add_category(mut self, category: &str) -> Message {
+        self.categories
+            .get_or_insert_with(Vec::new)
+            .push(String::from(category));
         self
     }
 
