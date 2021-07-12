@@ -254,6 +254,14 @@ impl Message {
         self
     }
 
+    /// Add multiple categories
+    pub fn add_categories(mut self, categories: Vec<String>) -> Message {
+        self.categories
+            .get_or_insert_with(Vec::new)
+            .extend(categories.iter().cloned());
+        self
+    }
+
     /// Add content to the message.
     pub fn add_content(mut self, c: Content) -> Message {
         self.content.get_or_insert_with(Vec::new).push(c);
