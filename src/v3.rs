@@ -470,6 +470,52 @@ mod tests {
     }
 
     #[test]
+    fn ip_pool_name() {
+        let json_str = Message::new(Email::new("from_email@test.com"))
+            .add_personalization(Personalization::new(Email::new("to_email@test.com")))
+            .set_ip_pool_name("test_ip_pool")
+            .gen_json();
+        let expected = r#"{"from":{"email":"from_email@test.com"},"subject":"","personalizations":[{"to":[{"email":"to_email@test.com"}]}],"ip_pool_name":"test_ip_pool"}"#;
+        assert_eq!(json_str, expected);
+    }
+
+    #[test]
+    fn single_category() {
+        let json_str = Message::new(Email::new("from_email@test.com"))
+            .add_personalization(Personalization::new(Email::new("to_email@test.com")))
+            .add_category("test_category")
+            .gen_json();
+        let expected = r#"{"from":{"email":"from_email@test.com"},"subject":"","personalizations":[{"to":[{"email":"to_email@test.com"}]}],"categories":["test_category"]}"#;
+        assert_eq!(json_str, expected);
+    }
+
+    #[test]
+    fn multiple_categories() {
+        let json_str_add_vec = Message::new(Email::new("from_email@test.com"))
+            .add_personalization(Personalization::new(Email::new("to_email@test.com")))
+            .add_categories(vec![
+                String::from("test_category1"),
+                String::from("test_category2"),
+            ])
+            .gen_json();
+        let json_str_multiple_adds = Message::new(Email::new("from_email@test.com"))
+            .add_personalization(Personalization::new(Email::new("to_email@test.com")))
+            .add_category("test_category1")
+            .add_category("test_category2")
+            .gen_json();
+        let json_str_vec_and_single = Message::new(Email::new("from_email@test.com"))
+            .add_personalization(Personalization::new(Email::new("to_email@test.com")))
+            .add_category("test_category1")
+            .add_categories(vec![String::from("test_category2")])
+            .gen_json();
+
+        let expected = r#"{"from":{"email":"from_email@test.com"},"subject":"","personalizations":[{"to":[{"email":"to_email@test.com"}]}],"categories":["test_category1","test_category2"]}"#;
+        assert_eq!(json_str_add_vec, expected);
+        assert_eq!(json_str_multiple_adds, expected);
+        assert_eq!(json_str_vec_and_single, expected);
+    }
+
+    #[test]
     fn dynamic_template_data_sgmap() {
         let json_str = Message::new(Email::new("from_email@test.com"))
             .add_personalization(
