@@ -240,13 +240,13 @@ impl Message {
         self
     }
 
-    /// Set the ip pool name.
+    /// Set the IP pool name.
     pub fn set_ip_pool_name(mut self, ip_pool_name: &str) -> Message {
         self.ip_pool_name = Some(String::from(ip_pool_name));
         self
     }
 
-    /// Add a category
+    /// Add a category.
     pub fn add_category(mut self, category: &str) -> Message {
         self.categories
             .get_or_insert_with(Vec::new)
@@ -254,11 +254,11 @@ impl Message {
         self
     }
 
-    /// Add multiple categories
-    pub fn add_categories(mut self, categories: Vec<String>) -> Message {
+    /// Add multiple categories.
+    pub fn add_categories(mut self, categories: &[String]) -> Message {
         self.categories
             .get_or_insert_with(Vec::new)
-            .extend(categories.iter().cloned());
+            .extend_from_slice(categories);
         self
     }
 
@@ -493,7 +493,7 @@ mod tests {
     fn multiple_categories() {
         let json_str_add_vec = Message::new(Email::new("from_email@test.com"))
             .add_personalization(Personalization::new(Email::new("to_email@test.com")))
-            .add_categories(vec![
+            .add_categories(&[
                 String::from("test_category1"),
                 String::from("test_category2"),
             ])
@@ -506,7 +506,7 @@ mod tests {
         let json_str_vec_and_single = Message::new(Email::new("from_email@test.com"))
             .add_personalization(Personalization::new(Email::new("to_email@test.com")))
             .add_category("test_category1")
-            .add_categories(vec![String::from("test_category2")])
+            .add_categories(&[String::from("test_category2")])
             .gen_json();
 
         let expected = r#"{"from":{"email":"from_email@test.com"},"subject":"","personalizations":[{"to":[{"email":"to_email@test.com"}]}],"categories":["test_category1","test_category2"]}"#;
