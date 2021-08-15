@@ -380,14 +380,9 @@ impl Personalization {
 
     /// Add a custom_args field.
     pub fn add_custom_args(mut self, custom_args: SGMap) -> Personalization {
-        match self.custom_args {
-            None => {
-                self.custom_args = Some(custom_args);
-            }
-            Some(ref mut h) => {
-                h.extend(custom_args);
-            }
-        }
+        self.custom_args
+            .get_or_insert_with(|| SGMap::with_capacity(custom_args.len()))
+            .extend(custom_args);
         self
     }
 
