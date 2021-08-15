@@ -378,6 +378,19 @@ impl Personalization {
         self
     }
 
+    /// Add a custom_args field.
+    pub fn add_custom_args(mut self, custom_args: SGMap) -> Personalization {
+        match self.custom_args {
+            None => {
+                self.custom_args = Some(custom_args);
+            }
+            Some(ref mut h) => {
+                h.extend(custom_args);
+            }
+        }
+        self
+    }
+
     /// Add a dynamic template data field.
     pub fn add_dynamic_template_data(mut self, dynamic_template_data: SGMap) -> Personalization {
         // We can safely unwrap & unreachable here since SGMap will always serialize
