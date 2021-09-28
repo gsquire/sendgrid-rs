@@ -47,30 +47,30 @@ fn make_post_body(mut mail_info: Mail) -> SendgridResult<String> {
     }
 
     for cc in mail_info.cc.iter() {
-        encoder.append_pair("cc[]", &cc);
+        encoder.append_pair("cc[]", cc);
     }
 
     for bcc in mail_info.bcc.iter() {
-        encoder.append_pair("bcc[]", &bcc);
+        encoder.append_pair("bcc[]", bcc);
     }
 
     for (attachment, contents) in &mail_info.attachments {
-        encoder.append_pair(&make_form_key("files", attachment), &contents);
+        encoder.append_pair(&make_form_key("files", attachment), contents);
     }
 
     for (id, value) in &mail_info.content {
-        encoder.append_pair(&make_form_key("content", id), &value);
+        encoder.append_pair(&make_form_key("content", id), value);
     }
 
-    encoder.append_pair("from", &mail_info.from);
-    encoder.append_pair("subject", &mail_info.subject);
-    encoder.append_pair("html", &mail_info.html);
-    encoder.append_pair("text", &mail_info.text);
-    encoder.append_pair("fromname", &mail_info.from_name);
-    encoder.append_pair("replyto", &mail_info.reply_to);
-    encoder.append_pair("date", &mail_info.date);
+    encoder.append_pair("from", mail_info.from);
+    encoder.append_pair("subject", mail_info.subject);
+    encoder.append_pair("html", mail_info.html);
+    encoder.append_pair("text", mail_info.text);
+    encoder.append_pair("fromname", mail_info.from_name);
+    encoder.append_pair("replyto", mail_info.reply_to);
+    encoder.append_pair("date", mail_info.date);
     encoder.append_pair("headers", &mail_info.make_header_string()?);
-    encoder.append_pair("x-smtpapi", &mail_info.x_smtpapi);
+    encoder.append_pair("x-smtpapi", mail_info.x_smtpapi);
 
     Ok(encoder.finish())
 }

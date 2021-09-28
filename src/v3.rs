@@ -386,6 +386,14 @@ impl Personalization {
         self
     }
 
+    /// Add a substitutions field.
+    pub fn add_substitutions(mut self, substitutions: SGMap) -> Personalization {
+        self.substitutions
+            .get_or_insert_with(|| SGMap::with_capacity(substitutions.len()))
+            .extend(substitutions);
+        self
+    }
+
     /// Add a dynamic template data field.
     pub fn add_dynamic_template_data(mut self, dynamic_template_data: SGMap) -> Personalization {
         // We can safely unwrap & unreachable here since SGMap will always serialize
@@ -413,6 +421,18 @@ impl Personalization {
             .get_or_insert_with(|| Map::with_capacity(new_vals.len()))
             .extend(new_vals);
         Ok(self)
+    }
+
+    /// Set the subject.
+    pub fn set_subject(mut self, subject: &str) -> Personalization {
+        self.subject = Some(String::from(subject));
+        self
+    }
+
+    /// Set send at.
+    pub fn set_send_at(mut self, send_at: u64) -> Personalization {
+        self.send_at = Some(send_at);
+        self
     }
 }
 
