@@ -27,7 +27,7 @@ pub struct Sender {
     client: Client,
 }
 
-/// Used for click tracking settings
+/// Used for open tracking settings.
 #[derive(Clone, Serialize)]
 pub struct OpenTrackingSetting {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -37,14 +37,14 @@ pub struct OpenTrackingSetting {
     substitution_tag: Option<String>,
 }
 
-/// Used for subscription tracking settings
+/// Used for subscription tracking settings.
 #[derive(Clone, Serialize)]
 pub struct SubscriptionTrackingSetting {
     #[serde(skip_serializing_if = "Option::is_none")]
     enable: Option<bool>,
 }
 
-/// Used for click tracking settings
+/// Used for click tracking settings.
 #[derive(Clone, Serialize)]
 pub struct ClickTrackingSetting {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -54,7 +54,7 @@ pub struct ClickTrackingSetting {
     enable_text: Option<bool>,
 }
 
-/// Used for tracking settings
+/// Used for all tracking settings.
 #[derive(Clone, Serialize)]
 pub struct TrackingSettings {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -95,7 +95,6 @@ pub struct Message {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     tracking_settings: Option<TrackingSettings>,
-
 }
 
 /// An email with a required address and an optional name field.
@@ -291,7 +290,7 @@ impl Message {
         self
     }
 
-    /// Set tracking settings
+    /// Set tracking settings.
     pub fn set_tracking_settings(mut self, tracking_settings: TrackingSettings) -> Message {
         self.tracking_settings = Some(tracking_settings);
         self
@@ -533,8 +532,10 @@ impl Attachment {
 
 #[cfg(test)]
 mod tests {
-    use crate::v3::{Email, Message, Personalization, TrackingSettings, ClickTrackingSetting,
-        OpenTrackingSetting, SubscriptionTrackingSetting};
+    use crate::v3::{
+        ClickTrackingSetting, Email, Message, OpenTrackingSetting, Personalization,
+        SubscriptionTrackingSetting, TrackingSettings,
+    };
     use serde::Serialize;
 
     #[derive(Serialize)]
@@ -582,13 +583,13 @@ mod tests {
                 subscription_tracking: None,
             })
             .gen_json();
-         let expected = r#"{"from":{"email":"from_email@test.com"},"subject":"","personalizations":[{"to":[{"email":"to_email@test.com"}]}],"tracking_settings":{"click_tracking":{"enable":true}}}"#;
-         assert_eq!(json_str, expected);
-     }
+        let expected = r#"{"from":{"email":"from_email@test.com"},"subject":"","personalizations":[{"to":[{"email":"to_email@test.com"}]}],"tracking_settings":{"click_tracking":{"enable":true}}}"#;
+        assert_eq!(json_str, expected);
+    }
 
-     #[test]
-     fn open_tracking_setting() {
-         let json_str = Message::new(Email::new("from_email@test.com"))
+    #[test]
+    fn open_tracking_setting() {
+        let json_str = Message::new(Email::new("from_email@test.com"))
             .add_personalization(Personalization::new(Email::new("to_email@test.com")))
             .set_tracking_settings(TrackingSettings {
                 click_tracking: None,
@@ -606,18 +607,16 @@ mod tests {
     #[test]
     fn subscription_tracking_setting() {
         let json_str = Message::new(Email::new("from_email@test.com"))
-           .add_personalization(Personalization::new(Email::new("to_email@test.com")))
-           .set_tracking_settings(TrackingSettings {
-               click_tracking: None,
-               open_tracking: None,
-               subscription_tracking: Some(SubscriptionTrackingSetting {
-                   enable: Some(true),
-               }),
-           })
-           .gen_json();
-       let expected = r#"{"from":{"email":"from_email@test.com"},"subject":"","personalizations":[{"to":[{"email":"to_email@test.com"}]}],"tracking_settings":{"subscription_tracking":{"enable":true}}}"#;
-       assert_eq!(json_str, expected);
-   }
+            .add_personalization(Personalization::new(Email::new("to_email@test.com")))
+            .set_tracking_settings(TrackingSettings {
+                click_tracking: None,
+                open_tracking: None,
+                subscription_tracking: Some(SubscriptionTrackingSetting { enable: Some(true) }),
+            })
+            .gen_json();
+        let expected = r#"{"from":{"email":"from_email@test.com"},"subject":"","personalizations":[{"to":[{"email":"to_email@test.com"}]}],"tracking_settings":{"subscription_tracking":{"enable":true}}}"#;
+        assert_eq!(json_str, expected);
+    }
 
     #[test]
     fn multiple_categories() {
