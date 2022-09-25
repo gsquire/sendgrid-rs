@@ -30,41 +30,49 @@ pub struct Sender {
 /// Used for open tracking settings.
 #[derive(Clone, Serialize)]
 pub struct OpenTrackingSetting {
+    /// Whether or not to enable open tracking.
     #[serde(skip_serializing_if = "Option::is_none")]
-    enable: Option<bool>,
+    pub enable: Option<bool>,
 
+    /// The substitution tag to use for the open tracking URL.
     #[serde(skip_serializing_if = "Option::is_none")]
-    substitution_tag: Option<String>,
+    pub substitution_tag: Option<String>,
 }
 
 /// Used for subscription tracking settings.
 #[derive(Clone, Serialize)]
 pub struct SubscriptionTrackingSetting {
+    /// Whether or not to enable subscription tracking.
     #[serde(skip_serializing_if = "Option::is_none")]
-    enable: Option<bool>,
+    pub enable: Option<bool>,
 }
 
 /// Used for click tracking settings.
 #[derive(Clone, Serialize)]
 pub struct ClickTrackingSetting {
+    /// Whether or not to enable click tracking.
     #[serde(skip_serializing_if = "Option::is_none")]
-    enable: Option<bool>,
+    pub enable: Option<bool>,
 
+    /// Whether or not to enable text/plain content in the email.
     #[serde(skip_serializing_if = "Option::is_none")]
-    enable_text: Option<bool>,
+    pub enable_text: Option<bool>,
 }
 
 /// Used for all tracking settings.
 #[derive(Clone, Serialize)]
 pub struct TrackingSettings {
+    /// Used for open tracking settings.
     #[serde(skip_serializing_if = "Option::is_none")]
-    click_tracking: Option<ClickTrackingSetting>,
+    pub click_tracking: Option<ClickTrackingSetting>,
 
+    /// Used for subscription tracking settings.
     #[serde(skip_serializing_if = "Option::is_none")]
-    open_tracking: Option<OpenTrackingSetting>,
+    pub open_tracking: Option<OpenTrackingSetting>,
 
+    /// Used for subscription tracking settings.
     #[serde(skip_serializing_if = "Option::is_none")]
-    subscription_tracking: Option<SubscriptionTrackingSetting>,
+    pub subscription_tracking: Option<SubscriptionTrackingSetting>,
 }
 
 /// The main structure for a V3 API mail send call. This is composed of many other smaller
