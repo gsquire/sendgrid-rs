@@ -62,11 +62,11 @@ pub struct ClickTrackingSetting {
 /// Used for all tracking settings.
 #[derive(Clone, Serialize)]
 pub struct TrackingSettings {
-    /// Used for open tracking settings.
+    /// Used for click tracking settings.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub click_tracking: Option<ClickTrackingSetting>,
 
-    /// Used for subscription tracking settings.
+    /// Used for open tracking settings.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub open_tracking: Option<OpenTrackingSetting>,
 
