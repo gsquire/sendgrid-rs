@@ -1,7 +1,7 @@
 //! This module encompasses all types needed to send mail using version 3 of the mail
 //! send API.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use data_encoding::BASE64;
 use reqwest::header::{self, HeaderMap, HeaderValue, InvalidHeaderValue};
@@ -103,6 +103,9 @@ pub struct Message {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     tracking_settings: Option<TrackingSettings>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    asm: Option<ASM>,
 }
 
 /// An email with a required address and an optional name field.
@@ -187,6 +190,13 @@ pub struct Attachment {
     content_id: Option<String>,
 }
 
+/// An object allowing you to specify how to handle unsubscribes.
+#[derive(Default, Serialize)]
+pub struct ASM {
+    group_id: u32,
+    groups_to_display: HashSet<u32>,
+}
+
 impl Sender {
     /// Construct a new V3 message sender.
     pub fn new(api_key: String) -> Sender {
@@ -265,6 +275,7 @@ impl Message {
             categories: None,
             ip_pool_name: None,
             tracking_settings: None,
+            asm: None,
         }
     }
 
@@ -301,6 +312,12 @@ impl Message {
     /// Set tracking settings.
     pub fn set_tracking_settings(mut self, tracking_settings: TrackingSettings) -> Message {
         self.tracking_settings = Some(tracking_settings);
+        self
+    }
+
+    /// Set unsubscribe settings.
+    pub fn set_asm(mut self, asm: ASM) -> Message {
+        self.asm = Some(asm);
         self
     }
 
@@ -538,13 +555,33 @@ impl Attachment {
     }
 }
 
+impl ASM {
+    /// Construct a new attachment for this message.
+    pub fn new() -> Self {
+        Default::default()
+    }
+
+    /// The unsubscribe group to associate with this email.
+    pub fn set_group_id(mut self, group_id: u32) -> Self {
+        self.group_id = group_id;
+        self
+    }
+
+    /// A set containing the unsubscribe groups that you would like to be displayed on the unsubscribe preferences page.
+    pub fn set_groups_to_display(mut self, groups_to_display: HashSet<u32>) -> Self {
+        self.groups_to_display = groups_to_display;
+        self
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::v3::{
-        ClickTrackingSetting, Email, Message, OpenTrackingSetting, Personalization,
+        ASM, ClickTrackingSetting, Email, Message, OpenTrackingSetting, Personalization,
         SubscriptionTrackingSetting, TrackingSettings,
     };
     use serde::Serialize;
+    use std::collections::HashSet;
 
     #[derive(Serialize)]
     struct OuterModel {
@@ -695,6 +732,19 @@ mod tests {
             )
             .gen_json();
         let expected = r#"{"from":{"email":"from_email@test.com"},"subject":"","personalizations":[{"to":[{"email":"to_email@test.com"}],"dynamic_template_data":{"inners":[{"x":"1","y":"2","z":"3"},{"x":"1","y":"2","z":"3"}]}}]}"#;
+        assert_eq!(json_str, expected);
+    }
+
+    #[test]
+    fn asm() {
+        let json_str = Message::new(Email::new("from_email@test.com"))
+            .add_personalization(Personalization::new(Email::new("to_email@test.com")))
+            .set_asm(ASM::new()
+                .set_group_id(123)
+                .set_groups_to_display(HashSet::from([123]))
+            )
+            .gen_json();
+        let expected = r#"{"from":{"email":"from_email@test.com"},"subject":"","personalizations":[{"to":[{"email":"to_email@test.com"}]}],"asm":{"group_id":123,"groups_to_display":[123]}}"#;
         assert_eq!(json_str, expected);
     }
 }
