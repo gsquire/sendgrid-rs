@@ -57,6 +57,10 @@ pub enum SendgridError {
     #[error("dynamic template data must be a serializable object")]
     InvalidTemplateValue,
 
+    /// A failure that indicates that the number of items exceeded the max allowed items.
+    #[error("the number of items exceeded the max capacity")]
+    TooManyItems,
+
     /// SendGrid returned an unsuccessful HTTP status code.
     #[error("Request failed: `{0}`")]
     RequestNotSuccessful(#[from] RequestNotSuccessful),

@@ -556,7 +556,7 @@ impl Attachment {
 }
 
 impl ASM {
-    /// Construct a new attachment for this message.
+    /// Construct an object allowing you to specify how to handle unsubscribes.
     pub fn new() -> Self {
         Default::default()
     }
@@ -568,17 +568,24 @@ impl ASM {
     }
 
     /// A set containing the unsubscribe groups that you would like to be displayed on the unsubscribe preferences page.
-    pub fn set_groups_to_display(mut self, groups_to_display: HashSet<u32>) -> Self {
+    pub fn set_groups_to_display(
+        mut self,
+        groups_to_display: HashSet<u32>,
+    ) -> SendgridResult<Self> {
+        if groups_to_display.len() > 25 {
+            return Err(SendgridError::TooManyItems);
+        }
+
         self.groups_to_display = groups_to_display;
-        self
+        Ok(self)
     }
 }
 
 #[cfg(test)]
 mod tests {
     use crate::v3::{
-        ASM, ClickTrackingSetting, Email, Message, OpenTrackingSetting, Personalization,
-        SubscriptionTrackingSetting, TrackingSettings,
+        ClickTrackingSetting, Email, Message, OpenTrackingSetting, Personalization,
+        SubscriptionTrackingSetting, TrackingSettings, ASM,
     };
     use serde::Serialize;
     use std::collections::HashSet;
@@ -739,9 +746,11 @@ mod tests {
     fn asm() {
         let json_str = Message::new(Email::new("from_email@test.com"))
             .add_personalization(Personalization::new(Email::new("to_email@test.com")))
-            .set_asm(ASM::new()
-                .set_group_id(123)
-                .set_groups_to_display(HashSet::from([123]))
+            .set_asm(
+                ASM::new()
+                    .set_group_id(123)
+                    .set_groups_to_display(HashSet::from([123]))
+                    .unwrap(),
             )
             .gen_json();
         let expected = r#"{"from":{"email":"from_email@test.com"},"subject":"","personalizations":[{"to":[{"email":"to_email@test.com"}]}],"asm":{"group_id":123,"groups_to_display":[123]}}"#;
