@@ -19,6 +19,7 @@ static API_URL: &str = "https://api.sendgrid.com/api/mail.send.json?";
 #[derive(Clone, Debug)]
 pub struct SGClient {
     api_key: String,
+    host: Option<String>,
     #[cfg(feature = "async")]
     client: reqwest::Client,
     #[cfg(not(feature = "async"))]
@@ -93,7 +94,14 @@ impl SGClient {
         SGClient {
             api_key: key.into(),
             client,
+            host: None,
         }
+    }
+
+    /// Sets the host to use for the API. This is useful if you are using a proxy or a local
+    /// development server. It should be a full URL, including the protocol.
+    pub fn set_host<S: Into<String>>(&mut self, host: S) {
+        self.host = Some(host.into());
     }
 
     /// Sends a messages through the SendGrid API. It takes a Mail struct as an argument. It returns
@@ -123,7 +131,7 @@ impl SGClient {
         let post_body = make_post_body(mail_info)?;
         let resp = self
             .client
-            .post(API_URL)
+            .post(self.host.as_ref().map(|s| s.as_str()).unwrap_or(API_URL))
             .headers(self.headers()?)
             .body(post_body)
             .send()?;
@@ -164,7 +172,7 @@ impl SGClient {
         let post_body = make_post_body(mail_info)?;
         let resp = self
             .client
-            .post(API_URL)
+            .post(self.host.as_ref().map(|s| s.as_str()).unwrap_or(API_URL))
             .headers(self.headers()?)
             .body(post_body)
             .send()
