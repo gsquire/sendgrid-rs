@@ -170,7 +170,7 @@ impl SGClient {
             .send()
             .await?;
 
-        if let Err(_) = resp.error_for_status_ref() {
+        if resp.error_for_status_ref().is_err() {
             return Err(RequestNotSuccessful::new(resp.status(), resp.text().await?).into());
         }
 

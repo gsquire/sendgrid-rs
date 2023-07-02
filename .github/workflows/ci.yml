@@ -6,33 +6,23 @@ jobs:
   check:
     name: test
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        blocking: ["blocking", "async"]
+        tls: ["native-tls", "rustls"]
+        
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
+        uses: dtolnay/rust-toolchain@stable
 
-      - uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --no-default-features --features native-tls,blocking
+      - name: Check formatting
+        run: cargo fmt --all -- --check
 
-      - uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --no-default-features --features rustls,blocking
+      - name: Check clippy
+        run: cargo clippy --no-default-features --features ${{ matrix.tls }},${{ matrix.blocking }} -- -D warnings
 
-      - uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --no-default-features --features native-tls,async
-
-      - uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --no-default-features --features rustls,async
+      - name: Test with ${{ matrix.tls }} and ${{ matrix.blocking }}
+        run: cargo test --no-default-features --features ${{ matrix.tls }},${{ matrix.blocking }}
