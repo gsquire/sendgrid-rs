@@ -25,6 +25,7 @@ pub type SGMap = HashMap<String, String>;
 pub struct Sender {
     api_key: String,
     client: Client,
+    host: String,
 }
 
 /// Used for open tracking settings.
@@ -203,7 +204,14 @@ impl Sender {
         Sender {
             api_key,
             client: Client::new(),
+            host: V3_API_URL.to_string(),
         }
+    }
+
+    /// Sets the host to use for the API. This is useful if you are using a proxy or a local
+    /// development server. It should be a full URL, including the protocol.
+    pub fn set_host<S: Into<String>>(&mut self, host: S) {
+        self.host = host.into();
     }
 
     fn get_headers(&self) -> Result<HeaderMap, InvalidHeaderValue> {
@@ -227,7 +235,7 @@ impl Sender {
 
         let resp = self
             .client
-            .post(V3_API_URL)
+            .post(&self.host)
             .headers(headers)
             .body(mail.gen_json())
             .send()
@@ -248,7 +256,7 @@ impl Sender {
 
         let resp = self
             .client
-            .post(V3_API_URL)
+            .post(&self.host)
             .headers(headers)
             .body(body)
             .send()?;
