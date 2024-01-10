@@ -8,9 +8,8 @@ use reqwest::header::{self, HeaderMap, HeaderValue, InvalidHeaderValue};
 use serde::Serialize;
 use serde_json::{to_value, value::Value, value::Value::Object, Map};
 
-#[cfg(not(feature = "async"))]
-use reqwest::blocking::{Client, Response};
-#[cfg(feature = "async")]
+#[cfg(feature = "blocking")]
+use reqwest::blocking::Response as BlockingResponse;
 use reqwest::{Client, Response};
 
 use crate::error::{RequestNotSuccessful, SendgridError, SendgridResult};
@@ -25,6 +24,8 @@ pub type SGMap = HashMap<String, String>;
 pub struct Sender {
     api_key: String,
     client: Client,
+    #[cfg(feature = "blocking")]
+    blocking_client: reqwest::blocking::Client,
     host: String,
 }
 
@@ -204,6 +205,8 @@ impl Sender {
         Sender {
             api_key,
             client: Client::new(),
+            #[cfg(feature = "blocking")]
+            blocking_client: reqwest::blocking::Client::new(),
             host: V3_API_URL.to_string(),
         }
     }
@@ -228,7 +231,6 @@ impl Sender {
         Ok(headers)
     }
 
-    #[cfg(feature = "async")]
     /// Send a V3 message and return the HTTP response or an error.
     pub async fn send(&self, mail: &Message) -> SendgridResult<Response> {
         let headers = self.get_headers()?;
@@ -248,14 +250,14 @@ impl Sender {
         Ok(resp)
     }
 
-    #[cfg(not(feature = "async"))]
+    #[cfg(feature = "blocking")]
     /// Send a V3 message and return the HTTP response or an error.
-    pub fn send(&self, mail: &Message) -> SendgridResult<Response> {
+    pub fn blocking_send(&self, mail: &Message) -> SendgridResult<BlockingResponse> {
         let headers = self.get_headers()?;
         let body = mail.gen_json();
 
         let resp = self
-            .client
+            .blocking_client
             .post(&self.host)
             .headers(headers)
             .body(body)

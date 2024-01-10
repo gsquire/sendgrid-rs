@@ -27,7 +27,7 @@ fn main() {
         .add_header("x-cool".to_string(), "indeed")
         .add_x_smtpapi(&x_smtpapi);
 
-    match sg.send(mail_info) {
+    match sg.blocking_send(mail_info) {
         Err(err) => println!("Error: {}", err),
         Ok(body) => println!("Response: {:?}", body),
     };

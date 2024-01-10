@@ -1,8 +1,7 @@
 use reqwest::header::{self, HeaderMap, HeaderValue};
 
-#[cfg(not(feature = "async"))]
-use reqwest::blocking::Response;
-#[cfg(feature = "async")]
+#[cfg(feature = "blocking")]
+use reqwest::blocking::Response as BlockingResponse;
 use reqwest::Response;
 
 use url::form_urlencoded::Serializer;
@@ -20,10 +19,9 @@ static API_URL: &str = "https://api.sendgrid.com/api/mail.send.json?";
 pub struct SGClient {
     api_key: String,
     host: String,
-    #[cfg(feature = "async")]
     client: reqwest::Client,
-    #[cfg(not(feature = "async"))]
-    client: reqwest::blocking::Client,
+    #[cfg(feature = "blocking")]
+    blocking_client: reqwest::blocking::Client,
 }
 
 // Given a form value and a key, generate the correct key.
@@ -81,19 +79,27 @@ impl SGClient {
     /// default TLS backend and do not have a default TLS backend available. If you are using the
     /// RustTLS backend, this can never panic because RustTLS is statically linked.
     pub fn new<S: Into<String>>(key: S) -> SGClient {
-        #[cfg(feature = "async")]
-        use reqwest as rq;
-        #[cfg(not(feature = "async"))]
-        use reqwest::blocking as rq;
-
-        let builder = rq::ClientBuilder::new();
+        let async_builder = reqwest::ClientBuilder::new();
         #[cfg(feature = "rustls")]
-        let builder = builder.use_rustls_tls();
-        let client = builder.build().unwrap();
+        let async_builder = async_builder.use_rustls_tls();
+        let client = async_builder.build().unwrap();
+
+        #[cfg(feature = "blocking")]
+        let blocking_client: reqwest::blocking::Client;
+
+        #[cfg(feature = "blocking")]
+        {
+            let blocking_builder = reqwest::blocking::ClientBuilder::new();
+            #[cfg(feature = "rustls")]
+            let blocking_builder = blocking_builder.use_rustls_tls();
+            blocking_client = blocking_builder.build().unwrap();
+        }
 
         SGClient {
             api_key: key.into(),
             client,
+            #[cfg(feature = "blocking")]
+            blocking_client,
             host: API_URL.to_string(),
         }
     }
@@ -126,11 +132,11 @@ impl SGClient {
     ///     Ok(())
     /// }
     /// ```
-    #[cfg(not(feature = "async"))]
-    pub fn send(&self, mail_info: Mail) -> SendgridResult<Response> {
+    #[cfg(feature = "blocking")]
+    pub fn blocking_send(&self, mail_info: Mail) -> SendgridResult<BlockingResponse> {
         let post_body = make_post_body(mail_info)?;
         let resp = self
-            .client
+            .blocking_client
             .post(&self.host)
             .headers(self.headers()?)
             .body(post_body)
@@ -167,7 +173,6 @@ impl SGClient {
     ///     Ok(())
     /// }
     /// ```
-    #[cfg(feature = "async")]
     pub async fn send(&self, mail_info: Mail<'_>) -> SendgridResult<Response> {
         let post_body = make_post_body(mail_info)?;
         let resp = self
