@@ -21,8 +21,8 @@ This library utilises [reqwest](https://crates.io/crates/reqwest). Follow the in
 requests to the SendGrid API.
 
 ## Features
-You can take advantage of a couple features for the crate. To enable the asynchronous send function,
-you can use the `async` flag. To enable the [rustls](https://github.com/ctz/rustls) TLS feature,
+You can take advantage of a couple features for the crate. To enable the blocking send function, you
+can use the `blocking` flag. To enable the [rustls](https://github.com/rustls/rustls) TLS feature,
 use the `rustls` flag.
 
 ## Example
