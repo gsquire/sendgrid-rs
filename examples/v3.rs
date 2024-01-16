@@ -20,6 +20,6 @@ fn main() {
 
     let api_key = ::std::env::var("SG_API_KEY").unwrap();
     let sender = Sender::new(api_key);
-    let code = sender.send(&m);
+    let code = sender.blocking_send(&m);
     println!("{:?}", code);
 }

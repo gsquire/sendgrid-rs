@@ -1,6 +1,6 @@
 [package]
 name = "sendgrid"
-version = "0.19.2"
+version = "0.20.0"
 edition = "2021"
 authors = ["Garrett Squire <github@garrettsquire.com>"]
 description = "An unofficial client library for the SendGrid API"
@@ -12,27 +12,25 @@ documentation = "https://docs.rs/sendgrid"
 readme = "README.md"
 
 [dependencies]
-data-encoding = "2.3"
+data-encoding = "2.5"
 reqwest = { version = "0.11", default-features = false, features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "1.0"
-url = "2.3"
+url = "2.5"
 
 [dev-dependencies]
 tokio = { version = "1.0", features = ["full"] }
 
 [features]
-default = ["native-tls", "blocking"]
+default = ["native-tls"]
 
-async = []
 blocking = ["reqwest/blocking"]
 rustls = ["reqwest/rustls-tls"]
 native-tls = ["reqwest/default-tls"]
 
 [[example]]
 name = "v3_async"
-required-features = ["async"]
 
 [[example]]
 name = "main"

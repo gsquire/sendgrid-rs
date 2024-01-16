@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        blocking: ["blocking", "async"]
+        blocking: ["blocking"]
         tls: ["native-tls", "rustls"]
         
     steps:
@@ -26,3 +26,6 @@ jobs:
 
       - name: Test with ${{ matrix.tls }} and ${{ matrix.blocking }}
         run: cargo test --no-default-features --features ${{ matrix.tls }},${{ matrix.blocking }}
+
+      - name: Async test
+        run: cargo test
