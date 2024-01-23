@@ -20,7 +20,8 @@ fn main() {
     Visit <a href="https://crates.io/crates/sendgrid">sendgrid</a>
     "#;
 
-    let api_key = std::env::var("SENDGRID_API_KEY").expect("Need to set SENDGRID_API_KEY environment variable");
+    let api_key = std::env::var("SENDGRID_API_KEY")
+        .expect("Need to set SENDGRID_API_KEY environment variable");
 
     let person = Personalization::new(Email::new(to_email).set_name(to_name));
 
@@ -48,4 +49,3 @@ fn main() {
         Err(err) => eprintln!("err: {err}",),
     }
 }
-
