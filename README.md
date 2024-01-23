@@ -33,6 +33,10 @@ find your SendGrid API key in the process environment. In shells such as Bash or
 export SENDGRID_API_KEY="SG.my.api.key"
 ```
 
+```shell
+SENDGRID_API_KEY=SG.... cargo run --example v3_disable_tracking --features="blocking" from@examle.com to@example.com
+```
+
 ## Documentation
 [Documentation](https://docs.rs/sendgrid)
 

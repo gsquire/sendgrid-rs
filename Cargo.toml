@@ -39,3 +39,8 @@ required-features = ["blocking"]
 [[example]]
 name = "v3"
 required-features = ["blocking"]
+
+
+[[example]]
+name = "v3_disable_tracking"
+required-features = ["blocking"]
