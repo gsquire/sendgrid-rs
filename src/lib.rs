@@ -24,9 +24,7 @@
 //! OpenSSL) with RusTLS, which is a TLS implementation in Rust.
 //! * `native-tls`: enabled by default, this feature flag enabled the default SSL provider in the
 //! operating system (usually OpenSSL).
-//! * `async`: this feature flag changes the `send` function on the `SGClient` into an asynchronous
-//! version. Note that without this feature flag, constructing an `SGClient` inside an asynchronous
-//! function is not possible.
+//! * `blocking`: this feature flag allows you to construct a synchronous `SGClient`.
 //!
 //! ## Build Dependencies
 //! This library utilises [reqwest](https://crates.io/crates/reqwest). Follow the instructions on

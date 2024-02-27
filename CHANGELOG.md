@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.20.1 - 2024-02-27
+
+### Fixed
+
+- The main documentation was updated to reflect the current feature flags.
+
 ## 0.20.0 - 2024-01-16
 
 ### Added
