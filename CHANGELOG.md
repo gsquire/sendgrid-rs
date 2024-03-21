@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.21.0 - 2024-03-21
+
+### Changed
+
+- `reqwest` was updated to version 0.12.
+
 ## 0.20.1 - 2024-02-27
 
 ### Fixed
