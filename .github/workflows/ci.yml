@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        blocking: ["blocking"]
+        runtime: ["blocking", "default"]
         tls: ["native-tls", "rustls"]
         
     steps:
@@ -22,10 +22,10 @@ jobs:
         run: cargo fmt --all -- --check
 
       - name: Check clippy
-        run: cargo clippy --no-default-features --features ${{ matrix.tls }},${{ matrix.blocking }} -- -D warnings
+        run: cargo clippy --features ${{ matrix.runtime }},${{ matrix.tls }} -- -D warnings
 
-      - name: Test with ${{ matrix.tls }} and ${{ matrix.blocking }}
-        run: cargo test --no-default-features --features ${{ matrix.tls }},${{ matrix.blocking }}
+      - name: Test with ${{ matrix.runtime }} and ${{ matrix.tls }}
+        run: cargo test --features ${{ matrix.runtime }},${{ matrix.tls }}
 
       - name: Async test
         run: cargo test
