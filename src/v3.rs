@@ -217,6 +217,17 @@ impl Sender {
         self.host = host.into();
     }
 
+    /// Sets client to use for the API. This is useful if you want to customize the client.
+    pub fn set_client(&mut self, client: Client) {
+        self.client = client;
+    }
+
+    /// Sets blocking client to use for the API. This is useful if you want to customize the client.
+    #[cfg(feature = "blocking")]
+    pub fn set_blocking_client(&mut self, blocking_client: reqwest::blocking::Client) {
+        self.blocking_client = blocking_client;
+    }
+
     fn get_headers(&self) -> Result<HeaderMap, InvalidHeaderValue> {
         let mut headers = HeaderMap::with_capacity(3);
         headers.insert(
