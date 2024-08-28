@@ -201,10 +201,13 @@ pub struct ASM {
 
 impl Sender {
     /// Construct a new V3 message sender.
-    pub fn new(api_key: String) -> Sender {
+    pub fn new(
+        api_key: String,
+        client: Option<Client>,
+    ) -> Sender {
         Sender {
             api_key,
-            client: Client::new(),
+            client: client.unwrap_or_default(),
             #[cfg(feature = "blocking")]
             blocking_client: reqwest::blocking::Client::new(),
             host: V3_API_URL.to_string(),
@@ -215,17 +218,6 @@ impl Sender {
     /// development server. It should be a full URL, including the protocol.
     pub fn set_host<S: Into<String>>(&mut self, host: S) {
         self.host = host.into();
-    }
-
-    /// Sets client to use for the API. This is useful if you want to customize the client.
-    pub fn set_client(&mut self, client: Client) {
-        self.client = client;
-    }
-
-    /// Sets blocking client to use for the API. This is useful if you want to customize the client.
-    #[cfg(feature = "blocking")]
-    pub fn set_blocking_client(&mut self, blocking_client: reqwest::blocking::Client) {
-        self.blocking_client = blocking_client;
     }
 
     fn get_headers(&self) -> Result<HeaderMap, InvalidHeaderValue> {

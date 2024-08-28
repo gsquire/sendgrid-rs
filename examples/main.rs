@@ -4,11 +4,11 @@ use sendgrid::{Destination, Mail};
 fn main() {
     let mut env_vars = std::env::vars();
     let api_key_check = env_vars.find(|var| var.0 == "SENDGRID_API_KEY");
-    let api_key: String;
-    match api_key_check {
-        Some(key) => api_key = key.1,
+    
+    let api_key: String = match api_key_check {
+        Some(key) => key.1,
         None => panic!("Must supply API key in environment variables to use!"),
-    }
+    };
 
     let sg = SGClient::new(api_key);
 
