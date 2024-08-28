@@ -21,9 +21,9 @@
 //! # Features
 //! The projects has the following feature flags:
 //! * `rustls`: this feature flag switches the default SSL provider in the operating system (usually
-//! OpenSSL) with RusTLS, which is a TLS implementation in Rust.
+//!   OpenSSL) with RusTLS, which is a TLS implementation in Rust.
 //! * `native-tls`: enabled by default, this feature flag enabled the default SSL provider in the
-//! operating system (usually OpenSSL).
+//!   operating system (usually OpenSSL).
 //! * `blocking`: this feature flag allows you to construct a synchronous `SGClient`.
 //!
 //! ## Build Dependencies
