@@ -1,6 +1,6 @@
 [package]
 name = "sendgrid"
-version = "0.21.0"
+version = "0.22.0"
 edition = "2021"
 authors = ["Garrett Squire <github@garrettsquire.com>"]
 description = "An unofficial client library for the SendGrid API"
@@ -39,7 +39,6 @@ required-features = ["blocking"]
 [[example]]
 name = "v3"
 required-features = ["blocking"]
-
 
 [[example]]
 name = "v3_disable_tracking"

@@ -199,7 +199,8 @@ pub struct ASM {
 }
 
 impl Sender {
-    /// Construct a new V3 message sender.
+    /// Construct a new V3 message sender. The `client` parameter is optional and `None` uses the
+    /// default.
     pub fn new(api_key: String, client: Option<Client>) -> Sender {
         Sender {
             api_key,
@@ -210,7 +211,8 @@ impl Sender {
         }
     }
 
-    /// Construct a new V3 message sender with a blocking client.
+    /// Construct a new V3 message sender with a blocking client. The `client` parameter is
+    /// optional and `None` uses the default.
     #[cfg(feature = "blocking")]
     pub fn new_blocking(
         api_key: String,
