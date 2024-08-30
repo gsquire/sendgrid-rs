@@ -8,11 +8,10 @@ use reqwest::header::{self, HeaderMap, HeaderValue, InvalidHeaderValue};
 use serde::Serialize;
 use serde_json::{to_value, value::Value, value::Value::Object, Map};
 
+use crate::error::{RequestNotSuccessful, SendgridError, SendgridResult};
 #[cfg(feature = "blocking")]
 use reqwest::blocking::Response as BlockingResponse;
 use reqwest::{Client, Response};
-
-use crate::error::{RequestNotSuccessful, SendgridError, SendgridResult};
 
 const V3_API_URL: &str = "https://api.sendgrid.com/v3/mail/send";
 
@@ -201,15 +200,27 @@ pub struct ASM {
 
 impl Sender {
     /// Construct a new V3 message sender.
-    pub fn new(
-        api_key: String,
-        client: Option<Client>,
-    ) -> Sender {
+    pub fn new(api_key: String, client: Option<Client>) -> Sender {
         Sender {
             api_key,
             client: client.unwrap_or_default(),
             #[cfg(feature = "blocking")]
             blocking_client: reqwest::blocking::Client::new(),
+            host: V3_API_URL.to_string(),
+        }
+    }
+
+    /// Construct a new V3 message sender with a blocking client.
+    #[cfg(feature = "blocking")]
+    pub fn new_blocking(
+        api_key: String,
+        blocking_client: Option<reqwest::blocking::Client>,
+    ) -> Sender {
+        Sender {
+            api_key,
+            client: Client::new(),
+            #[cfg(feature = "blocking")]
+            blocking_client: blocking_client.unwrap_or_default(),
             host: V3_API_URL.to_string(),
         }
     }
