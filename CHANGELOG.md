@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.22.0 - 2024-08-30
+
+### Changed
+
+- The V3 sender now accepts an optional reqwest `Client` as a parameter in `new`.
+
 ## 0.21.0 - 2024-03-21
 
 ### Changed
