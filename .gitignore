@@ -1,3 +1,6 @@
+.devcontainer
+.idea
+
 # Compiled files
 *.o
 *.so
