@@ -449,6 +449,21 @@ impl Personalization {
         }
     }
 
+    /// Construct a new personalization block for this message with a Vec of Email
+    pub fn new_many(email: Vec<Email>) -> Personalization {
+        Personalization {
+            to: email,
+            cc: None,
+            bcc: None,
+            subject: None,
+            headers: None,
+            substitutions: None,
+            custom_args: None,
+            dynamic_template_data: None,
+            send_at: None,
+        }
+    }
+
     /// Add a to field.
     pub fn add_to(mut self, to: Email) -> Personalization {
         self.to.push(to);
