@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.22.1 - 2024-09-04
+
+### Added
+
+- `Personalization::new_many` was added to simplify the API.
+
 ## 0.22.0 - 2024-08-30
 
 ### Changed

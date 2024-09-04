@@ -128,7 +128,7 @@ pub struct Content {
 
 /// A personalization block for a V3 message. It has to at least contain one email as a to
 /// address. All other fields are optional.
-#[derive(Serialize)]
+#[derive(Default, Serialize)]
 pub struct Personalization {
     to: Vec<Email>,
 
@@ -438,29 +438,15 @@ impl Personalization {
     pub fn new(email: Email) -> Personalization {
         Personalization {
             to: vec![email],
-            cc: None,
-            bcc: None,
-            subject: None,
-            headers: None,
-            substitutions: None,
-            custom_args: None,
-            dynamic_template_data: None,
-            send_at: None,
+            ..Default::default()
         }
     }
 
-    /// Construct a new personalization block for this message with a Vec of Email
+    /// Construct a new personalization block for this message with more than one address.
     pub fn new_many(email: Vec<Email>) -> Personalization {
         Personalization {
             to: email,
-            cc: None,
-            bcc: None,
-            subject: None,
-            headers: None,
-            substitutions: None,
-            custom_args: None,
-            dynamic_template_data: None,
-            send_at: None,
+            ..Default::default()
         }
     }
 
