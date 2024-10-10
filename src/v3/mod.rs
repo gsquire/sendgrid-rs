@@ -1,6 +1,8 @@
 //! This module encompasses all types needed to send mail using version 3 of the mail
 //! send API.
 
+pub mod message;
+
 use std::collections::{HashMap, HashSet};
 
 use data_encoding::BASE64;
@@ -9,6 +11,7 @@ use serde::Serialize;
 use serde_json::{to_value, value::Value, value::Value::Object, Map};
 
 use crate::error::{RequestNotSuccessful, SendgridError, SendgridResult};
+use crate::v3::message::MailSettings;
 #[cfg(feature = "blocking")]
 use reqwest::blocking::Response as BlockingResponse;
 use reqwest::{Client, Response};
@@ -107,6 +110,9 @@ pub struct Message {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     asm: Option<ASM>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    mail_settings: Option<MailSettings>,
 }
 
 /// An email with a required address and an optional name field.
@@ -302,6 +308,7 @@ impl Message {
             ip_pool_name: None,
             tracking_settings: None,
             asm: None,
+            mail_settings: None,
         }
     }
 
@@ -344,6 +351,12 @@ impl Message {
     /// Set unsubscribe settings.
     pub fn set_asm(mut self, asm: ASM) -> Message {
         self.asm = Some(asm);
+        self
+    }
+
+    /// Set mail settings.
+    pub fn set_mail_settings(mut self, mail_settings: MailSettings) -> Message {
+        self.mail_settings = Some(mail_settings);
         self
     }
 
@@ -610,6 +623,7 @@ impl ASM {
 
 #[cfg(test)]
 mod tests {
+    use crate::v3::message::{MailSettings, SandboxMode};
     use crate::v3::{
         ClickTrackingSetting, Email, Message, OpenTrackingSetting, Personalization,
         SubscriptionTrackingSetting, TrackingSettings, ASM,
@@ -781,6 +795,18 @@ mod tests {
             )
             .gen_json();
         let expected = r#"{"from":{"email":"from_email@test.com"},"subject":"","personalizations":[{"to":[{"email":"to_email@test.com"}]}],"asm":{"group_id":123,"groups_to_display":[123]}}"#;
+        assert_eq!(json_str, expected);
+    }
+
+    #[test]
+    fn mail_settings() {
+        let json_str = Message::new(Email::new("from_email@test.com"))
+            .add_personalization(Personalization::new(Email::new("to_email@test.com")))
+            .set_mail_settings(
+                MailSettings::new().set_sandbox_mode(SandboxMode::new().set_enable(true)),
+            )
+            .gen_json();
+        let expected = r#"{"from":{"email":"from_email@test.com"},"subject":"","personalizations":[{"to":[{"email":"to_email@test.com"}]}],"mail_settings":{"sandbox_mode":{"enable":true}}}"#;
         assert_eq!(json_str, expected);
     }
 }
