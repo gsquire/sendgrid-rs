@@ -41,6 +41,7 @@ pub struct TopLevelBypassFilterSettings {
     bypass_list_management: BypassListManagement,
 }
 
+// TODO: Make a single type with the boolean enable field?
 /// Used for the bypass list management setting.
 #[derive(Default, Serialize)]
 pub struct BypassListManagement {
@@ -144,7 +145,7 @@ impl BypassListManagement {
         Default::default()
     }
 
-    /// Enable or disable the setting
+    /// Enable or disable the setting.
     pub fn set_enable(mut self, enable: bool) -> Self {
         self.enable = enable;
         self
@@ -191,7 +192,7 @@ impl BypassSpamManagement {
         Default::default()
     }
 
-    /// Enable or disable the setting
+    /// Enable or disable the setting.
     pub fn set_enable(mut self, enable: bool) -> Self {
         self.enable = enable;
         self
@@ -204,7 +205,7 @@ impl BypassBounceManagement {
         Default::default()
     }
 
-    /// Enable or disable the setting
+    /// Enable or disable the setting.
     pub fn set_enable(mut self, enable: bool) -> Self {
         self.enable = enable;
         self
@@ -217,7 +218,7 @@ impl BypassUnsubscribeManagement {
         Default::default()
     }
 
-    /// Enable or disable the setting
+    /// Enable or disable the setting.
     pub fn set_enable(mut self, enable: bool) -> Self {
         self.enable = enable;
         self
@@ -230,7 +231,7 @@ impl Footer {
         Default::default()
     }
 
-    /// Enable or disable the footer
+    /// Enable or disable the footer.
     pub fn set_enable(mut self, enable: bool) -> Self {
         self.enable = enable;
         self
@@ -242,7 +243,7 @@ impl Footer {
         self
     }
 
-    /// Set the html content of the footer.
+    /// Set the HTML content of the footer.
     pub fn set_html(mut self, html: String) -> Self {
         self.html = Some(html);
         self
@@ -255,7 +256,7 @@ impl SandboxMode {
         Default::default()
     }
 
-    /// Enable or disable the setting
+    /// Enable or disable the setting.
     pub fn set_enable(mut self, enable: bool) -> Self {
         self.enable = enable;
         self

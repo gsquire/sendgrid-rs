@@ -1,8 +1,6 @@
 //! This module encompasses all types needed to send mail using version 3 of the mail
 //! send API.
 
-pub mod message;
-
 use std::collections::{HashMap, HashSet};
 
 use data_encoding::BASE64;
@@ -15,6 +13,8 @@ use crate::v3::message::MailSettings;
 #[cfg(feature = "blocking")]
 use reqwest::blocking::Response as BlockingResponse;
 use reqwest::{Client, Response};
+
+pub mod message;
 
 const V3_API_URL: &str = "https://api.sendgrid.com/v3/mail/send";
 

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.23.0 - 2024-10-10
+
+### Added
+
+- The message field now supports `mail_settings`. See #118.
+
+### Changed
+
+- Update to data-encoding 2.6.
+
 ## 0.22.1 - 2024-09-04
 
 ### Added
