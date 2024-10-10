@@ -7,17 +7,8 @@ use serde::Serialize;
 /// for details.
 #[derive(Default, Serialize)]
 pub struct MailSettings {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    bypass_list_management: Option<BypassListManagement>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    bypass_spam_management: Option<BypassSpamManagement>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    bypass_bounce_management: Option<BypassBounceManagement>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    bypass_unsubscribe_management: Option<BypassUnsubscribeManagement>,
+    #[serde(flatten, skip_serializing_if = "Option::is_none")]
+    bypass_filter_settings: Option<BypassFilterSettings>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     footer: Option<Footer>,
@@ -26,10 +17,48 @@ pub struct MailSettings {
     sandbox_mode: Option<SandboxMode>,
 }
 
+/// Settings to bypass list suppressions.
+///
+/// This is structured as an enum because when the `bypass_list_management` field is provided,
+/// the other bypass filters (`bypass_spam_management`, `bypass_bounce_management`, and
+/// `bypass_unsubscribe_management`) are ignored.
+///
+/// See: <https://www.twilio.com/docs/sendgrid/ui/sending-email/index-suppressions#bypass-filters-and-v3-mail-send>
+#[derive(Serialize)]
+#[serde(untagged)]
+pub enum BypassFilterSettings {
+    /// Variant to configure bypassing all list suppressions with the `bypass_list_management` field.
+    TopLevel(TopLevelBypassFilterSettings),
+    /// Variant to configure bypassing specific list suppressions with the `bypass_spam_management`,
+    /// `bypass_bounce_management`, and `bypass_unsubscribe_management` fields.
+    Granular(GranularBypassFilterSettings),
+}
+
+/// Used to configure bypassing all list suppressions with the `bypass_list_management` field.
+#[derive(Default, Serialize)]
+pub struct TopLevelBypassFilterSettings {
+    #[serde(default)]
+    bypass_list_management: BypassListManagement,
+}
+
 /// Used for the bypass list management setting.
 #[derive(Default, Serialize)]
 pub struct BypassListManagement {
     enable: bool,
+}
+
+/// Used to configure bypassing specific list suppressions with the `bypass_spam_management`,
+/// `bypass_bounce_management`, and `bypass_unsubscribe_management` fields.
+#[derive(Default, Serialize)]
+pub struct GranularBypassFilterSettings {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    bypass_spam_management: Option<BypassSpamManagement>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    bypass_bounce_management: Option<BypassBounceManagement>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    bypass_unsubscribe_management: Option<BypassUnsubscribeManagement>,
 }
 
 /// Used for the bypass spam management setting.
@@ -74,13 +103,58 @@ impl MailSettings {
         Default::default()
     }
 
+    /// Set the bypass filter settings.
+    pub fn set_bypass_filter_settings(mut self, settings: BypassFilterSettings) -> Self {
+        self.bypass_filter_settings = Some(settings);
+        self
+    }
+
+    /// Set the footer setting.
+    pub fn set_footer(mut self, footer: Footer) -> Self {
+        self.footer = Some(footer);
+        self
+    }
+
+    /// Set the sandbox mode setting.
+    pub fn set_sandbox_mode(mut self, sandbox_mode: SandboxMode) -> Self {
+        self.sandbox_mode = Some(sandbox_mode);
+        self
+    }
+}
+
+impl TopLevelBypassFilterSettings {
+    /// Create a new default [`TopLevelBypassFilterSettings`] instance.
+    pub fn new() -> Self {
+        Default::default()
+    }
+
     /// Set the bypass list management setting.
     pub fn set_bypass_list_management(
         mut self,
         bypass_list_management: BypassListManagement,
     ) -> Self {
-        self.bypass_list_management = Some(bypass_list_management);
+        self.bypass_list_management = bypass_list_management;
         self
+    }
+}
+
+impl BypassListManagement {
+    /// Create a new default [`BypassListManagement`] instance.
+    pub fn new() -> Self {
+        Default::default()
+    }
+
+    /// Enable or disable the setting
+    pub fn set_enable(mut self, enable: bool) -> Self {
+        self.enable = enable;
+        self
+    }
+}
+
+impl GranularBypassFilterSettings {
+    /// Create a new default [`GranularBypassFilterSettings`] instance.
+    pub fn new() -> Self {
+        Default::default()
     }
 
     /// Set the bypass spam management setting.
@@ -107,31 +181,6 @@ impl MailSettings {
         bypass_unsubscribe_management: BypassUnsubscribeManagement,
     ) -> Self {
         self.bypass_unsubscribe_management = Some(bypass_unsubscribe_management);
-        self
-    }
-
-    /// Set the footer setting.
-    pub fn set_footer(mut self, footer: Footer) -> Self {
-        self.footer = Some(footer);
-        self
-    }
-
-    /// Set the sandbox mode setting.
-    pub fn set_sandbox_mode(mut self, sandbox_mode: SandboxMode) -> Self {
-        self.sandbox_mode = Some(sandbox_mode);
-        self
-    }
-}
-
-impl BypassListManagement {
-    /// Create a new default [`BypassListManagement`] instance.
-    pub fn new() -> Self {
-        Default::default()
-    }
-
-    /// Enable or disable the setting
-    pub fn set_enable(mut self, enable: bool) -> Self {
-        self.enable = enable;
         self
     }
 }
@@ -226,26 +275,46 @@ mod tests {
     }
 
     #[test]
-    fn mail_settings_defaults() {
-        let settings = MailSettings::default()
-            .set_bypass_list_management(Default::default())
-            .set_bypass_spam_management(Default::default())
-            .set_bypass_bounce_management(Default::default())
-            .set_bypass_unsubscribe_management(Default::default())
-            .set_footer(Default::default())
-            .set_sandbox_mode(Default::default());
+    fn mail_settings_top_level_bypass_filters() {
+        let settings =
+            MailSettings::default().set_bypass_filter_settings(BypassFilterSettings::TopLevel(
+                TopLevelBypassFilterSettings::new()
+                    .set_bypass_list_management(BypassListManagement::new().set_enable(true)),
+            ));
         let settings_json = serde_json::to_string(&settings).unwrap();
-        let expected = r#"{"bypass_list_management":{"enable":false},"bypass_spam_management":{"enable":false},"bypass_bounce_management":{"enable":false},"bypass_unsubscribe_management":{"enable":false},"footer":{"enable":false},"sandbox_mode":{"enable":false}}"#;
+        let expected = r#"{"bypass_list_management":{"enable":true}}"#;
         assert_eq!(settings_json, expected);
     }
 
     #[test]
-    fn mail_settings() {
+    fn mail_settings_granular_bypass_filters() {
+        let settings =
+            MailSettings::new().set_bypass_filter_settings(BypassFilterSettings::Granular(
+                GranularBypassFilterSettings::new()
+                    .set_bypass_unsubscribe_management(
+                        BypassUnsubscribeManagement::new().set_enable(true),
+                    )
+                    .set_bypass_bounce_management(BypassBounceManagement::new().set_enable(true))
+                    .set_bypass_spam_management(BypassSpamManagement::new().set_enable(true)),
+            ));
+        let settings_json = serde_json::to_string(&settings).unwrap();
+        let expected = r#"{"bypass_spam_management":{"enable":true},"bypass_bounce_management":{"enable":true},"bypass_unsubscribe_management":{"enable":true}}"#;
+        assert_eq!(settings_json, expected);
+    }
+
+    #[test]
+    fn mail_settings_no_bypass_defaults() {
+        let settings = MailSettings::default()
+            .set_footer(Default::default())
+            .set_sandbox_mode(Default::default());
+        let settings_json = serde_json::to_string(&settings).unwrap();
+        let expected = r#"{"footer":{"enable":false},"sandbox_mode":{"enable":false}}"#;
+        assert_eq!(settings_json, expected);
+    }
+
+    #[test]
+    fn mail_settings_no_bypass() {
         let settings = MailSettings::new()
-            .set_bypass_list_management(BypassListManagement::new().set_enable(true))
-            .set_bypass_spam_management(BypassSpamManagement::new().set_enable(true))
-            .set_bypass_bounce_management(BypassBounceManagement::new().set_enable(true))
-            .set_bypass_unsubscribe_management(BypassUnsubscribeManagement::new().set_enable(true))
             .set_footer(
                 Footer::new()
                     .set_enable(true)
@@ -254,7 +323,7 @@ mod tests {
             )
             .set_sandbox_mode(SandboxMode::new().set_enable(true));
         let settings_json = serde_json::to_string(&settings).unwrap();
-        let expected = r#"{"bypass_list_management":{"enable":true},"bypass_spam_management":{"enable":true},"bypass_bounce_management":{"enable":true},"bypass_unsubscribe_management":{"enable":true},"footer":{"enable":true,"text":"text","html":"html"},"sandbox_mode":{"enable":true}}"#;
+        let expected = r#"{"footer":{"enable":true,"text":"text","html":"html"},"sandbox_mode":{"enable":true}}"#;
         assert_eq!(settings_json, expected);
     }
 }
