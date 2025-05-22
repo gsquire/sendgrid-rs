@@ -6,7 +6,7 @@ use std::collections::{HashMap, HashSet};
 use data_encoding::BASE64;
 use reqwest::header::{self, HeaderMap, HeaderValue, InvalidHeaderValue};
 use serde::Serialize;
-use serde_json::{to_value, value::Value, value::Value::Object, Map};
+use serde_json::{Map, to_value, value::Value, value::Value::Object};
 
 use crate::error::{RequestNotSuccessful, SendgridError, SendgridResult};
 use crate::v3::message::MailSettings;
@@ -619,8 +619,8 @@ impl ASM {
 mod tests {
     use crate::v3::message::{MailSettings, SandboxMode};
     use crate::v3::{
-        ClickTrackingSetting, Email, Message, OpenTrackingSetting, Personalization,
-        SubscriptionTrackingSetting, TrackingSettings, ASM,
+        ASM, ClickTrackingSetting, Email, Message, OpenTrackingSetting, Personalization,
+        SubscriptionTrackingSetting, TrackingSettings,
     };
     use serde::Serialize;
     use std::collections::HashSet;
