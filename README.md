@@ -1,6 +1,9 @@
 # sendgrid-rs
 Unofficial Rust library for the SendGrid API.
 
+Weigh in [here](https://github.com/gsquire/sendgrid-rs/discussions/121) if you find the crate's
+`Sender` type confusing.
+
 This crate requires Rust 1.15 or higher as it uses a crate that has a custom derive implementation.
 
 sendgrid-rs implements all of the functionality of other supported SendGrid client libraries.

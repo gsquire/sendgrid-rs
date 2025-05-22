@@ -3,7 +3,7 @@ use std::{
     io,
 };
 
-use reqwest::{self, header::InvalidHeaderValue, StatusCode};
+use reqwest::{self, StatusCode, header::InvalidHeaderValue};
 use thiserror::Error as ThisError;
 
 /// Wrapper type which contains a failed request's status code and body.

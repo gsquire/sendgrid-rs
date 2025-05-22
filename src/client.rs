@@ -1,8 +1,8 @@
 use reqwest::header::{self, HeaderMap, HeaderValue};
 
+use reqwest::Response;
 #[cfg(feature = "blocking")]
 use reqwest::blocking::Response as BlockingResponse;
-use reqwest::Response;
 
 use url::form_urlencoded::Serializer;
 
