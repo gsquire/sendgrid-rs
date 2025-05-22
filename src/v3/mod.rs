@@ -12,8 +12,9 @@ use crate::error::{RequestNotSuccessful, SendgridError, SendgridResult};
 use crate::v3::message::MailSettings;
 #[cfg(feature = "blocking")]
 use reqwest::blocking::Response as BlockingResponse;
-use reqwest::{Client, ClientBuilder, Response};
+use reqwest::{Client, Response};
 
+mod clients;
 pub mod message;
 
 const V3_API_URL: &str = "https://api.sendgrid.com/v3/mail/send";
@@ -205,44 +206,30 @@ pub struct ASM {
 
 impl Sender {
     /// Construct a new V3 message sender. The `client` parameter is optional and `None` uses the
-    /// default.
+    /// default. If you provide your own configured Client, you must call [Sender::get_headers] and
+    /// set the returned value as default headers.
     pub fn new(api_key: String, client: Option<Client>) -> Sender {
-        let client = client.unwrap_or(
-            ClientBuilder::new()
-                .default_headers(Sender::get_headers(&api_key).unwrap_or_default())
-                .build()
-                .unwrap_or_default(),
-        );
+        let client = client.unwrap_or(clients::new_client(&api_key));
 
         Sender {
             client,
             #[cfg(feature = "blocking")]
-            blocking_client: reqwest::blocking::ClientBuilder::new()
-                .default_headers(Sender::get_headers(&api_key).unwrap_or_default())
-                .build()
-                .unwrap_or_default(),
+            blocking_client: clients::new_blocking_client(&api_key),
             host: V3_API_URL.to_string(),
         }
     }
 
     /// Construct a new V3 message sender with a blocking client. The `client` parameter is
-    /// optional and `None` uses the default.
+    /// optional and `None` uses the default. If you provide your own configured Client, you must
+    /// call [Sender::get_headers] and set the returned value as default headers.
     #[cfg(feature = "blocking")]
     pub fn new_blocking(
         api_key: String,
         blocking_client: Option<reqwest::blocking::Client>,
     ) -> Sender {
-        let blocking_client = blocking_client.unwrap_or(
-            reqwest::blocking::ClientBuilder::new()
-                .default_headers(Sender::get_headers(&api_key).unwrap_or_default())
-                .build()
-                .unwrap_or_default(),
-        );
+        let blocking_client = blocking_client.unwrap_or(clients::new_blocking_client(&api_key));
         Sender {
-            client: ClientBuilder::new()
-                .default_headers(Sender::get_headers(&api_key).unwrap_or_default())
-                .build()
-                .unwrap_or_default(),
+            client: clients::new_client(&api_key),
             #[cfg(feature = "blocking")]
             blocking_client,
             host: V3_API_URL.to_string(),
@@ -255,9 +242,10 @@ impl Sender {
         self.host = host.into();
     }
 
-    fn get_headers(api_key: &str) -> Result<HeaderMap, InvalidHeaderValue> {
-        let mut headers = header::HeaderMap::with_capacity(3);
-        let mut auth_value = header::HeaderValue::from_str(&format!("Bearer {}", api_key))?;
+    /// Configure the necessary headers to send an API request.
+    pub fn get_headers(api_key: &str) -> Result<HeaderMap, InvalidHeaderValue> {
+        let mut headers = HeaderMap::with_capacity(3);
+        let mut auth_value = HeaderValue::from_str(&format!("Bearer {}", api_key))?;
         auth_value.set_sensitive(true);
         headers.insert(header::AUTHORIZATION, auth_value);
         headers.insert(

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.24.0 - 2025-05-22
+
+### Changed
+
+- Instead of adding headers to each request, we configure them as default. See #120 and #122.
+- Update data-encoding and thiserror.
+
 ## 0.23.0 - 2024-10-10
 
 ### Added
