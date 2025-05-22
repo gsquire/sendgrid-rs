@@ -14,7 +14,7 @@ use crate::error::{RequestNotSuccessful, SendgridError, SendgridResult};
 use crate::v3::message::MailSettings;
 #[cfg(feature = "blocking")]
 use reqwest::blocking::Response as BlockingResponse;
-use reqwest::{Client, Response};
+use reqwest::{Client, ClientBuilder, Response};
 
 const V3_API_URL: &str = "https://api.sendgrid.com/v3/mail/send";
 
@@ -24,7 +24,6 @@ pub type SGMap = HashMap<String, String>;
 /// Used to send a V3 message body.
 #[derive(Clone, Debug)]
 pub struct Sender {
-    api_key: String,
     client: Client,
     #[cfg(feature = "blocking")]
     blocking_client: reqwest::blocking::Client,
@@ -208,11 +207,20 @@ impl Sender {
     /// Construct a new V3 message sender. The `client` parameter is optional and `None` uses the
     /// default.
     pub fn new(api_key: String, client: Option<Client>) -> Sender {
+        let client = client.unwrap_or(
+            ClientBuilder::new()
+                .default_headers(Sender::get_headers(&api_key).unwrap_or_default())
+                .build()
+                .unwrap_or_default(),
+        );
+
         Sender {
-            api_key,
-            client: client.unwrap_or_default(),
+            client,
             #[cfg(feature = "blocking")]
-            blocking_client: reqwest::blocking::Client::new(),
+            blocking_client: reqwest::blocking::ClientBuilder::new()
+                .default_headers(Sender::get_headers(&api_key).unwrap_or_default())
+                .build()
+                .unwrap_or_default(),
             host: V3_API_URL.to_string(),
         }
     }
@@ -224,11 +232,19 @@ impl Sender {
         api_key: String,
         blocking_client: Option<reqwest::blocking::Client>,
     ) -> Sender {
+        let blocking_client = blocking_client.unwrap_or(
+            reqwest::blocking::ClientBuilder::new()
+                .default_headers(Sender::get_headers(&api_key).unwrap_or_default())
+                .build()
+                .unwrap_or_default(),
+        );
         Sender {
-            api_key,
-            client: Client::new(),
+            client: ClientBuilder::new()
+                .default_headers(Sender::get_headers(&api_key).unwrap_or_default())
+                .build()
+                .unwrap_or_default(),
             #[cfg(feature = "blocking")]
-            blocking_client: blocking_client.unwrap_or_default(),
+            blocking_client,
             host: V3_API_URL.to_string(),
         }
     }
@@ -239,12 +255,11 @@ impl Sender {
         self.host = host.into();
     }
 
-    fn get_headers(&self) -> Result<HeaderMap, InvalidHeaderValue> {
-        let mut headers = HeaderMap::with_capacity(3);
-        headers.insert(
-            header::AUTHORIZATION,
-            HeaderValue::from_str(&format!("Bearer {}", self.api_key.clone()))?,
-        );
+    fn get_headers(api_key: &str) -> Result<HeaderMap, InvalidHeaderValue> {
+        let mut headers = header::HeaderMap::with_capacity(3);
+        let mut auth_value = header::HeaderValue::from_str(&format!("Bearer {}", api_key))?;
+        auth_value.set_sensitive(true);
+        headers.insert(header::AUTHORIZATION, auth_value);
         headers.insert(
             header::CONTENT_TYPE,
             HeaderValue::from_static("application/json"),
@@ -255,12 +270,9 @@ impl Sender {
 
     /// Send a V3 message and return the HTTP response or an error.
     pub async fn send(&self, mail: &Message) -> SendgridResult<Response> {
-        let headers = self.get_headers()?;
-
         let resp = self
             .client
             .post(&self.host)
-            .headers(headers)
             .body(mail.gen_json())
             .send()
             .await?;
@@ -275,15 +287,9 @@ impl Sender {
     #[cfg(feature = "blocking")]
     /// Send a V3 message and return the HTTP response or an error.
     pub fn blocking_send(&self, mail: &Message) -> SendgridResult<BlockingResponse> {
-        let headers = self.get_headers()?;
         let body = mail.gen_json();
 
-        let resp = self
-            .blocking_client
-            .post(&self.host)
-            .headers(headers)
-            .body(body)
-            .send()?;
+        let resp = self.blocking_client.post(&self.host).body(body).send()?;
 
         if resp.error_for_status_ref().is_err() {
             return Err(RequestNotSuccessful::new(resp.status(), resp.text()?).into());
