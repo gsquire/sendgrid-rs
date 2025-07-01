@@ -208,6 +208,20 @@ impl Sender {
     /// Construct a new V3 message sender. The `client` parameter is optional and `None` uses the
     /// default. If you provide your own configured Client, you must call [Sender::get_headers] and
     /// set the returned value as default headers.
+    ///
+    /// ```rust,no_run
+    /// use reqwest::Client;
+    /// use sendgrid::SendgridResult;
+    /// use sendgrid::v3::Sender;
+    ///
+    /// fn main() -> SendgridResult<()> {
+    ///     // Below is an example of providing your own custom client.
+    ///     let client = Client::builder()
+    ///         .default_headers(Sender::get_headers("API_KEY".into())?)
+    ///         .build()?;
+    ///     Ok(())
+    /// }
+    /// ```
     pub fn new(api_key: String, client: Option<Client>) -> Sender {
         let client = client.unwrap_or(clients::new_client(&api_key));
 
@@ -222,6 +236,20 @@ impl Sender {
     /// Construct a new V3 message sender with a blocking client. The `client` parameter is
     /// optional and `None` uses the default. If you provide your own configured Client, you must
     /// call [Sender::get_headers] and set the returned value as default headers.
+    ///
+    /// ```rust,no_run
+    /// use reqwest::blocking::Client;
+    /// use sendgrid::SendgridResult;
+    /// use sendgrid::v3::Sender;
+    ///
+    /// fn main() -> SendgridResult<()> {
+    ///     // Below is an example of providing your own custom client.
+    ///     let client = Client::builder()
+    ///         .default_headers(Sender::get_headers("API_KEY".into())?)
+    ///         .build()?;
+    ///     Ok(())
+    /// }
+    /// ```
     #[cfg(feature = "blocking")]
     pub fn new_blocking(
         api_key: String,
@@ -245,7 +273,7 @@ impl Sender {
     /// Configure the necessary headers to send an API request.
     pub fn get_headers(api_key: &str) -> Result<HeaderMap, InvalidHeaderValue> {
         let mut headers = HeaderMap::with_capacity(3);
-        let mut auth_value = HeaderValue::from_str(&format!("Bearer {}", api_key))?;
+        let mut auth_value = HeaderValue::from_str(&format!("Bearer {api_key}"))?;
         auth_value.set_sensitive(true);
         headers.insert(header::AUTHORIZATION, auth_value);
         headers.insert(
