@@ -273,7 +273,7 @@ impl Sender {
     /// Configure the necessary headers to send an API request.
     pub fn get_headers(api_key: &str) -> Result<HeaderMap, InvalidHeaderValue> {
         let mut headers = HeaderMap::with_capacity(3);
-        let mut auth_value = HeaderValue::from_str(&format!("Bearer {}", api_key))?;
+        let mut auth_value = HeaderValue::from_str(&format!("Bearer {api_key}"))?;
         auth_value.set_sensitive(true);
         headers.insert(header::AUTHORIZATION, auth_value);
         headers.insert(
