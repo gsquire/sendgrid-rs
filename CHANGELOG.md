@@ -5,6 +5,7 @@
 ### Changed
 
 - Use &str instead of String in most places.
+- Use ref (&) of iterators ([], SGMap) instead of the owned iterator.
 
 ## 0.24.0 - 2025-05-22
 

@@ -501,7 +501,7 @@ impl<'a> Personalization<'a> {
     }
 
     /// Add a headers field.
-    pub fn add_headers(mut self, headers: SGMap<'a>) -> Self {
+    pub fn add_headers(mut self, headers: &SGMap<'a>) -> Self {
         self.headers
             .get_or_insert_with(|| SGMap::with_capacity(headers.len()))
             .extend(headers);
@@ -509,7 +509,7 @@ impl<'a> Personalization<'a> {
     }
 
     /// Add a custom_args field.
-    pub fn add_custom_args(mut self, custom_args: SGMap<'a>) -> Self {
+    pub fn add_custom_args(mut self, custom_args: &SGMap<'a>) -> Self {
         self.custom_args
             .get_or_insert_with(|| SGMap::with_capacity(custom_args.len()))
             .extend(custom_args);
@@ -517,7 +517,7 @@ impl<'a> Personalization<'a> {
     }
 
     /// Add a substitutions field.
-    pub fn add_substitutions(mut self, substitutions: SGMap<'a>) -> Self {
+    pub fn add_substitutions(mut self, substitutions: &SGMap<'a>) -> Self {
         self.substitutions
             .get_or_insert_with(|| SGMap::with_capacity(substitutions.len()))
             .extend(substitutions);
@@ -525,7 +525,7 @@ impl<'a> Personalization<'a> {
     }
 
     /// Add a dynamic template data field.
-    pub fn add_dynamic_template_data(mut self, dynamic_template_data: SGMap<'a>) -> Self {
+    pub fn add_dynamic_template_data(mut self, dynamic_template_data: &SGMap<'a>) -> Self {
         // We can safely unwrap & unreachable here since SGMap will always serialize
         // to a JSON object.
         let new_vals = match to_value(dynamic_template_data).unwrap() {
@@ -754,9 +754,8 @@ mod tests {
         let json_str = Message::new(Email::new("from_email@test.com"))
             .add_personalization(
                 Personalization::new(Email::new("to_email@test.com")).add_dynamic_template_data(
-                    [("Norway", "100"), ("Denmark", "50"), ("Iceland", "10")]
-                        .iter()
-                        .cloned()
+                    &[("Norway", "100"), ("Denmark", "50"), ("Iceland", "10")]
+                        .into_iter()
                         .collect(),
                 ),
             )

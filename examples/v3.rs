@@ -7,7 +7,7 @@ fn main() {
     cool_header.insert("x-cool", "indeed");
     cool_header.insert("x-cooler", "cold");
 
-    let p = Personalization::new(Email::new("test@example.com")).add_headers(cool_header);
+    let p = Personalization::new(Email::new("test@example.com")).add_headers(&cool_header);
 
     let m = Message::new(Email::new("g@gmail.com"))
         .set_subject("Subject")
