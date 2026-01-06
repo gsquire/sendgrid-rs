@@ -19,7 +19,7 @@ fn main() {
         .add_personalization(p);
 
     let api_key = ::std::env::var("SG_API_KEY").unwrap();
-    let sender = Sender::new(api_key, None);
+    let sender = Sender::new(&api_key, None);
     let code = sender.blocking_send(&m);
     println!("{:?}", code);
 }

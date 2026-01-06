@@ -223,13 +223,13 @@ impl<'a> Sender<'a> {
     ///     Ok(())
     /// }
     /// ```
-    pub fn new(api_key: String, client: Option<Client>) -> Self {
-        let client = client.unwrap_or(clients::new_client(&api_key));
+    pub fn new(api_key: &str, client: Option<Client>) -> Self {
+        let client = client.unwrap_or(clients::new_client(api_key));
 
         Self {
             client,
             #[cfg(feature = "blocking")]
-            blocking_client: clients::new_blocking_client(&api_key),
+            blocking_client: clients::new_blocking_client(api_key),
             host: V3_API_URL,
         }
     }
@@ -252,13 +252,10 @@ impl<'a> Sender<'a> {
     /// }
     /// ```
     #[cfg(feature = "blocking")]
-    pub fn new_blocking(
-        api_key: String,
-        blocking_client: Option<reqwest::blocking::Client>,
-    ) -> Self {
-        let blocking_client = blocking_client.unwrap_or(clients::new_blocking_client(&api_key));
+    pub fn new_blocking(api_key: &str, blocking_client: Option<reqwest::blocking::Client>) -> Self {
+        let blocking_client = blocking_client.unwrap_or(clients::new_blocking_client(api_key));
         Self {
-            client: clients::new_client(&api_key),
+            client: clients::new_client(api_key),
             #[cfg(feature = "blocking")]
             blocking_client,
             host: V3_API_URL,

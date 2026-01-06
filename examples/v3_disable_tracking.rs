@@ -43,7 +43,7 @@ fn main() {
         })
         .add_personalization(person);
 
-    let sender = Sender::new(api_key.to_owned(), None);
+    let sender = Sender::new(&api_key, None);
     match sender.blocking_send(&message) {
         Ok(res) => println!("sent {}", res.status()),
         Err(err) => eprintln!("err: {err}",),
