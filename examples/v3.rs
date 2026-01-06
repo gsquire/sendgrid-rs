@@ -4,8 +4,8 @@ use sendgrid::v3::*;
 
 fn main() {
     let mut cool_header = HashMap::with_capacity(2);
-    cool_header.insert(String::from("x-cool"), String::from("indeed"));
-    cool_header.insert(String::from("x-cooler"), String::from("cold"));
+    cool_header.insert("x-cool", "indeed");
+    cool_header.insert("x-cooler", "cold");
 
     let p = Personalization::new(Email::new("test@example.com")).add_headers(cool_header);
 

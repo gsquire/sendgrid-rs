@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.25.0 - XXXX-YY-ZZ
+
+### Changed
+
+- Use &str instead of String in most places.
+
 ## 0.24.0 - 2025-05-22
 
 ### Changed

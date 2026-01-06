@@ -6,8 +6,8 @@ use sendgrid::v3::*;
 #[tokio::main]
 async fn main() -> Result<(), SendgridError> {
     let mut cool_header = HashMap::with_capacity(2);
-    cool_header.insert(String::from("x-cool"), String::from("indeed"));
-    cool_header.insert(String::from("x-cooler"), String::from("cold"));
+    cool_header.insert("x-cool", "indeed");
+    cool_header.insert("x-cooler", "cold");
 
     let p = Personalization::new(Email::new("test@test.fr")).add_headers(cool_header);
 
