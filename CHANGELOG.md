@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.25.0 - XXXX-YY-ZZ
+## 0.25.0 - 2026-01-10
 
 ### Changed
 
