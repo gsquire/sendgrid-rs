@@ -1,6 +1,7 @@
 //! This module encompasses all types needed to send mail using version 3 of the mail
 //! send API.
 
+use std::borrow::Cow;
 use std::collections::{HashMap, HashSet};
 
 use data_encoding::BASE64;
@@ -20,27 +21,27 @@ pub mod message;
 const V3_API_URL: &str = "https://api.sendgrid.com/v3/mail/send";
 
 /// Just a redefinition of a map to store string keys and values.
-pub type SGMap = HashMap<String, String>;
+pub type SGMap<'a> = HashMap<&'a str, &'a str>;
 
 /// Used to send a V3 message body.
 #[derive(Clone, Debug)]
-pub struct Sender {
+pub struct Sender<'a> {
     client: Client,
     #[cfg(feature = "blocking")]
     blocking_client: reqwest::blocking::Client,
-    host: String,
+    host: &'a str,
 }
 
 /// Used for open tracking settings.
 #[derive(Clone, Serialize)]
-pub struct OpenTrackingSetting {
+pub struct OpenTrackingSetting<'a> {
     /// Whether or not to enable open tracking.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub enable: Option<bool>,
 
     /// The substitution tag to use for the open tracking URL.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub substitution_tag: Option<String>,
+    pub substitution_tag: Option<&'a str>,
 }
 
 /// Used for subscription tracking settings.
@@ -65,14 +66,14 @@ pub struct ClickTrackingSetting {
 
 /// Used for all tracking settings.
 #[derive(Clone, Serialize)]
-pub struct TrackingSettings {
+pub struct TrackingSettings<'a> {
     /// Used for click tracking settings.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub click_tracking: Option<ClickTrackingSetting>,
 
     /// Used for open tracking settings.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub open_tracking: Option<OpenTrackingSetting>,
+    pub open_tracking: Option<OpenTrackingSetting<'a>>,
 
     /// Used for subscription tracking settings.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -82,31 +83,31 @@ pub struct TrackingSettings {
 /// The main structure for a V3 API mail send call. This is composed of many other smaller
 /// structures used to add lots of customization to your message.
 #[derive(Serialize)]
-pub struct Message {
-    from: Email,
-    subject: String,
-    personalizations: Vec<Personalization>,
+pub struct Message<'a> {
+    from: Email<'a>,
+    subject: &'a str,
+    personalizations: Vec<Personalization<'a>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    categories: Option<Vec<String>>,
+    categories: Option<Vec<&'a str>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    ip_pool_name: Option<String>,
+    ip_pool_name: Option<&'a str>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    reply_to: Option<Email>,
+    reply_to: Option<Email<'a>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    content: Option<Vec<Content>>,
+    content: Option<Vec<Content<'a>>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    attachments: Option<Vec<Attachment>>,
+    attachments: Option<Vec<Attachment<'a>>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    template_id: Option<String>,
+    template_id: Option<&'a str>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    tracking_settings: Option<TrackingSettings>,
+    tracking_settings: Option<TrackingSettings<'a>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     asm: Option<ASM>,
@@ -117,44 +118,44 @@ pub struct Message {
 
 /// An email with a required address and an optional name field.
 #[derive(Clone, Serialize)]
-pub struct Email {
-    email: String,
+pub struct Email<'a> {
+    email: &'a str,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    name: Option<String>,
+    name: Option<&'a str>,
 }
 
 /// The body of an email with the content type and the message.
 #[derive(Clone, Default, Serialize)]
-pub struct Content {
+pub struct Content<'a> {
     #[serde(rename = "type")]
-    content_type: String,
-    value: String,
+    content_type: &'a str,
+    value: &'a str,
 }
 
 /// A personalization block for a V3 message. It has to at least contain one email as a to
 /// address. All other fields are optional.
 #[derive(Default, Serialize)]
-pub struct Personalization {
-    to: Vec<Email>,
+pub struct Personalization<'a> {
+    to: Vec<Email<'a>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    cc: Option<Vec<Email>>,
+    cc: Option<Vec<Email<'a>>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    bcc: Option<Vec<Email>>,
+    bcc: Option<Vec<Email<'a>>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    subject: Option<String>,
+    subject: Option<&'a str>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    headers: Option<SGMap>,
+    headers: Option<SGMap<'a>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    substitutions: Option<SGMap>,
+    substitutions: Option<SGMap<'a>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    custom_args: Option<SGMap>,
+    custom_args: Option<SGMap<'a>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     dynamic_template_data: Option<Map<String, Value>>,
@@ -182,19 +183,19 @@ pub enum Disposition {
 /// mime_type is unspecified, the email will use Sendgrid's default for attachments
 /// which is 'application/octet-stream'.
 #[derive(Default, Serialize)]
-pub struct Attachment {
-    content: String,
+pub struct Attachment<'a> {
+    content: Cow<'a, str>,
 
-    filename: String,
+    filename: &'a str,
 
     #[serde(rename = "type", skip_serializing_if = "Option::is_none")]
-    mime_type: Option<String>,
+    mime_type: Option<&'a str>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     disposition: Option<Disposition>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    content_id: Option<String>,
+    content_id: Option<&'a str>,
 }
 
 /// An object allowing you to specify how to handle unsubscribes.
@@ -204,7 +205,7 @@ pub struct ASM {
     groups_to_display: HashSet<u32>,
 }
 
-impl Sender {
+impl<'a> Sender<'a> {
     /// Construct a new V3 message sender. The `client` parameter is optional and `None` uses the
     /// default. If you provide your own configured Client, you must call [Sender::get_headers] and
     /// set the returned value as default headers.
@@ -222,14 +223,14 @@ impl Sender {
     ///     Ok(())
     /// }
     /// ```
-    pub fn new(api_key: String, client: Option<Client>) -> Sender {
-        let client = client.unwrap_or(clients::new_client(&api_key));
+    pub fn new(api_key: &str, client: Option<Client>) -> Self {
+        let client = client.unwrap_or(clients::new_client(api_key));
 
-        Sender {
+        Self {
             client,
             #[cfg(feature = "blocking")]
-            blocking_client: clients::new_blocking_client(&api_key),
-            host: V3_API_URL.to_string(),
+            blocking_client: clients::new_blocking_client(api_key),
+            host: V3_API_URL,
         }
     }
 
@@ -251,23 +252,20 @@ impl Sender {
     /// }
     /// ```
     #[cfg(feature = "blocking")]
-    pub fn new_blocking(
-        api_key: String,
-        blocking_client: Option<reqwest::blocking::Client>,
-    ) -> Sender {
-        let blocking_client = blocking_client.unwrap_or(clients::new_blocking_client(&api_key));
-        Sender {
-            client: clients::new_client(&api_key),
+    pub fn new_blocking(api_key: &str, blocking_client: Option<reqwest::blocking::Client>) -> Self {
+        let blocking_client = blocking_client.unwrap_or(clients::new_blocking_client(api_key));
+        Self {
+            client: clients::new_client(api_key),
             #[cfg(feature = "blocking")]
             blocking_client,
-            host: V3_API_URL.to_string(),
+            host: V3_API_URL,
         }
     }
 
     /// Sets the host to use for the API. This is useful if you are using a proxy or a local
     /// development server. It should be a full URL, including the protocol.
-    pub fn set_host<S: Into<String>>(&mut self, host: S) {
-        self.host = host.into();
+    pub fn set_host(&mut self, host: &'a str) {
+        self.host = host;
     }
 
     /// Configure the necessary headers to send an API request.
@@ -285,10 +283,10 @@ impl Sender {
     }
 
     /// Send a V3 message and return the HTTP response or an error.
-    pub async fn send(&self, mail: &Message) -> SendgridResult<Response> {
+    pub async fn send(&self, mail: &Message<'a>) -> SendgridResult<Response> {
         let resp = self
             .client
-            .post(&self.host)
+            .post(self.host)
             .body(mail.gen_json())
             .send()
             .await?;
@@ -302,10 +300,10 @@ impl Sender {
 
     #[cfg(feature = "blocking")]
     /// Send a V3 message and return the HTTP response or an error.
-    pub fn blocking_send(&self, mail: &Message) -> SendgridResult<BlockingResponse> {
+    pub fn blocking_send(&self, mail: &Message<'a>) -> SendgridResult<BlockingResponse> {
         let body = mail.gen_json();
 
-        let resp = self.blocking_client.post(&self.host).body(body).send()?;
+        let resp = self.blocking_client.post(self.host).body(body).send()?;
 
         if resp.error_for_status_ref().is_err() {
             return Err(RequestNotSuccessful::new(resp.status(), resp.text()?).into());
@@ -315,12 +313,12 @@ impl Sender {
     }
 }
 
-impl Message {
+impl<'a> Message<'a> {
     /// Construct a new V3 message.
-    pub fn new(from: Email) -> Message {
-        Message {
+    pub fn new(from: Email<'a>) -> Self {
+        Self {
             from,
-            subject: String::new(),
+            subject: "",
             personalizations: Vec::new(),
             reply_to: None,
             content: None,
@@ -335,63 +333,61 @@ impl Message {
     }
 
     /// Set the from address.
-    pub fn set_from(mut self, from: Email) -> Message {
+    pub fn set_from(mut self, from: Email<'a>) -> Self {
         self.from = from;
         self
     }
 
     /// Set the Reply-To header.
-    pub fn set_reply_to(mut self, reply_to: Email) -> Message {
+    pub fn set_reply_to(mut self, reply_to: Email<'a>) -> Self {
         self.reply_to = Some(reply_to);
         self
     }
 
     /// Set the subject.
-    pub fn set_subject(mut self, subject: &str) -> Message {
-        self.subject = String::from(subject);
+    pub fn set_subject(mut self, subject: &'a str) -> Self {
+        self.subject = subject;
         self
     }
 
     /// Set the template id.
-    pub fn set_template_id(mut self, template_id: &str) -> Message {
-        self.template_id = Some(String::from(template_id));
+    pub fn set_template_id(mut self, template_id: &'a str) -> Self {
+        self.template_id = Some(template_id);
         self
     }
 
     /// Set the IP pool name.
-    pub fn set_ip_pool_name(mut self, ip_pool_name: &str) -> Message {
-        self.ip_pool_name = Some(String::from(ip_pool_name));
+    pub fn set_ip_pool_name(mut self, ip_pool_name: &'a str) -> Self {
+        self.ip_pool_name = Some(ip_pool_name);
         self
     }
 
     /// Set tracking settings.
-    pub fn set_tracking_settings(mut self, tracking_settings: TrackingSettings) -> Message {
+    pub fn set_tracking_settings(mut self, tracking_settings: TrackingSettings<'a>) -> Self {
         self.tracking_settings = Some(tracking_settings);
         self
     }
 
     /// Set unsubscribe settings.
-    pub fn set_asm(mut self, asm: ASM) -> Message {
+    pub fn set_asm(mut self, asm: ASM) -> Self {
         self.asm = Some(asm);
         self
     }
 
     /// Set mail settings.
-    pub fn set_mail_settings(mut self, mail_settings: MailSettings) -> Message {
+    pub fn set_mail_settings(mut self, mail_settings: MailSettings) -> Self {
         self.mail_settings = Some(mail_settings);
         self
     }
 
     /// Add a category.
-    pub fn add_category(mut self, category: &str) -> Message {
-        self.categories
-            .get_or_insert_with(Vec::new)
-            .push(String::from(category));
+    pub fn add_category(mut self, category: &'a str) -> Self {
+        self.categories.get_or_insert_with(Vec::new).push(category);
         self
     }
 
     /// Add multiple categories.
-    pub fn add_categories(mut self, categories: &[String]) -> Message {
+    pub fn add_categories(mut self, categories: &[&'a str]) -> Self {
         self.categories
             .get_or_insert_with(Vec::new)
             .extend_from_slice(categories);
@@ -399,19 +395,19 @@ impl Message {
     }
 
     /// Add content to the message.
-    pub fn add_content(mut self, c: Content) -> Message {
+    pub fn add_content(mut self, c: Content<'a>) -> Self {
         self.content.get_or_insert_with(Vec::new).push(c);
         self
     }
 
     /// Add a personalization to the message.
-    pub fn add_personalization(mut self, p: Personalization) -> Message {
+    pub fn add_personalization(mut self, p: Personalization<'a>) -> Self {
         self.personalizations.push(p);
         self
     }
 
     /// Add an attachment to the message.
-    pub fn add_attachment(mut self, a: Attachment) -> Message {
+    pub fn add_attachment(mut self, a: Attachment<'a>) -> Self {
         self.attachments.get_or_insert_with(Vec::new).push(a);
         self
     }
@@ -421,7 +417,7 @@ impl Message {
     }
 }
 
-impl Email {
+impl<'a> Email<'a> {
     /// Construct a new email type with name set as None.
     ///
     /// ```rust
@@ -429,11 +425,8 @@ impl Email {
     ///
     /// let my_email = Email::new("test@mail.com");
     /// ```
-    pub fn new<S: Into<String>>(email: S) -> Email {
-        Email {
-            email: email.into(),
-            name: None,
-        }
+    pub fn new(email: &'a str) -> Self {
+        Self { email, name: None }
     }
 
     /// Set an optional name.
@@ -443,56 +436,56 @@ impl Email {
     ///
     /// let my_email = Email::new("test@mail.com").set_name("My Name");
     /// ```
-    pub fn set_name<S: Into<String>>(mut self, name: S) -> Email {
-        self.name = Some(name.into());
+    pub fn set_name(mut self, name: &'a str) -> Self {
+        self.name = Some(name);
         self
     }
 }
 
-impl Content {
+impl<'a> Content<'a> {
     /// Construct a new content type.
-    pub fn new() -> Content {
-        Content::default()
+    pub fn new() -> Self {
+        Self::default()
     }
 
     /// Set the type of this content.
-    pub fn set_content_type<S: Into<String>>(mut self, content_type: S) -> Content {
-        self.content_type = content_type.into();
+    pub fn set_content_type(mut self, content_type: &'a str) -> Self {
+        self.content_type = content_type;
         self
     }
 
     /// Set the corresponding message for this content.
-    pub fn set_value<S: Into<String>>(mut self, value: S) -> Content {
-        self.value = value.into();
+    pub fn set_value(mut self, value: &'a str) -> Self {
+        self.value = value;
         self
     }
 }
 
-impl Personalization {
+impl<'a> Personalization<'a> {
     /// Construct a new personalization block for this message with a single to address.
-    pub fn new(email: Email) -> Personalization {
-        Personalization {
+    pub fn new(email: Email<'a>) -> Self {
+        Self {
             to: vec![email],
             ..Default::default()
         }
     }
 
     /// Construct a new personalization block for this message with more than one address.
-    pub fn new_many(email: Vec<Email>) -> Personalization {
-        Personalization {
+    pub fn new_many(email: Vec<Email<'a>>) -> Self {
+        Self {
             to: email,
             ..Default::default()
         }
     }
 
     /// Add a to field.
-    pub fn add_to(mut self, to: Email) -> Personalization {
+    pub fn add_to(mut self, to: Email<'a>) -> Self {
         self.to.push(to);
         self
     }
 
     /// Add a CC field.
-    pub fn add_cc(mut self, cc: Email) -> Personalization {
+    pub fn add_cc(mut self, cc: Email<'a>) -> Self {
         self.cc
             .get_or_insert_with(|| Vec::with_capacity(1))
             .push(cc);
@@ -500,7 +493,7 @@ impl Personalization {
     }
 
     /// Add a BCC field.
-    pub fn add_bcc(mut self, bcc: Email) -> Personalization {
+    pub fn add_bcc(mut self, bcc: Email<'a>) -> Self {
         self.bcc
             .get_or_insert_with(|| Vec::with_capacity(1))
             .push(bcc);
@@ -508,7 +501,7 @@ impl Personalization {
     }
 
     /// Add a headers field.
-    pub fn add_headers(mut self, headers: SGMap) -> Personalization {
+    pub fn add_headers(mut self, headers: &SGMap<'a>) -> Self {
         self.headers
             .get_or_insert_with(|| SGMap::with_capacity(headers.len()))
             .extend(headers);
@@ -516,7 +509,7 @@ impl Personalization {
     }
 
     /// Add a custom_args field.
-    pub fn add_custom_args(mut self, custom_args: SGMap) -> Personalization {
+    pub fn add_custom_args(mut self, custom_args: &SGMap<'a>) -> Self {
         self.custom_args
             .get_or_insert_with(|| SGMap::with_capacity(custom_args.len()))
             .extend(custom_args);
@@ -524,7 +517,7 @@ impl Personalization {
     }
 
     /// Add a substitutions field.
-    pub fn add_substitutions(mut self, substitutions: SGMap) -> Personalization {
+    pub fn add_substitutions(mut self, substitutions: &SGMap<'a>) -> Self {
         self.substitutions
             .get_or_insert_with(|| SGMap::with_capacity(substitutions.len()))
             .extend(substitutions);
@@ -532,7 +525,7 @@ impl Personalization {
     }
 
     /// Add a dynamic template data field.
-    pub fn add_dynamic_template_data(mut self, dynamic_template_data: SGMap) -> Personalization {
+    pub fn add_dynamic_template_data(mut self, dynamic_template_data: &SGMap<'a>) -> Self {
         // We can safely unwrap & unreachable here since SGMap will always serialize
         // to a JSON object.
         let new_vals = match to_value(dynamic_template_data).unwrap() {
@@ -549,7 +542,7 @@ impl Personalization {
     pub fn add_dynamic_template_data_json<T: Serialize + ?Sized>(
         mut self,
         json_object: &T,
-    ) -> SendgridResult<Personalization> {
+    ) -> SendgridResult<Self> {
         let new_vals = match to_value(json_object)? {
             Object(map) => map,
             _ => return Err(SendgridError::InvalidTemplateValue),
@@ -561,57 +554,57 @@ impl Personalization {
     }
 
     /// Set the subject.
-    pub fn set_subject(mut self, subject: &str) -> Personalization {
-        self.subject = Some(String::from(subject));
+    pub fn set_subject(mut self, subject: &'a str) -> Self {
+        self.subject = Some(subject);
         self
     }
 
     /// Set send at.
-    pub fn set_send_at(mut self, send_at: u64) -> Personalization {
+    pub fn set_send_at(mut self, send_at: u64) -> Self {
         self.send_at = Some(send_at);
         self
     }
 }
 
-impl Attachment {
+impl<'a> Attachment<'a> {
     /// Construct a new attachment for this message.
-    pub fn new() -> Attachment {
-        Attachment::default()
+    pub fn new() -> Self {
+        Self::default()
     }
 
     /// The raw body of the attachment.
-    pub fn set_content(mut self, c: &[u8]) -> Attachment {
-        self.content = BASE64.encode(c);
+    pub fn set_content(mut self, c: &'a [u8]) -> Self {
+        self.content = BASE64.encode(c).into();
         self
     }
 
     /// The base64 body of the attachment.
-    pub fn set_base64_content<S: Into<String>>(mut self, c: S) -> Attachment {
+    pub fn set_base64_content(mut self, c: &'a str) -> Self {
         self.content = c.into();
         self
     }
 
     /// Sets the filename for the attachment.
-    pub fn set_filename<S: Into<String>>(mut self, filename: S) -> Attachment {
-        self.filename = filename.into();
+    pub fn set_filename(mut self, filename: &'a str) -> Self {
+        self.filename = filename;
         self
     }
 
     /// Set an optional mime type. Sendgrid will default to 'application/octet-stream'
     /// if unspecified.
-    pub fn set_mime_type<S: Into<String>>(mut self, mime: S) -> Attachment {
-        self.mime_type = Some(mime.into());
+    pub fn set_mime_type(mut self, mime: &'a str) -> Self {
+        self.mime_type = Some(mime);
         self
     }
 
     /// Set an optional content id.
-    pub fn set_content_idm<S: Into<String>>(mut self, content_id: S) -> Attachment {
-        self.content_id = Some(content_id.into());
+    pub fn set_content_idm(mut self, content_id: &'a str) -> Self {
+        self.content_id = Some(content_id);
         self
     }
 
     /// Set an optional disposition.
-    pub fn set_disposition(mut self, disposition: Disposition) -> Attachment {
+    pub fn set_disposition(mut self, disposition: Disposition) -> Self {
         self.disposition = Some(disposition);
         self
     }
@@ -737,10 +730,7 @@ mod tests {
     fn multiple_categories() {
         let json_str_add_vec = Message::new(Email::new("from_email@test.com"))
             .add_personalization(Personalization::new(Email::new("to_email@test.com")))
-            .add_categories(&[
-                String::from("test_category1"),
-                String::from("test_category2"),
-            ])
+            .add_categories(&["test_category1", "test_category2"])
             .gen_json();
         let json_str_multiple_adds = Message::new(Email::new("from_email@test.com"))
             .add_personalization(Personalization::new(Email::new("to_email@test.com")))
@@ -750,7 +740,7 @@ mod tests {
         let json_str_vec_and_single = Message::new(Email::new("from_email@test.com"))
             .add_personalization(Personalization::new(Email::new("to_email@test.com")))
             .add_category("test_category1")
-            .add_categories(&[String::from("test_category2")])
+            .add_categories(&["test_category2"])
             .gen_json();
 
         let expected = r#"{"from":{"email":"from_email@test.com"},"subject":"","personalizations":[{"to":[{"email":"to_email@test.com"}]}],"categories":["test_category1","test_category2"]}"#;
@@ -764,14 +754,9 @@ mod tests {
         let json_str = Message::new(Email::new("from_email@test.com"))
             .add_personalization(
                 Personalization::new(Email::new("to_email@test.com")).add_dynamic_template_data(
-                    [
-                        ("Norway".to_string(), "100".to_string()),
-                        ("Denmark".to_string(), "50".to_string()),
-                        ("Iceland".to_string(), "10".to_string()),
-                    ]
-                    .iter()
-                    .cloned()
-                    .collect(),
+                    &[("Norway", "100"), ("Denmark", "50"), ("Iceland", "10")]
+                        .into_iter()
+                        .collect(),
                 ),
             )
             .gen_json();
