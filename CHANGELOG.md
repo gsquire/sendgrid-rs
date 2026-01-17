@@ -7,6 +7,7 @@
 - The rustls feature is removed.
 - `reqwest` was updated to 0.13.
 - `date-encoding` was updated to 2.10.
+- Actually allow TLS provider selection for V3 clients.
 
 ## 0.25.0 - 2026-01-10
 
