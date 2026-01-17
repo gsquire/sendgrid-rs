@@ -6,14 +6,9 @@ jobs:
   check:
     name: test
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        runtime: ["blocking", "default"]
-        tls: ["native-tls", "rustls"]
-        
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
       - name: Install stable toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -22,10 +17,16 @@ jobs:
         run: cargo fmt --all -- --check
 
       - name: Check clippy
-        run: cargo clippy --features ${{ matrix.runtime }},${{ matrix.tls }} -- -D warnings
+        run: cargo clippy -- -D warnings
 
-      - name: Test with ${{ matrix.runtime }} and ${{ matrix.tls }}
-        run: cargo test --features ${{ matrix.runtime }},${{ matrix.tls }}
-
-      - name: Async test
+      - name: Test async and rustls
         run: cargo test
+
+      - name: Test async and native-tls
+        run: cargo test --features native-tls
+
+      - name: Test blocking and rustls
+        run: cargo test --features blocking
+
+      - name: Test blocking and native-tls
+        run: cargo test --features blocking,native-tls

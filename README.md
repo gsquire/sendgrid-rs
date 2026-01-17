@@ -19,14 +19,14 @@ sendgrid = "X.X.X"
 ```
 
 ## Build Dependencies
-This library utilises [reqwest](https://crates.io/crates/reqwest). Follow the instructions on the
+This library utilizes [reqwest](https://crates.io/crates/reqwest). Follow the instructions on the
 [reqwest README](https://github.com/seanmonstar/reqwest#requirements) in order to enable sending HTTPS
 requests to the SendGrid API.
 
 ## Features
 You can take advantage of a couple features for the crate. To enable the blocking send function, you
-can use the `blocking` flag. To enable the [rustls](https://github.com/rustls/rustls) TLS feature,
-use the `rustls` flag.
+can use the `blocking` flag. To use your operating system's [TLS implementation](https://github.com/sfackler/rust-native-tls),
+enable the `native-tls` feature.
 
 ## Example
 An example of using this library can be found in the examples directory. This example code expects to
