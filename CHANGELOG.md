@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.26.0 - 2026-01-17
+
+### Changed
+
+- The rustls feature is removed.
+- `reqwest` was updated to 0.13.
+- `date-encoding` was updated to 2.10.
+
 ## 0.25.0 - 2026-01-10
 
 ### Changed

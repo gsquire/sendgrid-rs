@@ -80,8 +80,8 @@ impl SGClient {
     /// RustTLS backend, this can never panic because RustTLS is statically linked.
     pub fn new<S: Into<String>>(key: S) -> SGClient {
         let async_builder = reqwest::ClientBuilder::new();
-        #[cfg(feature = "rustls")]
-        let async_builder = async_builder.use_rustls_tls();
+        #[cfg(feature = "native-tls")]
+        let async_builder = async_builder.tls_backend_native();
         let client = async_builder.build().unwrap();
 
         #[cfg(feature = "blocking")]
@@ -90,8 +90,8 @@ impl SGClient {
         #[cfg(feature = "blocking")]
         {
             let blocking_builder = reqwest::blocking::ClientBuilder::new();
-            #[cfg(feature = "rustls")]
-            let blocking_builder = blocking_builder.use_rustls_tls();
+            #[cfg(feature = "native-tls")]
+            let blocking_builder = blocking_builder.tls_backend_native();
             blocking_client = blocking_builder.build().unwrap();
         }
 

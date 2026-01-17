@@ -20,14 +20,12 @@
 //!
 //! # Features
 //! The projects has the following feature flags:
-//! * `rustls`: this feature flag switches the default SSL provider in the operating system (usually
-//!   OpenSSL) with RusTLS, which is a TLS implementation in Rust.
-//! * `native-tls`: enabled by default, this feature flag enabled the default SSL provider in the
-//!   operating system (usually OpenSSL).
+//! * `native-tls`: disabled by default, this feature flag enables the default SSL provider in the
+//!   operating system.
 //! * `blocking`: this feature flag allows you to construct a synchronous `SGClient`.
 //!
 //! ## Build Dependencies
-//! This library utilises [reqwest](https://crates.io/crates/reqwest). Follow the instructions on
+//! This library utilizes [reqwest](https://crates.io/crates/reqwest). Follow the instructions on
 //! the [reqwest README](https://github.com/seanmonstar/reqwest#requirements) in order to enable
 //! sending HTTPS requests to the SendGrid API.
 //!
