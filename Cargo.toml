@@ -13,7 +13,7 @@ readme = "README.md"
 
 [dependencies]
 data-encoding = "2.10"
-reqwest = { version = "0.13", default-features = false, features = ["json", "rustls"] }
+reqwest = { version = "0.13", default-features = false, features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "2.0"
@@ -23,6 +23,7 @@ url = "2.5"
 tokio = { version = "1", features = ["full"] }
 
 [features]
+default = ["reqwest/rustls"]
 blocking = ["reqwest/blocking"]
 native-tls = ["reqwest/native-tls"]
 
