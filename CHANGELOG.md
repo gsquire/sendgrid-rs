@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.27.0 - 2026-02-02
+
+### Changed
+
+- We no longer disable default features for the reqwest crate. This should have been fixed in 0.26.0.
+
 ## 0.26.0 - 2026-01-17
 
 ### Changed
