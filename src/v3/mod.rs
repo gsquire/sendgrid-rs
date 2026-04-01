@@ -98,6 +98,9 @@ pub struct Message<'a> {
     reply_to: Option<Email<'a>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
+    reply_to_list: Option<Vec<Email<'a>>>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     content: Option<Vec<Content<'a>>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -321,6 +324,7 @@ impl<'a> Message<'a> {
             subject: "",
             personalizations: Vec::new(),
             reply_to: None,
+            reply_to_list: None,
             content: None,
             attachments: None,
             template_id: None,
@@ -341,6 +345,20 @@ impl<'a> Message<'a> {
     /// Set the Reply-To header.
     pub fn set_reply_to(mut self, reply_to: Email<'a>) -> Self {
         self.reply_to = Some(reply_to);
+        self
+    }
+
+    /// Set the Reply-To list, allowing multiple reply-to addresses.
+    pub fn set_reply_to_list(mut self, reply_to_list: Vec<Email<'a>>) -> Self {
+        self.reply_to_list = Some(reply_to_list);
+        self
+    }
+
+    /// Add a single address to the Reply-To list.
+    pub fn add_reply_to(mut self, reply_to: Email<'a>) -> Self {
+        self.reply_to_list
+            .get_or_insert_with(Vec::new)
+            .push(reply_to);
         self
     }
 
@@ -802,6 +820,30 @@ mod tests {
             )
             .gen_json();
         let expected = r#"{"from":{"email":"from_email@test.com"},"subject":"","personalizations":[{"to":[{"email":"to_email@test.com"}]}],"asm":{"group_id":123,"groups_to_display":[123]}}"#;
+        assert_eq!(json_str, expected);
+    }
+
+    #[test]
+    fn reply_to_list() {
+        let json_str = Message::new(Email::new("from_email@test.com"))
+            .add_personalization(Personalization::new(Email::new("to_email@test.com")))
+            .set_reply_to_list(vec![
+                Email::new("reply1@test.com").set_name("Reply One"),
+                Email::new("reply2@test.com"),
+            ])
+            .gen_json();
+        let expected = r#"{"from":{"email":"from_email@test.com"},"subject":"","personalizations":[{"to":[{"email":"to_email@test.com"}]}],"reply_to_list":[{"email":"reply1@test.com","name":"Reply One"},{"email":"reply2@test.com"}]}"#;
+        assert_eq!(json_str, expected);
+    }
+
+    #[test]
+    fn add_reply_to() {
+        let json_str = Message::new(Email::new("from_email@test.com"))
+            .add_personalization(Personalization::new(Email::new("to_email@test.com")))
+            .add_reply_to(Email::new("reply1@test.com"))
+            .add_reply_to(Email::new("reply2@test.com"))
+            .gen_json();
+        let expected = r#"{"from":{"email":"from_email@test.com"},"subject":"","personalizations":[{"to":[{"email":"to_email@test.com"}]}],"reply_to_list":[{"email":"reply1@test.com"},{"email":"reply2@test.com"}]}"#;
         assert_eq!(json_str, expected);
     }
 
