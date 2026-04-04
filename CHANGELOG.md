@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.27.1 - 2026-04-03
+
+### Added
+
+- Reply-To is now supported as part of #130.
+
 ## 0.27.0 - 2026-02-02
 
 ### Changed
