@@ -149,6 +149,9 @@ pub struct Personalization<'a> {
     bcc: Option<Vec<Email<'a>>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
+    from: Option<Email<'a>>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     subject: Option<&'a str>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -515,6 +518,12 @@ impl<'a> Personalization<'a> {
         self.bcc
             .get_or_insert_with(|| Vec::with_capacity(1))
             .push(bcc);
+        self
+    }
+
+    /// Set from.
+    pub fn set_from(mut self, from: Email<'a>) -> Self {
+        self.from = Some(from);
         self
     }
 
