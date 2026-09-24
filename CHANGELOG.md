@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.27.2 - 2026-09-23
+
+### Added
+
+- Add From in the Personalization type in #132.
+
 ## 0.27.1 - 2026-04-03
 
 ### Added
